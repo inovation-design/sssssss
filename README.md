@@ -62,9 +62,9 @@ npm run server
 Vercelにはゲーム画面をデプロイし、Socket.IOサーバーはNode.jsを常時実行できるホストに別途デプロイします。現在のルームとプレイヤー状態はNodeサーバーのメモリにあるため、Vercel Functionsの複数インスタンスで直接動かす構成にはしていません。VercelのWebSocket対応だけではインスタンス間でルーム状態を共有できず、Redisなどの共有ストアが必要です。
 
 1. このプロジェクトをGitHubリポジトリにpushします。
-2. Node.js対応ホストで同じリポジトリをデプロイし、起動コマンドを `npm start` にします。発行されたHTTPS URLを控えます。
+2. Renderで `New > Web Service` を選び、同じリポジトリを接続します。Build Commandは `npm ci && npm run build`、Start Commandは `npm start`、Health Check Pathは `/api/health` にします。発行されたHTTPS URLを控えます。RenderはWebSocket接続を受け付けます。
 3. VercelでGitHubリポジトリをImportします。Build Commandは `npm run build`、Output Directoryは `dist` です（`vercel.json` に設定済み）。
 4. VercelのEnvironment Variablesに `VITE_GAME_SERVER_URL` を追加し、手順2のサーバーURLを設定します（例: `https://your-game-server.example.com`）。
-5. Vercelで再デプロイします。公開URLを開き、複数端末から同じ4桁ルームに参加できることを確認します。
+5. Vercelで再デプロイします。公開URLを開き、複数端末から同じ4桁ルームに参加できることを確認します。Renderの無料Web Serviceは15分間利用がないと休止するため、起動時に待ち時間が出ることがあります。
 
 画像解析APIも使う場合は、`GEMINI_API_KEY` をNode.jsホストの環境変数に設定してください。APIキーをソースコードやVercelのフロントエンド環境変数に置かないでください。
