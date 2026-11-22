@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+.vercel
+.continue/
+.git/
+old-app/
+.backup-current-repeat-loss.sql
+PUBLIC_URL.txt
+bin/
+*.log
