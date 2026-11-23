@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+ <linearGradient id="board" x2="0" y2="1"><stop stop-color="#17246b"/><stop offset="1" stop-color="#101951"/></linearGradient>
+ <linearGradient id="red" x2="0" y2="1"><stop stop-color="#ff6b59"/><stop offset="1" stop-color="#c92d2d"/></linearGradient>
+ <linearGradient id="yellow" x2="0" y2="1"><stop stop-color="#ffe66b"/><stop offset="1" stop-color="#f3ad32"/></linearGradient>
+ <linearGradient id="green" x2="0" y2="1"><stop stop-color="#7be75e"/><stop offset="1" stop-color="#39a946"/></linearGradient>
+ <linearGradient id="blue" x2="0" y2="1"><stop stop-color="#638bff"/><stop offset="1" stop-color="#2845c7"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur in="SourceAlpha" stdDeviation="5"/><feOffset dy="6"/><feComponentTransfer><feFuncA type="linear" slope=".45"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <clipPath id="round"><rect x="0" y="0" width="512" height="512" rx="112"/></clipPath>
+</defs>
+<g clip-path="url(#round)"><rect width="512" height="512" fill="url(#board)"/>
+<!-- grid cells behind the bright blocks -->
+<g fill="none" stroke="#090f42" stroke-width="8" opacity=".7"><path d="M0 128h512M0 256h512M0 384h512M128 0v512M256 0v512M384 0v512"/></g>
+<!-- red blocks -->
+<g stroke="#82272d" stroke-width="5"><path fill="url(#red)" d="M0 0h128v128H0z"/><path fill="url(#red)" d="M128 0h128v64h-64v64h-64z"/><path fill="url(#red)" d="M0 128h128v128H0z"/></g>
+<!-- green blocks -->
+<g stroke="#267f3b" stroke-width="5"><path fill="url(#green)" d="M0 256h128v128H0z"/><path fill="url(#green)" d="M128 256h128v128H128z"/><path fill="url(#green)" d="M0 384h128v128H0z"/><path fill="url(#green)" d="M128 384h128v128H128z"/></g>
+<!-- blue blocks -->
+<g stroke="#24348b" stroke-width="5"><path fill="url(#blue)" d="M384 256h128v128H384z"/><path fill="url(#blue)" d="M256 384h128v128H256z"/><path fill="url(#blue)" d="M384 384h128v128H384z"/></g>
+<!-- yellow L piece in front -->
+<g filter="url(#shadow)" stroke="#a35d24" stroke-width="6" stroke-linejoin="round"><path fill="url(#yellow)" d="M176 72h112v112H176z"/><path fill="url(#yellow)" d="M288 72h112v112H288z"/><path fill="url(#yellow)" d="M288 184h112v112H288z"/></g>
+<!-- subtle top highlights -->
+<g fill="#fff" opacity=".16"><path d="M8 8h112v8H8zM136 8h112v8h-8v48h-8V16h-8v48h-8V16h-8v48h-8V16h-8v48h-8V16h-8z"/><path d="M8 136h8v112H8zM8 264h8v112H8zM264 392h112v8H264z"/></g>
+</g></svg>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ブロックブラスト</title>
+<meta name="theme-color" content="#161a28">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ブロックブラスト">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+html, body { margin: 0; height: 100%; background: #161a28; color: #fff;
+font-family: system-ui, -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;
+overflow: hidden; -webkit-text-size-adjust: 100%; }
+#wrap { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;
+align-items: center; justify-content: center; }
+#hud { width: min(100vw, 460px); box-sizing: border-box; padding: 10px 16px; display: flex;
+justify-content: space-between; align-items: flex-end; }
+#score { font-size: 30px; font-weight: 700; transform-origin: left center; }
+#best { font-size: 14px; opacity: .7; }
+#hud .label { font-size: 12px; opacity: .6; }
+canvas { display: block; width: min(100vw, 460px); height: auto; aspect-ratio: 460 / 600;
+touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+#over { position: absolute; inset: 0; background: rgba(10, 12, 20, .75); display: none;
+flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+#over.show { display: flex; }
+#over h2 { margin: 0; font-size: 28px; }
+#over p { margin: 0; font-size: 18px; }
+button { font-size: 18px; padding: 12px 32px; border: 0; border-radius: 12px;
+background: #4f8cff; color: #fff; cursor: pointer; -webkit-appearance: none; }
+button:active { transform: scale(.97); }
+</style>
+</head>
+<body>
+<script>window.onerror=function(m,s,l){var b=document.getElementById('ld');b.style.display='block';b.textContent='エラー: '+m+' (行'+l+')'};</script>
+<div id="ld" style="position:fixed;top:0;left:0;right:0;z-index:9;padding:20px;background:#5a2236;color:#fff;font-size:15px;line-height:1.7">ゲームを起動できませんでした。①URLが途中で切れている ②ファイルプレビューではJavaScriptが動かない のどちらかです。URL全体をコピーして、Safariのアドレスバーに貼り付けて開いてください。</div>
+<div id="wrap">
+<div id="hud">
+<div><div class="label">スコア</div><div id="score">0</div></div>
+<div id="best">ベスト 0</div>
+</div>
+<canvas id="c"></canvas>
+<div id="over">
+<h2>ゲームオーバー</h2>
+<p>スコア <span id="finalScore">0</span></p>
+<button id="restart">もう一度</button>
+</div>
+</div>
+<script>
+document.getElementById('ld').style.display='none';
+(() => {
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+const CW = 460, CH = 600;
+const N = 8, CELL = 50;
+const BX = 30, BY = 20;
+const TRAY_Y = 440;
+const LIFT = 70;
+const TRAY_CELL = 28;
+const SHAPES = [
+[[1]],
+[[1, 1]], [[1], [1]],
+[[1, 1, 1]], [[1], [1], [1]],
+[[1, 1, 1, 1]], [[1], [1], [1], [1]],
+[[1, 1, 1, 1, 1]], [[1], [1], [1], [1], [1]],
+[[1, 1], [1, 1]],
+[[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+[[1, 0], [1, 0], [1, 1]], [[0, 1], [0, 1], [1, 1]],
+[[1, 1], [1, 0], [1, 0]], [[1, 1], [0, 1], [0, 1]],
+[[1, 0], [1, 1]], [[0, 1], [1, 1]], [[1, 1], [1, 0]], [[1, 1], [0, 1]],
+[[1, 1, 1], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]], [[0, 1, 1], [1, 1, 0]],
+[[1, 0, 0], [1, 1, 1]], [[1, 1, 1], [1, 0, 0]],
+[[1, 0, 0], [1, 0, 0], [1, 1, 1]], [[1, 1, 1], [1, 0, 0], [1, 0, 0]],
+[[1, 1, 1], [0, 0, 1], [0, 0, 1]], [[0, 0, 1], [0, 0, 1], [1, 1, 1]],
+];
+const COLORS = ['#ff5d5d', '#ffa73d', '#ffe066', '#6fe07a', '#3fd0c9', '#4f8cff', '#a07bff', '#ff7ac8'];
+const rand = a => a[Math.floor(Math.random() * a.length)];
+const newPiece = () => ({ s: rand(SHAPES), c: rand(COLORS) });
+const now = () => performance.now();
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const DPR = window.devicePixelRatio || 1;
+cv.width = CW * DPR; cv.height = CH * DPR;
+ctx.scale(DPR, DPR);
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+const overEl = document.getElementById('over');
+const finalEl = document.getElementById('finalScore');
+let board, tray, score, drag, best = 0, over = false;
+const fx = { parts: [], flashes: [], texts: [], shake: 0 };
+try { best = Number(localStorage.getItem('blockblast-best')) || 0; } catch (_) {}
+function canPlace(s, gr, gc) {
+for (let i = 0; i < s.length; i++)
+for (let j = 0; j < s[i].length; j++) {
+if (!s[i][j]) continue;
+const r = gr + i, c = gc + j;
+if (r < 0 || c < 0 || r >= N || c >= N || board[r][c]) return false;
+}
+return true;
+}
+function fitsAnywhere(s) {
+for (let r = 0; r < N; r++)
+for (let c = 0; c < N; c++)
+if (canPlace(s, r, c)) return true;
+return false;
+}
+function spawnClear(cells, lines) {
+const t = now();
+cells.forEach(({ r, c, color }) => {
+const x = BX + c * CELL, y = BY + r * CELL;
+fx.flashes.push({ x, y, color, t0: t });
+for (let k = 0; k < 8; k++) {
+const a = Math.random() * Math.PI * 2;
+const sp = 2 + Math.random() * 4.5;
+fx.parts.push({
+x: x + CELL / 2, y: y + CELL / 2,
+vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2,
+life: 1, color, size: 4 + Math.random() * 6,
+});
+}
+});
+const cy = BY + N * CELL / 2;
+fx.texts.push({ x: BX + N * CELL / 2, y: cy, str: '+' + lines * 100, t0: t });
+if (lines > 1) fx.texts.push({ x: BX + N * CELL / 2, y: cy - 36, str: lines + 'ライン！', t0: t + 80 });
+fx.shake = Math.min(14, 6 + lines * 3);
+}
+function place(p, gr, gc) {
+let cells = 0;
+p.s.forEach((row, i) => row.forEach((v, j) => {
+if (v) { board[gr + i][gc + j] = p.c; cells++; }
+}));
+score += cells * 10;
+const rows = [], cols = [];
+for (let r = 0; r < N; r++) if (board[r].every(v => v)) rows.push(r);
+for (let c = 0; c < N; c++) if (board.every(row => row[c])) cols.push(c);
+const toClear = new Map();
+rows.forEach(r => { for (let c = 0; c < N; c++) toClear.set(r * N + c, { r, c, color: board[r][c] }); });
+cols.forEach(c => { for (let r = 0; r < N; r++) if (board[r][c]) toClear.set(r * N + c, { r, c, color: board[r][c] }); });
+const lines = rows.length + cols.length;
+if (lines) {
+score += lines * 100;
+spawnClear([...toClear.values()], lines);
+toClear.forEach(({ r, c }) => { board[r][c] = null; });
+}
+if (score > best) best = score;
+bump();
+}
+function refillTray() {
+tray = [newPiece(), newPiece(), newPiece()];
+}
+function newGame() {
+board = Array.from({ length: N }, () => Array(N).fill(null));
+score = 0;
+drag = null;
+over = false;
+fx.parts = []; fx.flashes = []; fx.texts = []; fx.shake = 0;
+refillTray();
+overEl.classList.remove('show');
+updateHUD();
+}
+function updateHUD() {
+scoreEl.textContent = score;
+bestEl.textContent = 'ベスト ' + best;
+}
+function bump() {
+updateHUD();
+if (scoreEl.animate) scoreEl.animate(
+[{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' });
+}
+function endGame() {
+over = true;
+try { localStorage.setItem('blockblast-best', String(best)); } catch (_) {}
+updateHUD();
+finalEl.textContent = score;
+setTimeout(() => overEl.classList.add('show'), 500);
+}
+function toLogical(clientX, clientY) {
+const r = cv.getBoundingClientRect();
+return { x: (clientX - r.left) * CW / r.width, y: (clientY - r.top) * CH / r.height };
+}
+function trayHit(p) {
+if (p.y < TRAY_Y) return -1;
+const i = Math.floor(p.x / (CW / 3));
+return i >= 0 && i < 3 ? i : -1;
+}
+function dropTarget() {
+const s = tray[drag.idx].s;
+const cx = drag.x, cy = drag.y - LIFT;
+const x0 = cx - s[0].length * CELL / 2;
+const y0 = cy - s.length * CELL / 2;
+return { gc: Math.round((x0 - BX) / CELL), gr: Math.round((y0 - BY) / CELL) };
+}
+function onDown(clientX, clientY) {
+if (over || drag) return;
+const p = toLogical(clientX, clientY);
+const i = trayHit(p);
+if (i < 0 || !tray[i]) return;
+drag = { idx: i, x: p.x, y: p.y };
+}
+function onMove(clientX, clientY) {
+if (!drag) return;
+const p = toLogical(clientX, clientY);
+drag.x = p.x; drag.y = p.y;
+}
+function release(commit) {
+if (!drag) return;
+if (commit) {
+const { gr, gc } = dropTarget();
+const piece = tray[drag.idx];
+if (canPlace(piece.s, gr, gc)) {
+place(piece, gr, gc);
+tray[drag.idx] = null;
+if (tray.every(t => !t)) refillTray();
+drag = null;
+if (!tray.some(t => t && fitsAnywhere(t.s))) endGame();
+return;
+}
+}
+drag = null;
+}
+if (window.PointerEvent) {
+cv.addEventListener('pointerdown', e => {
+onDown(e.clientX, e.clientY);
+if (drag) try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+});
+window.addEventListener('pointermove', e => onMove(e.clientX, e.clientY));
+window.addEventListener('pointerup', () => release(true));
+window.addEventListener('pointercancel', () => release(false));
+} else {
+cv.addEventListener('touchstart', e => { const t = e.touches[0]; onDown(t.clientX, t.clientY); }, { passive: true });
+window.addEventListener('touchmove', e => { const t = e.touches[0]; onMove(t.clientX, t.clientY); }, { passive: true });
+window.addEventListener('touchend', () => release(true));
+window.addEventListener('touchcancel', () => release(false));
+}
+document.getElementById('restart').addEventListener('click', newGame);
+function roundRect(x, y, w, h, r) {
+ctx.beginPath();
+ctx.moveTo(x + r, y);
+ctx.arcTo(x + w, y, x + w, y + h, r);
+ctx.arcTo(x + w, y + h, x, y + h, r);
+ctx.arcTo(x, y + h, x, y, r);
+ctx.arcTo(x, y, x + w, y, r);
+ctx.closePath();
+}
+function drawBlock(x, y, size, color, alpha = 1) {
+ctx.globalAlpha = alpha;
+ctx.fillStyle = color;
+roundRect(x + 2, y + 2, size - 4, size - 4, Math.max(3, size * 0.12));
+ctx.fill();
+ctx.fillStyle = 'rgba(255,255,255,.22)';
+roundRect(x + 4, y + 4, size - 8, (size - 8) * 0.35, 3);
+ctx.fill();
+ctx.globalAlpha = 1;
+}
+function drawPieceAt(s, color, cx, cy, size, alpha = 1) {
+const x0 = cx - s[0].length * size / 2;
+const y0 = cy - s.length * size / 2;
+s.forEach((row, i) => row.forEach((v, j) => {
+if (v) drawBlock(x0 + j * size, y0 + i * size, size, color, alpha);
+}));
+}
+function drawEffects(t) {
+fx.flashes = fx.flashes.filter(f => t - f.t0 < 380);
+fx.flashes.forEach(f => {
+const p = (t - f.t0) / 380;
+const s = CELL * (1 + 0.35 * p);
+const off = (s - CELL) / 2;
+drawBlock(f.x - off, f.y - off, s, f.color, 1 - p);
+ctx.globalAlpha = (1 - p) * 0.6;
+ctx.fillStyle = '#fff';
+roundRect(f.x + 3, f.y + 3, CELL - 6, CELL - 6, 6);
+ctx.fill();
+ctx.globalAlpha = 1;
+});
+fx.parts.forEach(p => {
+p.x += p.vx; p.y += p.vy;
+p.vy += 0.22; p.vx *= 0.98;
+p.life -= 0.035;
+});
+fx.parts = fx.parts.filter(p => p.life > 0);
+fx.parts.forEach(p => {
+ctx.globalAlpha = Math.max(0, p.life);
+ctx.fillStyle = p.color;
+const s = p.size * (0.5 + p.life * 0.5);
+roundRect(p.x - s / 2, p.y - s / 2, s, s, s / 3);
+ctx.fill();
+});
+ctx.globalAlpha = 1;
+fx.texts = fx.texts.filter(x => t - x.t0 < 900);
+fx.texts.forEach(x => {
+const dt = t - x.t0;
+if (dt < 0) return;
+const p = dt / 900;
+const pop = dt < 150 ? 1 + 0.4 * Math.sin((dt / 150) * Math.PI) : 1;
+ctx.save();
+ctx.globalAlpha = 1 - p;
+ctx.translate(x.x, x.y - 40 * p);
+ctx.scale(pop, pop);
+ctx.font = '700 30px system-ui, -apple-system, "Hiragino Sans", sans-serif';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.lineWidth = 6;
+ctx.strokeStyle = 'rgba(20,24,38,.8)';
+ctx.strokeText(x.str, 0, 0);
+ctx.fillStyle = '#ffe066';
+ctx.fillText(x.str, 0, 0);
+ctx.restore();
+});
+}
+function draw(t) {
+ctx.save();
+if (fx.shake > 0.3) {
+ctx.translate((Math.random() - 0.5) * fx.shake, (Math.random() - 0.5) * fx.shake);
+fx.shake *= 0.85;
+} else fx.shake = 0;
+ctx.clearRect(-20, -20, CW + 40, CH + 40);
+ctx.fillStyle = '#1f2436';
+roundRect(BX - 8, BY - 8, N * CELL + 16, N * CELL + 16, 14);
+ctx.fill();
+for (let r = 0; r < N; r++)
+for (let c = 0; c < N; c++) {
+const x = BX + c * CELL, y = BY + r * CELL;
+ctx.fillStyle = '#2a3048';
+roundRect(x + 3, y + 3, CELL - 6, CELL - 6, 6);
+ctx.fill();
+if (board[r][c]) drawBlock(x, y, CELL, board[r][c]);
+}
+if (drag) {
+const piece = tray[drag.idx];
+const { gr, gc } = dropTarget();
+if (canPlace(piece.s, gr, gc)) {
+piece.s.forEach((row, i) => row.forEach((v, j) => {
+if (v) drawBlock(BX + (gc + j) * CELL, BY + (gr + i) * CELL, CELL, piece.c, 0.3);
+}));
+}
+}
+const slotW = CW / 3;
+for (let i = 0; i < 3; i++) {
+if (!tray[i]) continue;
+if (drag && drag.idx === i) continue;
+drawPieceAt(tray[i].s, tray[i].c, slotW * i + slotW / 2, TRAY_Y + 80, TRAY_CELL);
+}
+if (drag) {
+const piece = tray[drag.idx];
+drawPieceAt(piece.s, piece.c, drag.x, drag.y - LIFT, CELL, 0.95);
+}
+drawEffects(t);
+ctx.restore();
+}
+function frame(t) {
+draw(t);
+requestAnimationFrame(frame);
+}
+newGame();
+requestAnimationFrame(frame);
+})();
+</script>
+<script>if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error)); }</script>
+</body>
+</html>
+
