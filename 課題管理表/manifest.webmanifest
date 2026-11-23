@@ -1,0 +1,32 @@
+{
+  "id": "/sssssss/",
+  "name": "クラス課題管理表",
+  "short_name": "課題管理",
+  "description": "クラスの課題と週間時間割を確認・管理するアプリです。",
+  "lang": "ja",
+  "start_url": "/sssssss/",
+  "scope": "/sssssss/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#08bec8",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

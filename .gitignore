@@ -13,3 +13,7 @@ old-app/
 PUBLIC_URL.txt
 bin/
 *.log
+.env*
+
+課題管理表/dist/
+課題管理表/node_modules/
