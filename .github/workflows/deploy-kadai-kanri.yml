@@ -8,6 +8,7 @@ on:
       - 'src/firebase.ts'
       - 'package.json'
       - 'package-lock.json'
+      - 'block-blast-pwa/**'
       - '.github/workflows/deploy-kadai-kanri.yml'
   workflow_dispatch:
 
@@ -34,10 +35,15 @@ jobs:
       - name: Build 課題管理表
         working-directory: 課題管理表
         run: npx vite build
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _site
+          cp -r 課題管理表/dist/. _site/
+          cp -r block-blast-pwa _site/block-blast-pwa
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 課題管理表/dist
+          path: _site
 
   deploy:
     needs: build
