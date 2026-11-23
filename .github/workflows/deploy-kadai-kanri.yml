@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'block-blast-pwa/**'
+      - 'sunsun-pages/**'
       - '.github/workflows/deploy-kadai-kanri.yml'
   workflow_dispatch:
 
@@ -40,6 +41,10 @@ jobs:
           mkdir -p _site
           cp -r 課題管理表/dist/. _site/
           cp -r block-blast-pwa _site/block-blast-pwa
+          if [ -d "sunsun-pages" ]; then
+            mkdir -p _site/sunsun
+            cp -r sunsun-pages/. _site/sunsun/
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
