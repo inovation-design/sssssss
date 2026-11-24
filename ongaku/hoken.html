@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>保健 超詳細暗記マスター＆一問一答（病原体・数値・比較表）</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      background-color: #eef4fa;
+      background-image:
+        linear-gradient(to right, rgba(148, 163, 184, 0.22) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.22) 1px, transparent 1px);
+      background-size: 22px 22px;
+      color: #0f172a;
+      padding-bottom: 72px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-form {
+      margin: 0;
+      padding: 0;
+    }
+
+    .state-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 14px;
+    }
+
+    /* クールブルー固定ヘッダー */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: linear-gradient(135deg, #090d16 0%, #172554 55%, #1e3a8a 100%);
+      color: #ffffff;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.45);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+      padding: 12px 0;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      background: rgba(56, 189, 248, 0.18);
+      color: #7dd3fc;
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 6px;
+    }
+
+    .header-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+
+    .header-sub {
+      margin: 3px 0 0;
+      font-size: 11.5px;
+      color: #bfdbfe;
+    }
+
+    /* モード切り替えタブ（Pure CSS） */
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+      background: rgba(2, 6, 23, 0.65);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(30, 64, 175, 0.5);
+    }
+
+    .tab-label {
+      display: block;
+      text-align: center;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #bfdbfe;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      user-select: none;
+    }
+
+    #mode-tables:checked ~ .app-header label[for="mode-tables"],
+    #mode-drill:checked ~ .app-header label[for="mode-drill"] {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.3);
+    }
+
+    .main-content {
+      padding-top: 14px;
+    }
+
+    /* 一括操作バー */
+    .action-bar {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      border: 1px solid #dbeafe;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-stick-all {
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: none;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-stick-all:active {
+      transform: scale(0.96);
+    }
+
+    .dot-sky {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      background: #7dd3fc;
+      display: inline-block;
+    }
+
+    .btn-peel-all {
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+
+    #peel-all:checked ~ .main-content .btn-peel-all {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0369a1;
+    }
+
+    /* カテゴリーフィルターバー */
+    .cat-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .cat-filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat-filter-label {
+      flex-shrink: 0;
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #dbeafe;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #cat-all:checked ~ .main-content label[for="cat-all"],
+    #cat-infection:checked ~ .main-content label[for="cat-infection"],
+    #cat-sti:checked ~ .main-content label[for="cat-sti"],
+    #cat-drug:checked ~ .main-content label[for="cat-drug"],
+    #cat-alcohol:checked ~ .main-content label[for="cat-alcohol"],
+    #cat-tobacco:checked ~ .main-content label[for="cat-tobacco"],
+    #cat-sleep:checked ~ .main-content label[for="cat-sleep"] {
+      background: #1d4ed8;
+      color: #ffffff;
+      border-color: #1d4ed8;
+      font-weight: 800;
+    }
+
+    /* モード切り替え制御 */
+    #mode-tables:checked ~ .main-content #tablesSection { display: block; }
+    #mode-tables:checked ~ .main-content #drillSection { display: none; }
+    #mode-tables:checked ~ .main-content #catFilterBar { display: flex; }
+
+    #mode-drill:checked ~ .main-content #tablesSection { display: none; }
+    #mode-drill:checked ~ .main-content #drillSection { display: block; }
+    #mode-drill:checked ~ .main-content #catFilterBar { display: none; }
+
+    /* カテゴリー絞り込み制御 */
+    #cat-infection:checked ~ .main-content .detail-card:not([data-cat="infection"]),
+    #cat-sti:checked ~ .main-content .detail-card:not([data-cat="sti"]),
+    #cat-drug:checked ~ .main-content .detail-card:not([data-cat="drug"]),
+    #cat-alcohol:checked ~ .main-content .detail-card:not([data-cat="alcohol"]),
+    #cat-tobacco:checked ~ .main-content .detail-card:not([data-cat="tobacco"]),
+    #cat-sleep:checked ~ .main-content .detail-card:not([data-cat="sleep"]) {
+      display: none;
+    }
+
+    /* カード共通スタイル */
+    .study-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      border: 1px solid #dbeafe;
+      border-top: 4px solid #2563eb;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .unit-badge {
+      padding: 3px 9px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #1e3a8a;
+      color: #bae6fd;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    /* 比較テーブル */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      padding: 9px 11px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 800;
+      color: #ffffff;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: 9px 11px;
+      font-size: 13px;
+      color: #1e293b;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+      line-height: 1.65;
+    }
+
+    .data-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .data-table td.first-col {
+      font-weight: 700;
+      background: rgba(239, 246, 255, 0.55);
+    }
+
+    .bullet-list {
+      list-style: none;
+      margin: 6px 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bullet-list li {
+      padding-left: 12px;
+      border-left: 3px solid #3b82f6;
+      font-size: 14px;
+      line-height: 1.75;
+      color: #1e293b;
+    }
+
+    .drill-badge {
+      padding: 3px 9px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 900;
+      background: #1d4ed8;
+      color: #ffffff;
+    }
+
+    .drill-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: #1e40af;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .drill-text {
+      margin: 0;
+      font-size: 14.5px;
+      line-height: 1.9;
+      color: #0f172a;
+      font-weight: 500;
+    }
+
+    /* ==========================================================
+       Pure CSS 剥がせる付箋（文字なし・クールブルー仕様）
+       ========================================================== */
+    .peel-item {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 3.4em;
+      padding: 2px 10px;
+      margin: 2px 3px;
+      border-radius: 5px;
+      background-color: #fff1f2;
+      border: 1.5px dashed #93c5fd;
+      cursor: pointer;
+      user-select: none;
+      vertical-align: baseline;
+      touch-action: manipulation;
+    }
+
+    .peel-cb {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
+    .peel-answer {
+      font-weight: 800;
+      color: #e11d48;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.2s ease 0.05s, transform 0.22s ease 0.05s;
+      line-height: 1.45;
+    }
+
+    .peel-cb:checked ~ .peel-answer,
+    #peel-all:checked ~ .main-content .peel-answer {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .peel-paper {
+      position: absolute;
+      inset: -2px;
+      border-radius: 5px;
+      box-shadow:
+        0 2px 5px rgba(15, 23, 42, 0.2),
+        0 1px 2px rgba(30, 58, 138, 0.14);
+      transform-origin: left center;
+      z-index: 10;
+      overflow: hidden;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .peel-paper::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: rgba(15, 23, 42, 0.24);
+    }
+
+    .peel-paper::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 11px;
+      height: 11px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 45%, rgba(255, 255, 255, 0.88) 50%, rgba(203, 213, 225, 0.92) 100%);
+      border-top-left-radius: 4px;
+      box-shadow: -1px -1px 2px rgba(15, 23, 42, 0.15);
+    }
+
+    .paper-cobalt {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border: 1px solid #3b82f6;
+    }
+    .paper-cyan {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      border: 1px solid #38bdf8;
+    }
+    .paper-indigo {
+      background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+      border: 1px solid #6366f1;
+    }
+    .paper-sky {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      border: 1px solid #7dd3fc;
+    }
+    .paper-navy {
+      background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+      border: 1px solid #3b82f6;
+    }
+
+    .peel-cb:checked ~ .peel-paper,
+    #peel-all:checked ~ .main-content .peel-paper {
+      animation: peelOffAnim 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      pointer-events: none;
+    }
+
+    @keyframes peelOffAnim {
+      0% {
+        transform: perspective(450px) rotateY(0deg) rotateZ(0deg) translate(0, 0);
+        opacity: 1;
+      }
+      35% {
+        transform: perspective(450px) rotateY(-62deg) rotateZ(-5deg) translate(4px, -4px);
+        opacity: 0.96;
+        box-shadow: -8px 10px 16px rgba(15, 23, 42, 0.28);
+      }
+      100% {
+        transform: perspective(450px) rotateY(-125deg) rotateZ(-18deg) translate(20px, 28px);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<form class="app-form">
+  <!-- モード切り替えラジオボタン -->
+  <input type="radio" name="mode" id="mode-tables" class="state-input" checked>
+  <input type="radio" name="mode" id="mode-drill" class="state-input">
+
+  <!-- カテゴリーフィルターラジオボタン -->
+  <input type="radio" name="cat" id="cat-all" class="state-input" checked>
+  <input type="radio" name="cat" id="cat-infection" class="state-input">
+  <input type="radio" name="cat" id="cat-sti" class="state-input">
+  <input type="radio" name="cat" id="cat-drug" class="state-input">
+  <input type="radio" name="cat" id="cat-alcohol" class="state-input">
+  <input type="radio" name="cat" id="cat-tobacco" class="state-input">
+  <input type="radio" name="cat" id="cat-sleep" class="state-input">
+
+  <!-- 一括めくりチェックボックス -->
+  <input type="checkbox" id="peel-all" class="state-input">
+
+  <!-- 固定ヘッダー -->
+  <header class="app-header">
+    <div class="container">
+      <div class="title-row">
+        <span class="header-badge">DEEP MEMORIZATION</span>
+        <h1 class="header-title">保健 超詳細暗記マスター</h1>
+      </div>
+      <p class="header-sub">病原体・潜伏期間・致死率・脳の麻痺部位・俗称・年表を完全網羅</p>
+
+      <div class="mode-tabs">
+        <label for="mode-tables" class="tab-label">🔬 精密データ・比較表暗記</label>
+        <label for="mode-drill" class="tab-label">⚡ 難関・一問一答ドリル（全35問）</label>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="container main-content">
+
+    <!-- 操作バー -->
+    <div class="action-bar">
+      <div class="action-group">
+        <button type="reset" class="btn-stick-all">
+          <span class="dot-sky"></span> すべて付箋を貼る
+        </button>
+        <label for="peel-all" class="btn-peel-all">
+          👀 すべて剥がす / 戻す
+        </label>
+      </div>
+    </div>
+
+    <!-- カテゴリーフィルターバー -->
+    <div id="catFilterBar" class="cat-filter-bar">
+      <label for="cat-all" class="cat-filter-label">すべて表示</label>
+      <label for="cat-infection" class="cat-filter-label">🦠 新興・再興感染症＆病原体</label>
+      <label for="cat-sti" class="cat-filter-label">🧬 性感染症・HIV詳細</label>
+      <label for="cat-drug" class="cat-filter-label">💊 乱用薬物・俗称・法律</label>
+      <label for="cat-alcohol" class="cat-filter-label">🍺 飲酒・酔いの6段階・脳</label>
+      <label for="cat-tobacco" class="cat-filter-label">🚬 喫煙・有害物質・年表</label>
+      <label for="cat-sleep" class="cat-filter-label">🧠 睡眠数値・精神疾患細部</label>
+    </div>
+
+    <!-- ==========================================
+         セクション1：精密データ・比較表暗記
+         ========================================== -->
+    <section id="tablesSection">
+
+      <!-- 1. 新興感染症比較表 -->
+      <article class="study-card detail-card" data-cat="infection">
+        <div class="card-header">
+          <span class="unit-badge">単元15 比較表</span>
+          <h2 class="card-title">おもな新興感染症（1970年代以降）の病原体・致死率・感染経路</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>感染症名</th>
+                <th>病原体</th>
+                <th>致死率</th>
+                <th>おもな症状・感染経路</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">エボラ出血熱</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">エボラウイルス</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">50〜90%</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>高熱・嘔吐・下痢・多臓器不全／感染者の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">血液・吐物・排泄物</span><span class="peel-paper paper-cobalt"></span></label>への接触</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">腸管出血性大腸菌感染症</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">病原性大腸菌（O157など）</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1〜5%</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>腹痛・下痢・<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">血便</span><span class="peel-paper paper-cobalt"></span></label>／汚染された食物や水の摂取、排泄物への接触</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">鳥インフルエンザ（H5N1）</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">鳥インフルエンザウイルス</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">50%</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>高熱・呼吸困難／鳥類の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">排泄物・死体</span><span class="peel-paper paper-cobalt"></span></label>などとの接触</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">重症急性呼吸器症候群（SARS）</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">SARSコロナウイルス</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">10%</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>高熱・咳・呼吸困難／咳やくしゃみの飛沫吸入、排泄物への接触</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">中東呼吸器症候群（MERS）</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">MERSコロナウイルス</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">30%</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>発熱・咳・息切れ／<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ヒトコブラクダ</span><span class="peel-paper paper-cobalt"></span></label>との接触、飛沫・排泄物への接触</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">レジオネラ症</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">レジオネラ菌</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5〜10%</span><span class="peel-paper paper-cobalt"></span></label>（肺炎型）</td>
+                <td>高熱・咳・頭痛／汚染された<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">加湿器・循環式浴槽</span><span class="peel-paper paper-cobalt"></span></label>などの水滴・しぶきの吸入</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>鳥インフルエンザ殺処分の理由</strong>：人のインフルエンザウイルスと鳥インフルエンザウイルスが同時に感染すると、人の体内でウイルスの<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">遺伝子組換え</span><span class="peel-paper paper-cobalt"></span></label>が起こり、人から人へ感染しやすい<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">新型インフルエンザ</span><span class="peel-paper paper-cobalt"></span></label>が発生する恐れがあるため（同一農場の鳥をすべて殺処分）。※鶏肉や卵を食べても感染しない。</li>
+        </ul>
+      </article>
+
+      <!-- 2. 感染症精密データ -->
+      <article class="study-card detail-card" data-cat="infection">
+        <div class="card-header">
+          <span class="unit-badge">単元15・16 精密データ</span>
+          <h2 class="card-title">感染症の潜伏期間・感染力・再興感染症・具体例</h2>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>潜伏期間の違い</strong>：インフルエンザは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1〜3日</span><span class="peel-paper paper-cyan"></span></label>、麻しん（はしか）は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">10〜12日</span><span class="peel-paper paper-cyan"></span></label>程度。</li>
+          <li><strong>二次感染者数（1人の感染者からうつる人数）</strong>：インフルエンザは約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2人</span><span class="peel-paper paper-cyan"></span></label>、麻しんは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">10人を超える</span><span class="peel-paper paper-cyan"></span></label>。</li>
+          <li><strong>発病する割合</strong>：麻しんは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">90%以上</span><span class="peel-paper paper-cyan"></span></label>、水痘（みずぼうそう）は約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">90%</span><span class="peel-paper paper-cyan"></span></label>と非常に高い一方、日本脳炎は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1%以下</span><span class="peel-paper paper-cyan"></span></label>（大部分が不顕性感染）。</li>
+          <li><strong>デング熱（2014年東京などで流行）</strong>：発病した人の血を吸った蚊（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ヒトスジシマカ</span><span class="peel-paper paper-cyan"></span></label>）によって感染が広がる。</li>
+          <li><strong>先天性風しん症候群の予防</strong>：妊娠初期の風しん感染で胎児の目・耳・心臓に障害が出る。生涯に<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2回</span><span class="peel-paper paper-cyan"></span></label>、風しんワクチンまたは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">MRワクチン</span><span class="peel-paper paper-cyan"></span></label>を接種して防ぐ。</li>
+          <li><strong>再興感染症の具体例（6つ）</strong>：<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">結核</span><span class="peel-paper paper-cyan"></span></label>（病原体：<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">結核菌</span><span class="peel-paper paper-cyan"></span></label>）、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">マラリア</span><span class="peel-paper paper-cyan"></span></label>（媒介：<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">蚊</span><span class="peel-paper paper-cyan"></span></label>）、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">デング熱</span><span class="peel-paper paper-cyan"></span></label>、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">狂犬病</span><span class="peel-paper paper-cyan"></span></label>、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ペスト</span><span class="peel-paper paper-cyan"></span></label>、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">コレラ</span><span class="peel-paper paper-cyan"></span></label>。</li>
+          <li><strong>咳エチケットの優先順位</strong>：マスクがない場合はティッシュやハンカチ、とっさの場合は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">腕や袖口</span><span class="peel-paper paper-cyan"></span></label>で口・鼻をおおう（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">手</span><span class="peel-paper paper-cyan"></span></label>でおおうと手に病原体がつき感染を広げるためNG）。</li>
+          <li><strong>公的調査と医療機関</strong>：国立感染症研究所感染症疫学センターの「<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">感染症発生動向調査</span><span class="peel-paper paper-cyan"></span></label>」、特別な対応が必要な患者を治療する「<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">感染症指定医療機関</span><span class="peel-paper paper-cyan"></span></label>」。</li>
+        </ul>
+      </article>
+
+      <!-- 3. 性感染症比較表 -->
+      <article class="study-card detail-card" data-cat="sti">
+        <div class="card-header">
+          <span class="unit-badge">単元17 比較表</span>
+          <h2 class="card-title">おもな性感染症4種の病原体・潜伏期間・症状とHIV詳細</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>病名</th>
+                <th>病原体</th>
+                <th>潜伏期間</th>
+                <th>おもな症状と特徴</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">性器クラミジア感染症</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">クラミジア・トラコマティス</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1〜3週間</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td>男女とも自覚症状がない場合が多い（男性は排尿時の軽い痛み）。女性は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">不妊症</span><span class="peel-paper paper-indigo"></span></label>の原因。</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">淋菌感染症</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">淋菌</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2〜7日</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td>男性は尿道から<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">膿（うみ）</span><span class="peel-paper paper-indigo"></span></label>が出たり排尿時に痛み。女性は自覚症状が乏しく、おりもの増加。</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">性器ヘルペスウイルス感染症</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">単純ヘルペスウイルス</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2〜10日</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td>男女とも性器に痛みを伴う小さな<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">水疱</span><span class="peel-paper paper-indigo"></span></label>ができ、やぶれると<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">潰瘍</span><span class="peel-paper paper-indigo"></span></label>ができる。<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">再発しやすい</span><span class="peel-paper paper-indigo"></span></label>。</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">梅毒</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">梅毒トレポネーマ</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">3週間</span><span class="peel-paper paper-indigo"></span></label></td>
+                <td>しこりやリンパ節の腫れ、全身の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">赤い発疹</span><span class="peel-paper paper-indigo"></span></label>が出る。妊娠中は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">胎児（母子感染）</span><span class="peel-paper paper-indigo"></span></label>に感染することがある。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>HIVとエイズの正式名称</strong>：HIV＝<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ヒト免疫不全ウイルス</span><span class="peel-paper paper-indigo"></span></label>（Human Immunodeficiency Virus）、エイズ（AIDS）＝<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">後天性免疫不全症候群</span><span class="peel-paper paper-indigo"></span></label>（Acquired Immunodeficiency Syndrome）。</li>
+          <li><strong>エイズの潜伏期間と発症</strong>：潜伏期間は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">数か月から十数年</span><span class="peel-paper paper-indigo"></span></label>。免疫破壊により普段はかからない<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">日和見感染症</span><span class="peel-paper paper-indigo"></span></label>やがんを発症する。</li>
+          <li><strong>HIVの3つの感染経路</strong>：①HIV感染者との<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">性的接触</span><span class="peel-paper paper-indigo"></span></label>、②HIVを含む<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">血液</span><span class="peel-paper paper-indigo"></span></label>の侵入（かつて非加熱<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">血液製剤</span><span class="peel-paper paper-indigo"></span></label>による薬害エイズが発生）、③<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">母子感染</span><span class="peel-paper paper-indigo"></span></label>。</li>
+          <li><strong>検査・記念日・受診科</strong>：HIV抗体検査は全国の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">保健所</span><span class="peel-paper paper-indigo"></span></label>で<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">無料・匿名</span><span class="peel-paper paper-indigo"></span></label>。感染後約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">4週間</span><span class="peel-paper paper-indigo"></span></label>は陰性になる<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ウインドウ期</span><span class="peel-paper paper-indigo"></span></label>がある。世界エイズデーは毎年<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">12月1日</span><span class="peel-paper paper-indigo"></span></label>。受診科は男性が<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">泌尿器科</span><span class="peel-paper paper-indigo"></span></label>、女性が<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">婦人科</span><span class="peel-paper paper-indigo"></span></label>。</li>
+          <li><strong>抗HIV薬の進化</strong>：登場当初は1日3回以上・合計<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">20錠</span><span class="peel-paper paper-indigo"></span></label>の服薬が必要だったが、現在は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1日1回1錠</span><span class="peel-paper paper-indigo"></span></label>でウイルス量を検出限界以下に抑えられ、2022年には長時間作用型<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">注射薬</span><span class="peel-paper paper-indigo"></span></label>も承認された。</li>
+        </ul>
+      </article>
+
+      <!-- 4. 乱用薬物比較表 -->
+      <article class="study-card detail-card" data-cat="drug">
+        <div class="card-header">
+          <span class="unit-badge">単元11 比較表</span>
+          <h2 class="card-title">おもな乱用薬物5種の作用・健康影響・俗称・取締法</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>薬物名</th>
+                <th>作用</th>
+                <th>健康への影響・特徴</th>
+                <th>おもな俗称</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">覚醒剤</span><span class="peel-paper paper-navy"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">興奮作用</span><span class="peel-paper paper-navy"></span></label></td>
+                <td>幻覚・妄想、中毒性精神病。使用をやめても刺激で再発する<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">フラッシュバック</span><span class="peel-paper paper-navy"></span></label>。</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">スピード、エス、アイス、氷、シャブ</span><span class="peel-paper paper-navy"></span></label></td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">大麻</span><span class="peel-paper paper-navy"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">抑制作用</span><span class="peel-paper paper-navy"></span></label></td>
+                <td>知覚変化、パニック。乱用継続で学習能力低下・<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">記憶障害</span><span class="peel-paper paper-navy"></span></label>。</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">マリファナ、ハッパ、チョコ、グラス、野菜</span><span class="peel-paper paper-navy"></span></label></td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">コカイン</span><span class="peel-paper paper-navy"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">興奮作用</span><span class="peel-paper paper-navy"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">麻薬及び向精神薬取締法</span><span class="peel-paper paper-navy"></span></label>で規制。幻覚・妄想、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">全身けいれん</span><span class="peel-paper paper-navy"></span></label>、呼吸停止。</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">コーク、スノウ、クラック</span><span class="peel-paper paper-navy"></span></label></td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">MDMA</span><span class="peel-paper paper-navy"></span></label></td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">興奮作用</span><span class="peel-paper paper-navy"></span></label></td>
+                <td>知覚変化。大量摂取すると<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">体温が急激にあがり</span><span class="peel-paper paper-navy"></span></label>、死にいたる。</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">エクスタシー、バツ、タマ</span><span class="peel-paper paper-navy"></span></label></td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">危険ドラッグ</span><span class="peel-paper paper-navy"></span></label></td>
+                <td>多様</td>
+                <td>規制薬物の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">化学構造</span><span class="peel-paper paper-navy"></span></label>を少し変えた物質。麻薬・覚醒剤と同等以上の危険性。</td>
+                <td>旧称：<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">合法ドラッグ、脱法ハーブ</span><span class="peel-paper paper-navy"></span></label></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>市販薬のオーバードーズ調査（2021年）</strong>：全国高校生調査では、約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">60人に1人</span><span class="peel-paper paper-navy"></span></label>が過去1年に市販薬を乱用したと回答。</li>
+          <li><strong>臓器別の身体影響</strong>：眼（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">眼底出血</span><span class="peel-paper paper-navy"></span></label>・失明）、骨髄（赤血球が作られず<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">貧血</span><span class="peel-paper paper-navy"></span></label>）、肝臓（肝炎・腹水）、胃（出血・おう吐）、生殖器（生理不順・生殖能力低下）。</li>
+          <li><strong>依存の2つの悪循環と回復支援</strong>：薬物が効かなくなる<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">耐性</span><span class="peel-paper paper-navy"></span></label> → 精神依存（強い欲求＝<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">渇望</span><span class="peel-paper paper-navy"></span></label>）と身体依存（発汗・震え・下痢・腰痛＝<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">離脱症状（禁断症状）</span><span class="peel-paper paper-navy"></span></label>）。民間リハビリ施設は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">DARC（ダルク）</span><span class="peel-paper paper-navy"></span></label>、相談機関は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">精神保健福祉センター</span><span class="peel-paper paper-navy"></span></label>、国際機関は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">国連薬物・犯罪事務所</span><span class="peel-paper paper-navy"></span></label>。</li>
+        </ul>
+      </article>
+
+      <!-- 5. 飲酒・酔いの6段階 -->
+      <article class="study-card detail-card" data-cat="alcohol">
+        <div class="card-header">
+          <span class="unit-badge">単元10 比較表</span>
+          <h2 class="card-title">血中アルコール濃度・酔いの6段階・麻痺する脳の部位</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>酔いの段階</th>
+                <th>血中濃度（缶ビール目安）</th>
+                <th>おもな酔いの状態</th>
+                <th>脳の麻痺の進行</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">爽快期</span><span class="peel-paper paper-sky"></span></label></td>
+                <td>0.02〜0.04%（1〜2本）</td>
+                <td>さわやかな気分、皮膚が赤くなる、陽気になる、判断力が少し鈍る</td>
+                <td>脳の働きがわずかに抑制</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ほろ酔い期</span><span class="peel-paper paper-sky"></span></label></td>
+                <td>0.05〜0.10%（2〜4本）</td>
+                <td>ほろ酔い気分、手の動きが活発、体温上昇、脈が速くなる</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">大脳新皮質</span><span class="peel-paper paper-sky"></span></label>の活動低下開始</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">酩酊初期</span><span class="peel-paper paper-sky"></span></label></td>
+                <td>0.11〜0.15%（5〜6本）</td>
+                <td>気が大きくなる、大声でがなりたてる、怒りっぽくなる、立てばふらつく</td>
+                <td>網様体麻痺により本能・感情の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">大脳辺縁系</span><span class="peel-paper paper-sky"></span></label>が活発化</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">酩酊期</span><span class="peel-paper paper-sky"></span></label></td>
+                <td>0.16〜0.30%（7〜11本）</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">千鳥足</span><span class="peel-paper paper-sky"></span></label>になる、何度も同じことを話す、呼吸が速くなる、吐き気・嘔吐</td>
+                <td>運動平衡をつかさどる<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">小脳</span><span class="peel-paper paper-sky"></span></label>まで麻痺（運動失調）</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">泥酔期</span><span class="peel-paper paper-sky"></span></label></td>
+                <td>0.31〜0.40%（13〜18本）</td>
+                <td>まともに立てない、意識がはっきりしない、言語がめちゃめちゃになる</td>
+                <td>言語中枢や記憶にかかわる<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">海馬</span><span class="peel-paper paper-sky"></span></label>まで麻痺</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">昏睡期</span><span class="peel-paper paper-sky"></span></label></td>
+                <td>0.41〜0.50%（18本〜）</td>
+                <td>ゆり動かしても起きない、大小便たれ流し、呼吸はゆっくりと深い、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">死亡</span><span class="peel-paper paper-sky"></span></label></td>
+                <td>生命維持の呼吸中枢である<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">延髄</span><span class="peel-paper paper-sky"></span></label>まで麻痺</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>吸収と分解の酵素</strong>：胃で<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">25%</span><span class="peel-paper paper-sky"></span></label>、小腸で<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">75%</span><span class="peel-paper paper-sky"></span></label>吸収。肝臓で「アルコール →（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">アルコール脱水素酵素：ADH</span><span class="peel-paper paper-sky"></span></label>）→ <label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">アセトアルデヒド</span><span class="peel-paper paper-sky"></span></label> →（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">アルデヒド脱水素酵素：ALDH1・ALDH2</span><span class="peel-paper paper-sky"></span></label>）→ <label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">酢酸</span><span class="peel-paper paper-sky"></span></label>」と分解。日本人の約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">4割</span><span class="peel-paper paper-sky"></span></label>は分解能力が低い。</li>
+          <li><strong>各国の酒の広告規制</strong>：日本（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">午前5時〜午後6時</span><span class="peel-paper paper-sky"></span></label>のTV広告禁止・20歳未満モデル禁止の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">自主規制</span><span class="peel-paper paper-sky"></span></label>）、カナダ（未成年者モデル・誘引広告を<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">法律</span><span class="peel-paper paper-sky"></span></label>で禁止）、イギリス（18歳未満向けメディア禁止・<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">25歳未満</span><span class="peel-paper paper-sky"></span></label>モデル禁止の自主規制）、フランス（TV・映画広告やスポーツ等の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">スポンサー</span><span class="peel-paper paper-sky"></span></label>を法律で禁止）。WHO推計では世界で年間約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">300万人</span><span class="peel-paper paper-sky"></span></label>がアルコール関連で死亡。</li>
+        </ul>
+      </article>
+
+      <!-- 6. 喫煙・有害物質・年表 -->
+      <article class="study-card detail-card" data-cat="tobacco">
+        <div class="card-header">
+          <span class="unit-badge">単元09 比較表＆年表</span>
+          <h2 class="card-title">たばこの4大有害物質とたばこ対策の歴史年表</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>有害物質名</th>
+                <th>おもな作用</th>
+                <th>健康への悪影響</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ニコチン</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>末梢血管を収縮させ血圧を上昇させる／それなしではいられなくなる（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">依存性</span><span class="peel-paper paper-cobalt"></span></label>）</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">動脈硬化</span><span class="peel-paper paper-cobalt"></span></label>、喫煙の習慣化（※禁煙挑戦者の約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">7割</span><span class="peel-paper paper-cobalt"></span></label>が1か月以内に挫折）</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">タール</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>健康な細胞をがん細胞に変化（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">発がん作用</span><span class="peel-paper paper-cobalt"></span></label>）させ、増殖させる（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">がん促進作用</span><span class="peel-paper paper-cobalt"></span></label>）</td>
+                <td>各種のがん（肺がん・喉頭がんなど）</td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">一酸化炭素</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>血液中の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ヘモグロビン</span><span class="peel-paper paper-cobalt"></span></label>と強く結合し酸素運搬量を減少／血管壁を傷つける</td>
+                <td>細胞の酸素不足・心臓への負担、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">動脈硬化</span><span class="peel-paper paper-cobalt"></span></label></td>
+              </tr>
+              <tr>
+                <td class="first-col"><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">シアン化合物</span><span class="peel-paper paper-cobalt"></span></label></td>
+                <td>組織呼吸を妨げたり、気道の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">線毛</span><span class="peel-paper paper-cobalt"></span></label>を破壊したりする</td>
+                <td><label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">COPD</span><span class="peel-paper paper-cobalt"></span></label>（慢性閉塞性肺疾患・慢性気管支炎）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>副流煙の倍率と数値</strong>：化学物質約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">4,000</span><span class="peel-paper paper-cobalt"></span></label>種類、有害物質<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">200</span><span class="peel-paper paper-cobalt"></span></label>種類以上。副流煙は主流煙に比べ、タール約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">3倍</span><span class="peel-paper paper-cobalt"></span></label>、ニコチン約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">3倍</span><span class="peel-paper paper-cobalt"></span></label>、一酸化炭素約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5倍</span><span class="peel-paper paper-cobalt"></span></label>。受動喫煙による国内死亡推計は年間<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">15,000人</span><span class="peel-paper paper-cobalt"></span></label>。妊婦・乳幼児には<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">低出生体重児</span><span class="peel-paper paper-cobalt"></span></label>（2,500g未満）や<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">乳幼児突然死症候群（SIDS）</span><span class="peel-paper paper-cobalt"></span></label>を招く。</li>
+          <li><strong>たばこ対策の重要年表</strong>：1970年 WHO決議 → 1988年 <label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">世界禁煙デー</span><span class="peel-paper paper-cobalt"></span></label>制定（毎年<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5月31日</span><span class="peel-paper paper-cobalt"></span></label>） → 2000年 「<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">健康日本21</span><span class="peel-paper paper-cobalt"></span></label>」開始 → 2003年 WHO<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">たばこ規制枠組条約</span><span class="peel-paper paper-cobalt"></span></label>採択（2004年日本批准） → 2008年 <label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">taspo（タスポ）</span><span class="peel-paper paper-cobalt"></span></label>導入 → 2018年 <label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">改正健康増進法</span><span class="peel-paper paper-cobalt"></span></label>成立（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2020年4月</span><span class="peel-paper paper-cobalt"></span></label>全面施行）。</li>
+        </ul>
+      </article>
+
+      <!-- 7. 睡眠数値・精神疾患細部 -->
+      <article class="study-card detail-card" data-cat="sleep">
+        <div class="card-header">
+          <span class="unit-badge">単元08・12〜14 精密データ</span>
+          <h2 class="card-title">睡眠のホルモン・年齢別時間・精神疾患の数値と専門用語</h2>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>レム睡眠とノンレム睡眠の働き</strong>：<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ノンレム睡眠</span><span class="peel-paper paper-indigo"></span></label>は眠り落ちてすぐに起こる深い眠りで、昼間に酷使した<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">大脳皮質</span><span class="peel-paper paper-indigo"></span></label>を集中的に休ませる。<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">レム睡眠</span><span class="peel-paper paper-indigo"></span></label>は全身の筋肉が<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">弛緩</span><span class="peel-paper paper-indigo"></span></label>し、エネルギーを節約して体を休ませる（約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1.5時間</span><span class="peel-paper paper-indigo"></span></label>サイクル）。</li>
+          <li><strong>睡眠時間・運動・光</strong>：10歳代前半までは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">8時間</span><span class="peel-paper paper-indigo"></span></label>以上、25歳で約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">7時間</span><span class="peel-paper paper-indigo"></span></label>、45歳で約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">6.5時間</span><span class="peel-paper paper-indigo"></span></label>。成人の死亡率が最も低い睡眠時間は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">7時間</span><span class="peel-paper paper-indigo"></span></label>。就寝の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">3〜4時間前</span><span class="peel-paper paper-indigo"></span></label>の軽い運動で体温を上げると入眠しやすい。</li>
+          <li><strong>ブルーライトとホルモン</strong>：LEDの<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ブルーライト</span><span class="peel-paper paper-indigo"></span></label>（可視光線で最も強いエネルギー）を夜浴びると、入眠を促すホルモンである<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">メラトニン</span><span class="peel-paper paper-indigo"></span></label>の分泌が抑制され体内時計が後ろにずれる。</li>
+          <li><strong>精神疾患の発病割合と死因</strong>：生涯有病率は約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">20%</span><span class="peel-paper paper-indigo"></span></label>（約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5人に1人</span><span class="peel-paper paper-indigo"></span></label>）。発病した人のうち<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">14歳</span><span class="peel-paper paper-indigo"></span></label>までに約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">50%</span><span class="peel-paper paper-indigo"></span></label>、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">24歳</span><span class="peel-paper paper-indigo"></span></label>までに約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">75%</span><span class="peel-paper paper-indigo"></span></label>が発病する。日本の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">10〜39歳</span><span class="peel-paper paper-indigo"></span></label>の死因第1位は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">自殺</span><span class="peel-paper paper-indigo"></span></label>。</li>
+          <li><strong>精神疾患の細かな種類</strong>：抑うつ気分の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">うつ病</span><span class="peel-paper paper-indigo"></span></label>（神経伝達物質<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">セロトニン</span><span class="peel-paper paper-indigo"></span></label>・<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ノルアドレナリン</span><span class="peel-paper paper-indigo"></span></label>が関与）、躁状態とうつ状態を繰り返す<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">双極性障害</span><span class="peel-paper paper-indigo"></span></label>、思春期・青年期に多く幻覚・妄想が出る<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">統合失調症</span><span class="peel-paper paper-indigo"></span></label>、人前で強い恐怖を感じる<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">社交不安症</span><span class="peel-paper paper-indigo"></span></label>や動悸・発汗発作の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">パニック症</span><span class="peel-paper paper-indigo"></span></label>、確認などを繰り返す<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">強迫症</span><span class="peel-paper paper-indigo"></span></label>、拒食・過食の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">摂食障害</span><span class="peel-paper paper-indigo"></span></label>。</li>
+          <li><strong>未治療期間と支援制度</strong>：治療開始までの遅れ（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">未治療期間</span><span class="peel-paper paper-indigo"></span></label>）は日本でおよそ<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5〜6か月</span><span class="peel-paper paper-indigo"></span></label>以上と長い（前兆が<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1週間</span><span class="peel-paper paper-indigo"></span></label>以上続けば相談）。厚労省のセルフチェックサイトは「<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">こころの耳</span><span class="peel-paper paper-indigo"></span></label>」。体験者同士の支え合いは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ピアサポート</span><span class="peel-paper paper-indigo"></span></label>、偏見・差別は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">スティグマ</span><span class="peel-paper paper-indigo"></span></label>。</li>
+        </ul>
+      </article>
+
+    </section>
+
+    <!-- ==========================================
+         セクション2：難関・一問一答ドリル（全35問）
+         ========================================== -->
+    <section id="drillSection">
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.1</span><span class="drill-tag">感染症・病原体</span></div>
+        <p class="drill-text">致死率50〜90%と極めて高く、感染者の血液・吐物・排泄物への接触で感染する新興感染症は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">エボラ出血熱</span><span class="peel-paper paper-cobalt"></span></label>（病原体：<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">エボラウイルス</span><span class="peel-paper paper-cobalt"></span></label>）である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.2</span><span class="drill-tag">感染症・病原体</span></div>
+        <p class="drill-text">腸管出血性大腸菌感染症の代表的な病原体は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">O157</span><span class="peel-paper paper-cobalt"></span></label>などの病原性大腸菌であり、腹痛・下痢・<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">血便</span><span class="peel-paper paper-cobalt"></span></label>などの症状が出る。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.3</span><span class="drill-tag">感染症・病原体</span></div>
+        <p class="drill-text">中東呼吸器症候群（MERS）の病原体は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">MERSコロナウイルス</span><span class="peel-paper paper-cobalt"></span></label>（致死率約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">30%</span><span class="peel-paper paper-cobalt"></span></label>）であり、感染源動物として<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ヒトコブラクダ</span><span class="peel-paper paper-cobalt"></span></label>との接触が重要である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.4</span><span class="drill-tag">感染症・病原体</span></div>
+        <p class="drill-text">汚染された加湿器や循環式浴槽などからの水滴やしぶきを吸入することで感染し、肺炎型では致死率5〜10%となる感染症は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">レジオネラ症</span><span class="peel-paper paper-cobalt"></span></label>（病原体：<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">レジオネラ菌</span><span class="peel-paper paper-cobalt"></span></label>）である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.5</span><span class="drill-tag">感染症・仕組み</span></div>
+        <p class="drill-text">鳥インフルエンザが発生した農場で全羽殺処分を行うのは、人の体内で人のウイルスと同時感染して<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">遺伝子組換え</span><span class="peel-paper paper-cyan"></span></label>が起こり、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">新型インフルエンザ</span><span class="peel-paper paper-cyan"></span></label>が発生するのを防ぐためである。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.6</span><span class="drill-tag">感染症・数値</span></div>
+        <p class="drill-text">潜伏期間はインフルエンザが<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1〜3日</span><span class="peel-paper paper-cyan"></span></label>であるのに対し、麻しん（はしか）は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">10〜12日</span><span class="peel-paper paper-cyan"></span></label>である。また、1人の感染者から生じる二次感染者は麻しんでは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">10人を超える</span><span class="peel-paper paper-cyan"></span></label>。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.7</span><span class="drill-tag">感染症・媒介</span></div>
+        <p class="drill-text">2014年に東京都内を中心に確認されたデング熱は、発病者の血を吸った蚊である<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ヒトスジシマカ</span><span class="peel-paper paper-cyan"></span></label>によって感染が広がる。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.8</span><span class="drill-tag">感染症・予防</span></div>
+        <p class="drill-text">妊娠初期の風しん感染によって胎児に目・耳・心臓の障害が生じる<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">先天性風しん症候群</span><span class="peel-paper paper-cyan"></span></label>は、生涯に<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2回</span><span class="peel-paper paper-cyan"></span></label>の風しん（または<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">MR</span><span class="peel-paper paper-cyan"></span></label>）ワクチン接種で防ぐことができる。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.9</span><span class="drill-tag">感染症・対策</span></div>
+        <p class="drill-text">マスクがないときに咳やくしゃみをする際は、<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">手</span><span class="peel-paper paper-cyan"></span></label>ではなくティッシュやハンカチ、または<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">腕や袖口</span><span class="peel-paper paper-cyan"></span></label>で口・鼻をおおう。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.10</span><span class="drill-tag">性感染症・病原体</span></div>
+        <p class="drill-text">日本で最も多い性感染症である性器クラミジア感染症の病原体は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">クラミジア・トラコマティス</span><span class="peel-paper paper-indigo"></span></label>で、潜伏期間は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1〜3週間</span><span class="peel-paper paper-indigo"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.11</span><span class="drill-tag">性感染症・病原体</span></div>
+        <p class="drill-text">潜伏期間が2〜7日と短く、男性では尿道から<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">膿（うみ）</span><span class="peel-paper paper-indigo"></span></label>が出たり排尿時に強い痛みが生じたりする性感染症は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">淋菌感染症</span><span class="peel-paper paper-indigo"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.12</span><span class="drill-tag">性感染症・病原体</span></div>
+        <p class="drill-text">病原体が<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">単純ヘルペスウイルス</span><span class="peel-paper paper-indigo"></span></label>（潜伏期間2〜10日）の性感染症では、性器に痛みを伴う小さな<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">水疱</span><span class="peel-paper paper-indigo"></span></label>ができ、やぶれると<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">潰瘍</span><span class="peel-paper paper-indigo"></span></label>になり再発しやすい。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.13</span><span class="drill-tag">性感染症・病原体</span></div>
+        <p class="drill-text">病原体が<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">梅毒トレポネーマ</span><span class="peel-paper paper-indigo"></span></label>（潜伏期間<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">3週間</span><span class="peel-paper paper-indigo"></span></label>）の性感染症は、しこりや全身の赤い発疹が出て、妊娠中の場合は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">胎児（母子感染）</span><span class="peel-paper paper-indigo"></span></label>に感染することがある。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.14</span><span class="drill-tag">HIV・エイズ</span></div>
+        <p class="drill-text">エイズの正式名称は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">後天性免疫不全症候群</span><span class="peel-paper paper-indigo"></span></label>であり、HIVに感染してから発症するまで<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">数か月から十数年</span><span class="peel-paper paper-indigo"></span></label>の潜伏期間があり、免疫低下により<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">日和見感染症</span><span class="peel-paper paper-indigo"></span></label>を発症する。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.15</span><span class="drill-tag">HIV・エイズ</span></div>
+        <p class="drill-text">抗HIV薬の進歩により、現在は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">1日1回1錠</span><span class="peel-paper paper-indigo"></span></label>の服薬でウイルス量を検出限界以下に抑えられる。なお、毎年<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">12月1日</span><span class="peel-paper paper-indigo"></span></label>は世界エイズデーである。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.16</span><span class="drill-tag">薬物・俗称</span></div>
+        <p class="drill-text">「スピード」「エス」「アイス」「氷」「シャブ」などの俗称で呼ばれ、使用をやめても<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">フラッシュバック</span><span class="peel-paper paper-navy"></span></label>を起こす興奮作用の薬物は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">覚醒剤</span><span class="peel-paper paper-navy"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.17</span><span class="drill-tag">薬物・俗称</span></div>
+        <p class="drill-text">「マリファナ」「ハッパ」「チョコ」「グラス」「野菜」などの俗称で呼ばれ、乱用継続で学習能力低下や<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">記憶障害</span><span class="peel-paper paper-navy"></span></label>を起こす抑制作用の薬物は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">大麻</span><span class="peel-paper paper-navy"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.18</span><span class="drill-tag">薬物・俗称</span></div>
+        <p class="drill-text">「エクスタシー」「バツ」「タマ」などの俗称で呼ばれ、大量摂取すると<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">体温が急激にあがり</span><span class="peel-paper paper-navy"></span></label>死にいたる興奮作用の薬物は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">MDMA</span><span class="peel-paper paper-navy"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.19</span><span class="drill-tag">薬物・俗称</span></div>
+        <p class="drill-text">ヘロインとともに<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">麻薬及び向精神薬取締法</span><span class="peel-paper paper-navy"></span></label>で取り締まられ、「コーク」「スノウ」「クラック」の俗称をもつ興奮作用の薬物は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">コカイン</span><span class="peel-paper paper-navy"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.20</span><span class="drill-tag">薬物・数値</span></div>
+        <p class="drill-text">2021年の全国高校生調査では、約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">60人に1人</span><span class="peel-paper paper-navy"></span></label>が過去1年に市販薬を乱用（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">オーバードーズ</span><span class="peel-paper paper-navy"></span></label>）したことがあると回答している。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.21</span><span class="drill-tag">薬物・依存</span></div>
+        <p class="drill-text">薬物が切れると発汗・腰痛・下痢・震えなどの身体的苦痛があらわれる状態を<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">離脱症状（禁断症状）</span><span class="peel-paper paper-navy"></span></label>といい、民間リハビリ施設として<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">DARC（ダルク）</span><span class="peel-paper paper-navy"></span></label>が活動している。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.22</span><span class="drill-tag">飲酒・分解</span></div>
+        <p class="drill-text">摂取したアルコールは胃で<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">25%</span><span class="peel-paper paper-sky"></span></label>、小腸で<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">75%</span><span class="peel-paper paper-sky"></span></label>吸収され、肝臓で<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">アルコール脱水素酵素（ADH）</span><span class="peel-paper paper-sky"></span></label>によって有害な<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">アセトアルデヒド</span><span class="peel-paper paper-sky"></span></label>に分解される。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.23</span><span class="drill-tag">飲酒・脳の麻痺</span></div>
+        <p class="drill-text">酔いが進んで<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">小脳</span><span class="peel-paper paper-sky"></span></label>まで麻痺が広がると運動失調（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">千鳥足</span><span class="peel-paper paper-sky"></span></label>）になり、さらに<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">海馬</span><span class="peel-paper paper-sky"></span></label>まで麻痺すると飲酒中の記憶がなくなる（泥酔期：血中濃度0.31〜0.40%）。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.24</span><span class="drill-tag">飲酒・脳の麻痺</span></div>
+        <p class="drill-text">血中アルコール濃度が0.41〜0.50%（昏睡期）に達すると、生命維持にかかわる呼吸中枢である<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">延髄</span><span class="peel-paper paper-sky"></span></label>まで麻痺し、呼吸停止で死亡する。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.25</span><span class="drill-tag">飲酒・国際比較</span></div>
+        <p class="drill-text">酒の広告規制において、テレビ・映画での広告や酒造業者がスポーツ・コンサートのスポンサーになることを法律で禁止している国は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">フランス</span><span class="peel-paper paper-sky"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.26</span><span class="drill-tag">喫煙・成分</span></div>
+        <p class="drill-text">たばこの煙には約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">4,000</span><span class="peel-paper paper-cobalt"></span></label>種類の化学物質と<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">200</span><span class="peel-paper paper-cobalt"></span></label>種類以上の有害物質が含まれ、副流煙には主流煙の約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5倍</span><span class="peel-paper paper-cobalt"></span></label>の一酸化炭素が含まれる。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.27</span><span class="drill-tag">喫煙・成分</span></div>
+        <p class="drill-text">たばこの有害物質のうち、組織呼吸を妨げ、気道の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">線毛</span><span class="peel-paper paper-cobalt"></span></label>を破壊してCOPD（慢性閉塞性肺疾患）の原因となるのは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">シアン化合物</span><span class="peel-paper paper-cobalt"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.28</span><span class="drill-tag">喫煙・影響</span></div>
+        <p class="drill-text">妊婦の喫煙や受動喫煙は、出生時体重が<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2,500g</span><span class="peel-paper paper-cobalt"></span></label>未満である<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">低出生体重児</span><span class="peel-paper paper-cobalt"></span></label>の出生や、乳幼児突然死症候群（<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">SIDS</span><span class="peel-paper paper-cobalt"></span></label>）のリスクを高める。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.29</span><span class="drill-tag">喫煙・年表</span></div>
+        <p class="drill-text">WHOの<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">たばこ規制枠組条約</span><span class="peel-paper paper-cobalt"></span></label>が採択されたのは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2003</span><span class="peel-paper paper-cobalt"></span></label>年、日本で自動販売機の成人識別装置<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">taspo（タスポ）</span><span class="peel-paper paper-cobalt"></span></label>が導入されたのは<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2008</span><span class="peel-paper paper-cobalt"></span></label>年である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.30</span><span class="drill-tag">喫煙・年表</span></div>
+        <p class="drill-text">2018年に成立し<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">2020年4月</span><span class="peel-paper paper-cobalt"></span></label>に全面施行された法律は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">改正健康増進法</span><span class="peel-paper paper-cobalt"></span></label>であり、毎年<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5月31日</span><span class="peel-paper paper-cobalt"></span></label>はWHOが制定した<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">世界禁煙デー</span><span class="peel-paper paper-cobalt"></span></label>である。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.31</span><span class="drill-tag">睡眠・数値</span></div>
+        <p class="drill-text">成人において男女とも最も相対死亡率が低い睡眠時間は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">7時間</span><span class="peel-paper paper-indigo"></span></label>である。また、質のよい睡眠のためには就寝の<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">3〜4時間前</span><span class="peel-paper paper-indigo"></span></label>に軽い運動するとよい。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.32</span><span class="drill-tag">睡眠・ホルモン</span></div>
+        <p class="drill-text">デジタル機器のLEDに多く含まれる<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">ブルーライト</span><span class="peel-paper paper-indigo"></span></label>を就寝前に浴びると、入眠を促すホルモンである<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">メラトニン</span><span class="peel-paper paper-indigo"></span></label>の分泌が抑制される。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.33</span><span class="drill-tag">精神疾患・数値</span></div>
+        <p class="drill-text">精神疾患の生涯有病率は約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">20%</span><span class="peel-paper paper-indigo"></span></label>（約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5人に1人</span><span class="peel-paper paper-indigo"></span></label>）であり、発病した人の約50%は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">14歳</span><span class="peel-paper paper-indigo"></span></label>までに、約75%は<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">24歳</span><span class="peel-paper paper-indigo"></span></label>までに発病している。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.34</span><span class="drill-tag">精神疾患・種類</span></div>
+        <p class="drill-text">自分でもつまらないとわかっていても何度も同じ確認などを繰り返してしまう精神疾患を<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">強迫症</span><span class="peel-paper paper-indigo"></span></label>といい、強い恐怖を伴う動悸・発汗発作が起きる疾患を<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">パニック症</span><span class="peel-paper paper-indigo"></span></label>という。</p>
+      </article>
+
+      <article class="study-card">
+        <div class="card-header"><span class="drill-badge">Q.35</span><span class="drill-tag">精神疾患・制度</span></div>
+        <p class="drill-text">日本で約<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">5〜6か月</span><span class="peel-paper paper-indigo"></span></label>以上と長い治療開始までの遅れを<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">未治療期間</span><span class="peel-paper paper-indigo"></span></label>という。また、精神疾患に対する偏見や差別を英語由来で<label class="peel-item"><input type="checkbox" class="peel-cb"><span class="peel-answer">スティグマ</span><span class="peel-paper paper-indigo"></span></label>という。</p>
+      </article>
+
+    </section>
+
+  </main>
+</form>
+
+</body>
+</html>
