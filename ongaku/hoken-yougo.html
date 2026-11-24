@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>保健用語まとめ＆クイズ（健康増進法〜ワクチン）</title>
+<style>
+  :root {
+    --blue-900: #1e3a8a;
+    --blue-800: #1e40af;
+    --blue-700: #1d4ed8;
+    --blue-600: #2563eb;
+    --blue-500: #3b82f6;
+    --blue-400: #60a5fa;
+    --blue-200: #bfdbfe;
+    --blue-100: #dbeafe;
+    --blue-50: #eff6ff;
+    --slate-800: #1e293b;
+    --slate-700: #334155;
+    --slate-600: #475569;
+    --slate-500: #64748b;
+    --slate-200: #e2e8f0;
+    --slate-100: #f1f5f9;
+    --slate-50: #f8fafc;
+    --green-700: #15803d;
+    --green-100: #dcfce7;
+    --green-600: #16a34a;
+    --red-700: #b91c1c;
+    --red-100: #fee2e2;
+    --red-600: #dc2626;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    background-color: var(--slate-100);
+    color: var(--slate-800);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  /* 状態管理用の隠しinput（Pure CSS） */
+  .state-input,
+  .sticky-cb,
+  .q-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  .app-form {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* スティッキーヘッダー */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--blue-200);
+    box-shadow: 0 2px 10px rgba(30, 58, 138, 0.06);
+  }
+
+  .header-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 10px 14px 8px;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .app-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--blue-900);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .title-badge {
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--blue-100);
+    color: var(--blue-700);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+
+  /* 操作ボタン群 */
+  .action-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .btn-reset {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--blue-600);
+    background: var(--blue-600);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 11px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    transition: transform 0.1s ease, background-color 0.15s ease;
+  }
+
+  .btn-reset:active {
+    transform: scale(0.96);
+    background: var(--blue-700);
+  }
+
+  .btn-reveal {
+    border: 1px solid var(--blue-300, #93c5fd);
+    background: var(--blue-50);
+    color: var(--blue-700);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+  }
+
+  #reveal-all:checked ~ .app-form .btn-reveal {
+    background: var(--blue-800);
+    color: #ffffff;
+    border-color: var(--blue-800);
+  }
+
+  /* メインタブ切り替え（1枚目：まとめ / 2枚目：クイズ） */
+  .main-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: var(--slate-100);
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .tab-label {
+    text-align: center;
+    padding: 7px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--slate-600);
+    border-radius: 7px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s ease;
+  }
+
+  #tab-summary:checked ~ .app-form .label-tab-summary,
+  #tab-quiz:checked ~ .app-form .label-tab-quiz {
+    background: #ffffff;
+    color: var(--blue-700);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+  }
+
+  /* タブに応じたボタン表示切り替え */
+  .reset-label-quiz { display: none; }
+  #tab-quiz:checked ~ .app-form .reset-label-summary,
+  #tab-quiz:checked ~ .app-form .btn-reveal {
+    display: none;
+  }
+  #tab-quiz:checked ~ .app-form .reset-label-quiz {
+    display: inline;
+  }
+
+  /* 単元・カテゴリー絞り込みバー */
+  .filter-scroll {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .filter-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid var(--slate-200);
+    color: var(--slate-600);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+  }
+
+  #cat-all:checked ~ .app-form .chip-all,
+  #cat-health:checked ~ .app-form .chip-health,
+  #cat-brain:checked ~ .app-form .chip-brain,
+  #cat-mental:checked ~ .app-form .chip-mental,
+  #cat-vaccine:checked ~ .app-form .chip-vaccine {
+    background: var(--blue-600);
+    border-color: var(--blue-600);
+    color: #ffffff;
+  }
+
+  /* コンテンツエリア */
+  .main-container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 14px 14px 48px;
+  }
+
+  .panel-summary,
+  .panel-quiz {
+    display: none;
+  }
+
+  #tab-summary:checked ~ .app-form .panel-summary {
+    display: block;
+  }
+  #tab-quiz:checked ~ .app-form .panel-quiz {
+    display: block;
+  }
+
+  /* 絞り込みロジック（Pure CSS） */
+  #cat-health:checked ~ .app-form .item-card:not([data-cat="health"]) { display: none; }
+  #cat-brain:checked ~ .app-form .item-card:not([data-cat="brain"]) { display: none; }
+  #cat-mental:checked ~ .app-form .item-card:not([data-cat="mental"]) { display: none; }
+  #cat-vaccine:checked ~ .app-form .item-card:not([data-cat="vaccine"]) { display: none; }
+
+  /* ガイドバー */
+  .guide-banner {
+    background: var(--blue-50);
+    border: 1px solid var(--blue-200);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--blue-900);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  /* 用語カード */
+  .term-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid var(--slate-200);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .term-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 2px solid var(--blue-50);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+
+  .term-title-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .term-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--blue-600);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .term-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--blue-900);
+  }
+
+  .term-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .cat-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--blue-50);
+    color: var(--blue-700);
+    border: 1px solid var(--blue-200);
+  }
+
+  .page-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--slate-500);
+    background: var(--slate-100);
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+
+  .term-body p {
+    margin: 0 0 10px;
+  }
+  .term-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .point-box {
+    background: var(--slate-50);
+    border-left: 3px solid var(--blue-500);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+
+  .point-box-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--blue-800);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .bullet-list {
+    margin: 0;
+    padding-left: 1.2em;
+  }
+  .bullet-list li {
+    margin-bottom: 5px;
+  }
+  .bullet-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* =========================================
+     青基調のシンプルな付箋デザイン（Pure CSS）
+     ========================================= */
+  .fusen {
+    position: relative;
+    display: inline-block;
+    padding: 1px 7px;
+    margin: 1px 2px;
+    border-radius: 5px;
+    font-weight: 700;
+    color: transparent;
+    background: var(--blue-50);
+    border-bottom: 2px solid var(--blue-500);
+    cursor: pointer;
+    user-select: none;
+    vertical-align: baseline;
+    line-height: 1.45;
+    transition: color 0.18s ease, background-color 0.18s ease;
+  }
+
+  /* 貼られている青い付箋本体 */
+  .fusen::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    border-left: 4px solid #1e3a8a;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.28);
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* 付箋中央のさりげない目印ライン */
+  .fusen::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    right: 6px;
+    top: 50%;
+    height: 1px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.55);
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  /* タップしてチェックされた時（付箋がめくれて答え表示） */
+  .sticky-cb:checked + .fusen,
+  #reveal-all:checked ~ .app-form .fusen {
+    color: var(--blue-800);
+    background: var(--blue-50);
+  }
+
+  .sticky-cb:checked + .fusen::after,
+  #reveal-all:checked ~ .app-form .fusen::after {
+    opacity: 0;
+    transform: translate(4px, -6px) scale(0.95);
+    pointer-events: none;
+  }
+
+  .sticky-cb:checked + .fusen::before,
+  #reveal-all:checked ~ .app-form .fusen::before {
+    opacity: 0;
+  }
+
+  /* 整理テーブル */
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    min-width: 480px;
+  }
+
+  .compare-table th {
+    background: var(--blue-800);
+    color: #ffffff;
+    font-weight: 700;
+    text-align: left;
+    padding: 8px 10px;
+    border: 1px solid var(--blue-800);
+  }
+
+  .compare-table td {
+    padding: 8px 10px;
+    border: 1px solid var(--slate-200);
+    background: #ffffff;
+    vertical-align: top;
+  }
+
+  .compare-table tr:nth-child(even) td {
+    background: var(--slate-50);
+  }
+
+  /* =========================================
+     2枚目：実践クイズ（Pure CSS 4択）
+     ========================================= */
+  .quiz-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid var(--slate-200);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .quiz-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .quiz-num {
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffffff;
+    background: var(--blue-700);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  .quiz-question {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--slate-800);
+    line-height: 1.65;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .q-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1.5px solid var(--slate-200);
+    background: var(--slate-50);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slate-800);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+  }
+
+  .opt-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1.5px solid var(--blue-400);
+    color: var(--blue-700);
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* 正解選択時 */
+  .q-radio.is-correct:checked + .q-opt {
+    background: var(--green-100);
+    border-color: var(--green-600);
+    color: var(--green-700);
+  }
+  .q-radio.is-correct:checked + .q-opt .opt-mark {
+    background: var(--green-600);
+    border-color: var(--green-600);
+    color: #ffffff;
+  }
+  .q-radio.is-correct:checked + .q-opt::after {
+    content: "正解！";
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--green-700);
+    flex-shrink: 0;
+  }
+
+  /* 不正解選択時 */
+  .q-radio.is-wrong:checked + .q-opt {
+    background: var(--red-100);
+    border-color: var(--red-600);
+    color: var(--red-700);
+  }
+  .q-radio.is-wrong:checked + .q-opt .opt-mark {
+    background: var(--red-600);
+    border-color: var(--red-600);
+    color: #ffffff;
+  }
+  .q-radio.is-wrong:checked + .q-opt::after {
+    content: "不正解";
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--red-700);
+    flex-shrink: 0;
+  }
+
+  /* 解説ボックス（いずれかの選択肢が選ばれたら自動表示） */
+  .q-exp {
+    display: none;
+    margin-top: 12px;
+    padding: 11px 13px;
+    border-radius: 10px;
+    background: var(--blue-50);
+    border: 1px solid var(--blue-200);
+    font-size: 13.5px;
+    color: var(--slate-800);
+    line-height: 1.65;
+  }
+
+  .q-radio:checked ~ .q-exp {
+    display: block;
+  }
+
+  .exp-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    background: var(--blue-600);
+    color: #ffffff;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  @media (max-width: 480px) {
+    .app-title {
+      font-size: 14.5px;
+    }
+    .btn-reset, .btn-reveal {
+      font-size: 11.5px;
+      padding: 5px 8px;
+    }
+    .term-card, .quiz-card {
+      padding: 14px 12px;
+    }
+  }
+</style>
+</head>
+<body ontouchstart="">
+
+  <!-- メインタブ状態管理 -->
+  <input type="radio" name="main-tab" id="tab-summary" class="state-input" checked>
+  <input type="radio" name="main-tab" id="tab-quiz" class="state-input">
+
+  <!-- カテゴリー絞り込み状態管理 -->
+  <input type="radio" name="cat-filter" id="cat-all" class="state-input" checked>
+  <input type="radio" name="cat-filter" id="cat-health" class="state-input">
+  <input type="radio" name="cat-filter" id="cat-brain" class="state-input">
+  <input type="radio" name="cat-filter" id="cat-mental" class="state-input">
+  <input type="radio" name="cat-filter" id="cat-vaccine" class="state-input">
+
+  <!-- 全付箋一括表示トグル -->
+  <input type="checkbox" id="reveal-all" class="state-input">
+
+  <!-- 付箋＆クイズ状態リセット用フォーム -->
+  <form class="app-form">
+
+    <!-- 上部固定ヘッダー -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="title-row">
+          <h1 class="app-title">
+            <span>保健用語 頻出マスター</span>
+            <span class="title-badge">健康増進法〜ワクチン</span>
+          </h1>
+          <div class="action-group">
+            <label for="reveal-all" class="btn-reveal">全表示切替</label>
+            <button type="reset" class="btn-reset">
+              <span class="reset-label-summary">すべて付箋を貼る</span>
+              <span class="reset-label-quiz">クイズをリセット</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- タブ切り替え（1枚目：頻出事項 / 2枚目：クイズ） -->
+        <nav class="main-tabs" aria-label="表示切り替え">
+          <label for="tab-summary" class="tab-label label-tab-summary">① 頻出事項まとめ（全9項目）</label>
+          <label for="tab-quiz" class="tab-label label-tab-quiz">② 実践チェッククイズ（全15問）</label>
+        </nav>
+
+        <!-- 単元・カテゴリー絞り込み -->
+        <div class="filter-scroll" role="group" aria-label="カテゴリー絞り込み">
+          <label for="cat-all" class="filter-chip chip-all">すべて</label>
+          <label for="cat-health" class="filter-chip chip-health">健康づくり・喫煙</label>
+          <label for="cat-brain" class="filter-chip chip-brain">幻覚・妄想・嗜癖</label>
+          <label for="cat-mental" class="filter-chip chip-mental">心の病気・治療・支援</label>
+          <label for="cat-vaccine" class="filter-chip chip-vaccine">感染症・ワクチン</label>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-container">
+
+      <!-- ====================================================
+           【1枚目】頻出事項まとめシート（全情報網羅・付箋付き）
+           ==================================================== -->
+      <section class="panel-summary">
+        <div class="guide-banner">
+          <span>青い付箋をタップするとめくれて答えが確認できます（再タップで貼り直し）。</span>
+        </div>
+
+        <!-- 1. 健康増進法 -->
+        <article class="term-card item-card" data-cat="health">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">1</span>
+              <h2 class="term-title">健康増進法</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">健康づくり・喫煙</span>
+              <span class="page-tag">p.27, 123</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              2000年から開始した「<input type="checkbox" id="s01" class="sticky-cb"><label for="s01" class="fusen">健康日本21</label>」（21世紀における国民健康づくり運動）を支える法律として、国民の健康づくりや病気の予防をさらに積極的に推進することを目的に<input type="checkbox" id="s02" class="sticky-cb"><label for="s02" class="fusen">2002年</label>に制定された。
+            </p>
+            <p>
+              「国民は<input type="checkbox" id="s03" class="sticky-cb"><label for="s03" class="fusen">健康な生活習慣</label>の重要性に対する関心と理解を深め、生涯にわたって、自らの健康状態を自覚するとともに、健康の増進に努めなければならない」ことが、<input type="checkbox" id="s04" class="sticky-cb"><label for="s04" class="fusen">国民の責務</label>として示されている。
+            </p>
+            <div class="point-box">
+              <span class="point-box-title">国・地方公共団体・健康増進事業実施者の役割（4項目）</span>
+              <ul class="bullet-list">
+                <li><strong>(1) 国</strong>：国民の健康づくりをすすめるための<input type="checkbox" id="s05" class="sticky-cb"><label for="s05" class="fusen">基本方針</label>を策定すること</li>
+                <li><strong>(2) 都道府県・市町村</strong>：住民の<input type="checkbox" id="s06" class="sticky-cb"><label for="s06" class="fusen">健康増進計画</label>を策定すること</li>
+                <li><strong>(3) 指針の策定</strong>：<input type="checkbox" id="s07" class="sticky-cb"><label for="s07" class="fusen">健康診査</label>の実施に関する指針を策定すること</li>
+                <li><strong>(4) 調査と喫煙対策</strong>：<input type="checkbox" id="s08" class="sticky-cb"><label for="s08" class="fusen">国民健康・栄養調査</label>を実施することや<input type="checkbox" id="s09" class="sticky-cb"><label for="s09" class="fusen">受動喫煙</label>を防止すること</li>
+              </ul>
+            </div>
+            <div class="point-box">
+              <span class="point-box-title">法改正による受動喫煙対策（2018年一部改正 → 2020年4月全面施行）</span>
+              <ul class="bullet-list">
+                <li><strong>鉄道などの公共交通機関・飲食店などの施設</strong>：<input type="checkbox" id="s10" class="sticky-cb"><label for="s10" class="fusen">屋内が原則禁煙</label>となった。</li>
+                <li><strong>学校・病院・行政機関など</strong>：屋外を含めた<input type="checkbox" id="s11" class="sticky-cb"><label for="s11" class="fusen">敷地内が原則禁煙</label>となった（ただし、屋外で受動喫煙の防止に必要な措置がとられた場合は、<input type="checkbox" id="s12" class="sticky-cb"><label for="s12" class="fusen">喫煙場所</label>を設置できる）。</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. たばこ規制枠組条約 -->
+        <article class="term-card item-card" data-cat="health">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">2</span>
+              <h2 class="term-title">たばこ規制枠組条約</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">健康づくり・喫煙</span>
+              <span class="page-tag">p.27</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              正式名称は「<input type="checkbox" id="s13" class="sticky-cb"><label for="s13" class="fusen">たばこの規制に関する世界保健機関枠組条約</label>」。たばこによる健康被害を防止するために各国が協力して規制をおこなうことを求めた国際条約である。
+            </p>
+            <p>
+              <input type="checkbox" id="s14" class="sticky-cb"><label for="s14" class="fusen">受動喫煙</label>から非喫煙者を保護する措置を講じることや、<input type="checkbox" id="s15" class="sticky-cb"><label for="s15" class="fusen">パッケージの表示</label>や<input type="checkbox" id="s16" class="sticky-cb"><label for="s16" class="fusen">広告の規制</label>などについて定めている。
+            </p>
+            <p>
+              <input type="checkbox" id="s17" class="sticky-cb"><label for="s17" class="fusen">WHO</label>のもとでつくられた、保健分野における初めての<input type="checkbox" id="s18" class="sticky-cb"><label for="s18" class="fusen">多数国間条約</label>であり、これまで各国が個別におこなってきたたばこ対策について、国際協力の枠組みを与えるものとなった。<input type="checkbox" id="s19" class="sticky-cb"><label for="s19" class="fusen">2003年</label>の世界保健総会で採択され、日本は<input type="checkbox" id="s20" class="sticky-cb"><label for="s20" class="fusen">2004年</label>に締結、<input type="checkbox" id="s21" class="sticky-cb"><label for="s21" class="fusen">2005年2月</label>に発効された。
+            </p>
+          </div>
+        </article>
+
+        <!-- 3. 幻覚や妄想 -->
+        <article class="term-card item-card" data-cat="brain">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">3</span>
+              <h2 class="term-title">幻覚や妄想</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">幻覚・妄想・嗜癖</span>
+              <span class="page-tag">p.30</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              <strong>【幻覚】</strong>実際には<input type="checkbox" id="s22" class="sticky-cb"><label for="s22" class="fusen">対象が存在しない</label>のにもかかわらず、本人だけが知覚する現象のこと。実際にはないものが見えるように感じたり（<input type="checkbox" id="s23" class="sticky-cb"><label for="s23" class="fusen">幻視</label>）、実際にはしない音が聞こえたり（<input type="checkbox" id="s24" class="sticky-cb"><label for="s24" class="fusen">幻聴</label>）というように、目、耳をはじめあらゆる感覚器官で起こり得る。
+            </p>
+            <p>
+              <input type="checkbox" id="s25" class="sticky-cb"><label for="s25" class="fusen">覚醒剤</label>の使用による覚醒剤精神病の患者のなかには、自分の皮膚をはいまわる虫などの幻視を体験したり、自分を責め立てる内容の幻聴を体験したりする人が少なくない。ほとんどの幻覚は<input type="checkbox" id="s26" class="sticky-cb"><label for="s26" class="fusen">妄想</label>をともなう。
+            </p>
+            <p>
+              <strong>【妄想】</strong>病的な状態から生じた<input type="checkbox" id="s27" class="sticky-cb"><label for="s27" class="fusen">誤った判断</label>のことで、たとえば、事実はそうではないのに、「誰かが自分のうわさをしている」「自分は狙われていて、殺される」などと思うことをいう。
+            </p>
+            <div class="point-box">
+              <span class="point-box-title">妄想かそうでないかの3つの判断基準</span>
+              <ul class="bullet-list">
+                <li><strong>(1)</strong> そのことがらに対して、<input type="checkbox" id="s28" class="sticky-cb"><label for="s28" class="fusen">並なみならぬ関心</label>があること</li>
+                <li><strong>(2)</strong> <input type="checkbox" id="s29" class="sticky-cb"><label for="s29" class="fusen">経験や推理</label>によって影響されないこと</li>
+                <li><strong>(3)</strong> その内容が<input type="checkbox" id="s30" class="sticky-cb"><label for="s30" class="fusen">不可能</label>であること</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- 4. 嗜癖（しへき） -->
+        <article class="term-card item-card" data-cat="brain">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">4</span>
+              <h2 class="term-title">嗜癖（しへき）</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">幻覚・妄想・嗜癖</span>
+              <span class="page-tag">p.35</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              薬物の摂取や特定の行為を、<input type="checkbox" id="s31" class="sticky-cb"><label for="s31" class="fusen">やめようと思ってもどうしてもやめられなくなり</label>、生活に支障をきたしている状態のことである。
+            </p>
+            <div class="point-box">
+              <span class="point-box-title">脳の回路の機能不全のメカニズム</span>
+              <p>
+                ギャンブルや薬物摂取などにより、脳内に<input type="checkbox" id="s32" class="sticky-cb"><label for="s32" class="fusen">ドーパミン</label>という神経伝達物質が放出されると、<input type="checkbox" id="s33" class="sticky-cb"><label for="s33" class="fusen">中枢神経</label>が興奮して快感が得られる。この感覚を「<input type="checkbox" id="s34" class="sticky-cb"><label for="s34" class="fusen">報酬</label>」と認識すると、報酬を求める回路が強化される。さらに、その行為が繰り返されると、快感を感じにくくなり、行動がエスカレートする。また、思考や創造性を担う<input type="checkbox" id="s35" class="sticky-cb"><label for="s35" class="fusen">前頭前野</label>の機能が低下し、自分の意思でやめることがむずかしくなる。
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 5. 精神疾患を専門にみる診療所や病院 -->
+        <article class="term-card item-card" data-cat="mental">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">5</span>
+              <h2 class="term-title">精神疾患を専門にみる診療所や病院</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">心の病気・治療・支援</span>
+              <span class="page-tag">p.38</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              精神疾患にかかわる医療機関には、「精神科」「精神神経科」「心療内科」「神経内科」などさまざまな診療科目があり、それぞれの専門領域が異なる。
+            </p>
+            <div class="table-wrap">
+              <table class="compare-table">
+                <thead>
+                  <tr>
+                    <th style="width: 26%;">診療科目</th>
+                    <th style="width: 44%;">主な対象疾患・特徴</th>
+                    <th style="width: 30%;">具体例</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>精神科</strong><br><strong>精神神経科</strong></td>
+                    <td>同じ意味（併記の場合も同じ）。<input type="checkbox" id="s36" class="sticky-cb"><label for="s36" class="fusen">心の病気</label>を専門にみている医療機関。</td>
+                    <td><input type="checkbox" id="s37" class="sticky-cb"><label for="s37" class="fusen">うつ病・統合失調症</label>、神経症性障害など</td>
+                  </tr>
+                  <tr>
+                    <td><strong>心療内科</strong></td>
+                    <td>心理的な要因で身体の症状があらわれる、いわゆる「<input type="checkbox" id="s38" class="sticky-cb"><label for="s38" class="fusen">心身症</label>」をおもな対象とする。</td>
+                    <td><input type="checkbox" id="s39" class="sticky-cb"><label for="s39" class="fusen">胃潰瘍・気管支ぜんそく</label>など</td>
+                  </tr>
+                  <tr>
+                    <td><strong>神経内科</strong></td>
+                    <td><input type="checkbox" id="s40" class="sticky-cb"><label for="s40" class="fusen">脳や脊髄、神経、筋肉</label>の病気をみる内科であり、精神的な病気をおもにみているわけではない。</td>
+                    <td><input type="checkbox" id="s41" class="sticky-cb"><label for="s41" class="fusen">パーキンソン病・脳梗塞</label>、手足の麻痺や震えなど</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="margin-top: 10px; font-size: 13.5px; color: var(--slate-600);">
+              ※「心療内科」「神経内科」と表示されていても、実際には心の病気を含めてみている場合があるので、<input type="checkbox" id="s42" class="sticky-cb"><label for="s42" class="fusen">電話やインターネット</label>などであらかじめ調べてみるとよい。
+            </p>
+          </div>
+        </article>
+
+        <!-- 6. カウンセリング -->
+        <article class="term-card item-card" data-cat="mental">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">6</span>
+              <h2 class="term-title">カウンセリング</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">心の病気・治療・支援</span>
+              <span class="page-tag">p.38, 115</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              心理的な問題や精神疾患の際に、訓練を受けた専門家（医師や<input type="checkbox" id="s43" class="sticky-cb"><label for="s43" class="fusen">公認心理師</label>）が問題解決に向けた治療や援助をおこなうこと。代表的なものとして、<strong>認知行動療法</strong>と<strong>森田療法</strong>がある。
+            </p>
+            <div class="point-box">
+              <span class="point-box-title">代表的な2つの心理療法の比較</span>
+              <ul class="bullet-list">
+                <li>
+                  <strong>認知行動療法</strong>：感情や行動に影響を及ぼしている極端なとらえ方や<input type="checkbox" id="s44" class="sticky-cb"><label for="s44" class="fusen">考え方のクセ</label>を、患者と治療者が共同で確認し、最終的により現実的で幅広い<input type="checkbox" id="s45" class="sticky-cb"><label for="s45" class="fusen">認知</label>を選択できるようになることをめざす。
+                </li>
+                <li>
+                  <strong>森田療法</strong>：日本の精神科医である<input type="checkbox" id="s46" class="sticky-cb"><label for="s46" class="fusen">森田正馬</label>（もりたまさたけ）によって創始された治療法で、患者が症状へのとらわれから脱して「<input type="checkbox" id="s47" class="sticky-cb"><label for="s47" class="fusen">あるがまま</label>」の心の姿勢を獲得できるように援助する。不安の裏にある、<input type="checkbox" id="s48" class="sticky-cb"><label for="s48" class="fusen">よりよく生きたいという願望</label>を通して、自分らしい生き方をめざすことを目標とする。
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- 7. 抗うつ薬や抗不安薬 -->
+        <article class="term-card item-card" data-cat="mental">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">7</span>
+              <h2 class="term-title">抗うつ薬や抗不安薬</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">心の病気・治療・支援</span>
+              <span class="page-tag">p.38</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              <strong>【抗うつ薬】</strong><input type="checkbox" id="s49" class="sticky-cb"><label for="s49" class="fusen">うつ病</label>治療の際に使用される。脳のなかの神経伝達物質（<input type="checkbox" id="s50" class="sticky-cb"><label for="s50" class="fusen">セロトニン</label>や<input type="checkbox" id="s51" class="sticky-cb"><label for="s51" class="fusen">ノルアドレナリン</label>）に働きかけ、うつ状態を軽減させる性質をもつ。
+            </p>
+            <p>
+              <strong>【抗不安薬】</strong><input type="checkbox" id="s52" class="sticky-cb"><label for="s52" class="fusen">中枢神経</label>に作用することで、不安や緊張などを軽減したり、解消したりする医薬品である。
+            </p>
+          </div>
+        </article>
+
+        <!-- 8. デイケア -->
+        <article class="term-card item-card" data-cat="mental">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">8</span>
+              <h2 class="term-title">デイケア</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">心の病気・治療・支援</span>
+              <span class="page-tag">p.39, 口絵</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              利用者が可能なかぎり<input type="checkbox" id="s53" class="sticky-cb"><label for="s53" class="fusen">自宅で自立した生活</label>を送ることができるよう、病院などの施設に通って、ほかの参加者とともに、<input type="checkbox" id="s54" class="sticky-cb"><label for="s54" class="fusen">就労や復学</label>をめざしたリハビリテーションを受ける治療のこと。「<input type="checkbox" id="s55" class="sticky-cb"><label for="s55" class="fusen">通所リハビリテーション</label>」とも呼ばれる。
+            </p>
+          </div>
+        </article>
+
+        <!-- 9. ワクチン -->
+        <article class="term-card item-card" data-cat="vaccine">
+          <div class="term-header">
+            <div class="term-title-wrap">
+              <span class="term-num">9</span>
+              <h2 class="term-title">ワクチン</h2>
+            </div>
+            <div class="term-meta">
+              <span class="cat-tag">感染症・ワクチン</span>
+              <span class="page-tag">p.44</span>
+            </div>
+          </div>
+          <div class="term-body">
+            <p>
+              感染症の予防のため特定の病原体に対する<input type="checkbox" id="s56" class="sticky-cb"><label for="s56" class="fusen">免疫</label>を人工的につくらせることを目的とした医薬品。
+            </p>
+            <p>
+              細菌やウイルスを<input type="checkbox" id="s57" class="sticky-cb"><label for="s57" class="fusen">無毒化または弱毒化</label>し得られた<input type="checkbox" id="s58" class="sticky-cb"><label for="s58" class="fusen">抗原</label>（病原体の成分の一部またはすべて、あるいは細菌毒素など）を注射などの方法により人やペットなどの動物に接種して免疫を獲得させる。
+            </p>
+            <p>
+              免疫ができると、病気の<input type="checkbox" id="s59" class="sticky-cb"><label for="s59" class="fusen">発病や重症化</label>を防ぐことが期待できる。<input type="checkbox" id="s60" class="sticky-cb"><label for="s60" class="fusen">予防接種法</label>やその関連法令によってワクチンの種類による接種年齢・時期や方法・回数などが定められている。
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <!-- ====================================================
+           【2枚目】実践チェッククイズ（全15問・Pure CSS 4択）
+           ==================================================== -->
+      <section class="panel-quiz">
+        <div class="guide-banner">
+          <span>選択肢をタップすると即座に正誤と解説が表示されます（別の選択肢も押し直し可能）。</span>
+        </div>
+
+        <!-- Q1 -->
+        <article class="quiz-card item-card" data-cat="health">
+          <div class="quiz-head">
+            <span class="quiz-num">第1問</span>
+            <span class="cat-tag">健康づくり・喫煙</span>
+          </div>
+          <p class="quiz-question">2000年から開始した「健康日本21」を支える法律として、2002年に制定された法律はどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q1" id="q1-a" class="q-radio is-wrong">
+            <label for="q1-a" class="q-opt"><span class="opt-mark">A</span>がん対策基本法</label>
+
+            <input type="radio" name="q1" id="q1-b" class="q-radio is-correct">
+            <label for="q1-b" class="q-opt"><span class="opt-mark">B</span>健康増進法</label>
+
+            <input type="radio" name="q1" id="q1-c" class="q-radio is-wrong">
+            <label for="q1-c" class="q-opt"><span class="opt-mark">C</span>予防接種法</label>
+
+            <input type="radio" name="q1" id="q1-d" class="q-radio is-wrong">
+            <label for="q1-d" class="q-opt"><span class="opt-mark">D</span>地域保健法</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>健康増進法</strong>は、「健康日本21（21世紀における国民健康づくり運動）」を支える法律として<strong>2002年</strong>に制定されました。（がん対策基本法は2006年制定）
+            </div>
+          </div>
+        </article>
+
+        <!-- Q2 -->
+        <article class="quiz-card item-card" data-cat="health">
+          <div class="quiz-head">
+            <span class="quiz-num">第2問</span>
+            <span class="cat-tag">健康づくり・喫煙</span>
+          </div>
+          <p class="quiz-question">2018年改正の健康増進法（2020年4月全面施行）における受動喫煙対策の説明として、正しいものはどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q2" id="q2-a" class="q-radio is-wrong">
+            <label for="q2-a" class="q-opt"><span class="opt-mark">A</span>飲食店や鉄道は、屋外を含めた敷地内が原則禁煙となった。</label>
+
+            <input type="radio" name="q2" id="q2-b" class="q-radio is-wrong">
+            <label for="q2-b" class="q-opt"><span class="opt-mark">B</span>学校や病院は、屋内のみ原則禁煙で屋外は自由に喫煙できる。</label>
+
+            <input type="radio" name="q2" id="q2-c" class="q-radio is-correct">
+            <label for="q2-c" class="q-opt"><span class="opt-mark">C</span>学校や病院は、屋外を含めた敷地内が原則禁煙となった。</label>
+
+            <input type="radio" name="q2" id="q2-d" class="q-radio is-wrong">
+            <label for="q2-d" class="q-opt"><span class="opt-mark">D</span>学校や病院では、いかなる措置をとっても屋外に喫煙場所を設置できない。</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span>鉄道・飲食店などは「<strong>屋内が原則禁煙</strong>」、学校・病院・行政機関などは「<strong>屋外を含めた敷地内が原則禁煙</strong>」です。ただし、屋外で受動喫煙防止に必要な措置がとられた場合は喫煙場所を設置できます。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q3 -->
+        <article class="quiz-card item-card" data-cat="health">
+          <div class="quiz-head">
+            <span class="quiz-num">第3問</span>
+            <span class="cat-tag">健康づくり・喫煙</span>
+          </div>
+          <p class="quiz-question">健康増進法に定められた国や地方公共団体の役割として、誤っているものはどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q3" id="q3-a" class="q-radio is-wrong">
+            <label for="q3-a" class="q-opt"><span class="opt-mark">A</span>国は、国民の健康づくりをすすめるための基本方針を策定する。</label>
+
+            <input type="radio" name="q3" id="q3-b" class="q-radio is-correct">
+            <label for="q3-b" class="q-opt"><span class="opt-mark">B</span>都道府県・市町村は、国に代わって国民健康・栄養調査を実施する。</label>
+
+            <input type="radio" name="q3" id="q3-c" class="q-radio is-wrong">
+            <label for="q3-c" class="q-opt"><span class="opt-mark">C</span>都道府県・市町村は、住民の健康増進計画を策定する。</label>
+
+            <input type="radio" name="q3" id="q3-d" class="q-radio is-wrong">
+            <label for="q3-d" class="q-opt"><span class="opt-mark">D</span>健康診査の実施に関する指針を策定する。</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span>都道府県・市町村が策定するのは「住民の<strong>健康増進計画</strong>」です。国民健康・栄養調査の実施や受動喫煙防止も法に定められています。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q4 -->
+        <article class="quiz-card item-card" data-cat="health">
+          <div class="quiz-head">
+            <span class="quiz-num">第4問</span>
+            <span class="cat-tag">健康づくり・喫煙</span>
+          </div>
+          <p class="quiz-question">「たばこ規制枠組条約」に関する記述として、正しいものはどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q4" id="q4-a" class="q-radio is-correct">
+            <label for="q4-a" class="q-opt"><span class="opt-mark">A</span>WHOのもとでつくられた、保健分野における初めての多数国間条約である。</label>
+
+            <input type="radio" name="q4" id="q4-b" class="q-radio is-wrong">
+            <label for="q4-b" class="q-opt"><span class="opt-mark">B</span>2000年に採択され、日本は2002年に締結した。</label>
+
+            <input type="radio" name="q4" id="q4-c" class="q-radio is-wrong">
+            <label for="q4-c" class="q-opt"><span class="opt-mark">C</span>たばこの価格設定のみを扱い、パッケージ表示や広告規制は対象外である。</label>
+
+            <input type="radio" name="q4" id="q4-d" class="q-radio is-wrong">
+            <label for="q4-d" class="q-opt"><span class="opt-mark">D</span>日本はまだ締結しておらず、オブザーバーとして参加している。</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span>正式名称は「たばこの規制に関する世界保健機関枠組条約」。<strong>WHO</strong>のもとでつくられた保健分野初の<strong>多数国間条約</strong>で、<strong>2003年採択・2004年日本締結・2005年2月発効</strong>です。パッケージ表示や広告規制も定めています。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q5 -->
+        <article class="quiz-card item-card" data-cat="brain">
+          <div class="quiz-head">
+            <span class="quiz-num">第5問</span>
+            <span class="cat-tag">幻覚・妄想・嗜癖</span>
+          </div>
+          <p class="quiz-question">実際には対象が存在しないのに本人だけが知覚する現象のうち、覚醒剤精神病で「自分の皮膚をはいまわる虫が見える」ような症状を何というか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q5" id="q5-a" class="q-radio is-wrong">
+            <label for="q5-a" class="q-opt"><span class="opt-mark">A</span>幻聴</label>
+
+            <input type="radio" name="q5" id="q5-b" class="q-radio is-wrong">
+            <label for="q5-b" class="q-opt"><span class="opt-mark">B</span>妄想</label>
+
+            <input type="radio" name="q5" id="q5-c" class="q-radio is-correct">
+            <label for="q5-c" class="q-opt"><span class="opt-mark">C</span>幻視</label>
+
+            <input type="radio" name="q5" id="q5-d" class="q-radio is-wrong">
+            <label for="q5-d" class="q-opt"><span class="opt-mark">D</span>錯覚</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span>実際にはないものが見えるように感じる現象が<strong>幻視</strong>、実際にはしない音が聞こえる現象が<strong>幻聴</strong>です。ほとんどの幻覚は妄想をともないます。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q6 -->
+        <article class="quiz-card item-card" data-cat="brain">
+          <div class="quiz-head">
+            <span class="quiz-num">第6問</span>
+            <span class="cat-tag">幻覚・妄想・嗜癖</span>
+          </div>
+          <p class="quiz-question">「妄想」かそうでないかの3つの判断基準に含まれないものはどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q6" id="q6-a" class="q-radio is-wrong">
+            <label for="q6-a" class="q-opt"><span class="opt-mark">A</span>そのことがらに対して並なみならぬ関心があること</label>
+
+            <input type="radio" name="q6" id="q6-b" class="q-radio is-wrong">
+            <label for="q6-b" class="q-opt"><span class="opt-mark">B</span>経験や推理によって影響されないこと</label>
+
+            <input type="radio" name="q6" id="q6-c" class="q-radio is-wrong">
+            <label for="q6-c" class="q-opt"><span class="opt-mark">C</span>その内容が不可能であること</label>
+
+            <input type="radio" name="q6" id="q6-d" class="q-radio is-correct">
+            <label for="q6-d" class="q-opt"><span class="opt-mark">D</span>周囲の他者も同様の感覚を共有していること</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span>妄想の3つの判断基準は、<strong>(1)並なみならぬ関心があること、(2)経験や推理によって影響されないこと、(3)その内容が不可能であること</strong>です。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q7 -->
+        <article class="quiz-card item-card" data-cat="brain">
+          <div class="quiz-head">
+            <span class="quiz-num">第7問</span>
+            <span class="cat-tag">幻覚・妄想・嗜癖</span>
+          </div>
+          <p class="quiz-question">「嗜癖（しへき）」の背景にある脳のメカニズムとして、脳内に放出されて中枢神経を興奮させ快感をもたらす神経伝達物質はどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q7" id="q7-a" class="q-radio is-correct">
+            <label for="q7-a" class="q-opt"><span class="opt-mark">A</span>ドーパミン</label>
+
+            <input type="radio" name="q7" id="q7-b" class="q-radio is-wrong">
+            <label for="q7-b" class="q-opt"><span class="opt-mark">B</span>セロトニン</label>
+
+            <input type="radio" name="q7" id="q7-c" class="q-radio is-wrong">
+            <label for="q7-c" class="q-opt"><span class="opt-mark">C</span>ノルアドレナリン</label>
+
+            <input type="radio" name="q7" id="q7-d" class="q-radio is-wrong">
+            <label for="q7-d" class="q-opt"><span class="opt-mark">D</span>インスリン</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>ドーパミン</strong>が放出されると快感が得られ、「報酬」を求める回路が強化されます。さらに思考や創造性を担う<strong>前頭前野</strong>の機能が低下し、自分の意思でやめることが難しくなります。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q8 -->
+        <article class="quiz-card item-card" data-cat="mental">
+          <div class="quiz-head">
+            <span class="quiz-num">第8問</span>
+            <span class="cat-tag">心の病気・治療・支援</span>
+          </div>
+          <p class="quiz-question">精神疾患に関わる診療科目のうち、心理的な要因で胃潰瘍や気管支ぜんそくなどの身体症状があらわれる「心身症」をおもな対象とするものはどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q8" id="q8-a" class="q-radio is-wrong">
+            <label for="q8-a" class="q-opt"><span class="opt-mark">A</span>精神神経科</label>
+
+            <input type="radio" name="q8" id="q8-b" class="q-radio is-correct">
+            <label for="q8-b" class="q-opt"><span class="opt-mark">B</span>心療内科</label>
+
+            <input type="radio" name="q8" id="q8-c" class="q-radio is-wrong">
+            <label for="q8-c" class="q-opt"><span class="opt-mark">C</span>神経内科</label>
+
+            <input type="radio" name="q8" id="q8-d" class="q-radio is-wrong">
+            <label for="q8-d" class="q-opt"><span class="opt-mark">D</span>精神科</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>心療内科</strong>は心理的要因で身体に症状があらわれる「<strong>心身症</strong>」がおもな対象です。なお、「精神科」と「精神神経科」は同じ意味で、うつ病や統合失調症などの心の病気をみます。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q9 -->
+        <article class="quiz-card item-card" data-cat="mental">
+          <div class="quiz-head">
+            <span class="quiz-num">第9問</span>
+            <span class="cat-tag">心の病気・治療・支援</span>
+          </div>
+          <p class="quiz-question">パーキンソン病や脳梗塞、手足の麻痺や震えなど、脳や脊髄、神経、筋肉の病気をみる内科はどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q9" id="q9-a" class="q-radio is-wrong">
+            <label for="q9-a" class="q-opt"><span class="opt-mark">A</span>心療内科</label>
+
+            <input type="radio" name="q9" id="q9-b" class="q-radio is-wrong">
+            <label for="q9-b" class="q-opt"><span class="opt-mark">B</span>精神科</label>
+
+            <input type="radio" name="q9" id="q9-c" class="q-radio is-correct">
+            <label for="q9-c" class="q-opt"><span class="opt-mark">C</span>神経内科</label>
+
+            <input type="radio" name="q9" id="q9-d" class="q-radio is-wrong">
+            <label for="q9-d" class="q-opt"><span class="opt-mark">D</span>精神神経科</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>神経内科</strong>は脳や脊髄、神経、筋肉の器質的な病気をみる内科であり、精神的な病気をおもにみているわけではありません（ただし心の病気を含めてみている病院もあるため事前確認が推奨されます）。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q10 -->
+        <article class="quiz-card item-card" data-cat="mental">
+          <div class="quiz-head">
+            <span class="quiz-num">第10問</span>
+            <span class="cat-tag">心の病気・治療・支援</span>
+          </div>
+          <p class="quiz-question">カウンセリングにおける「認知行動療法」の説明として、正しいものはどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q10" id="q10-a" class="q-radio is-wrong">
+            <label for="q10-a" class="q-opt"><span class="opt-mark">A</span>森田正馬によって創始され、「あるがまま」の心の姿勢の獲得をめざす。</label>
+
+            <input type="radio" name="q10" id="q10-b" class="q-radio is-correct">
+            <label for="q10-b" class="q-opt"><span class="opt-mark">B</span>極端なとらえ方や考え方のクセを共同で確認し、現実的で幅広い認知をめざす。</label>
+
+            <input type="radio" name="q10" id="q10-c" class="q-radio is-wrong">
+            <label for="q10-c" class="q-opt"><span class="opt-mark">C</span>セロトニンやノルアドレナリンに働きかける薬物療法の一種である。</label>
+
+            <input type="radio" name="q10" id="q10-d" class="q-radio is-wrong">
+            <label for="q10-d" class="q-opt"><span class="opt-mark">D</span>施設に通所して就労や復学のための作業訓練をおこなう。</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>認知行動療法</strong>では、感情や行動に影響する極端なとらえ方や<strong>考え方のクセ</strong>を患者と治療者が共同で確認し、現実的で幅広い<strong>認知</strong>を選択できるようになることをめざします。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q11 -->
+        <article class="quiz-card item-card" data-cat="mental">
+          <div class="quiz-head">
+            <span class="quiz-num">第11問</span>
+            <span class="cat-tag">心の病気・治療・支援</span>
+          </div>
+          <p class="quiz-question">日本の精神科医・森田正馬によって創始され、症状へのとらわれから脱してどのような心の姿勢を獲得できるように援助する治療法を「森田療法」というか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q11" id="q11-a" class="q-radio is-wrong">
+            <label for="q11-a" class="q-opt"><span class="opt-mark">A</span>無我の境地</label>
+
+            <input type="radio" name="q11" id="q11-b" class="q-radio is-wrong">
+            <label for="q11-b" class="q-opt"><span class="opt-mark">B</span>前向き思考</label>
+
+            <input type="radio" name="q11" id="q11-c" class="q-radio is-correct">
+            <label for="q11-c" class="q-opt"><span class="opt-mark">C</span>あるがまま</label>
+
+            <input type="radio" name="q11" id="q11-d" class="q-radio is-wrong">
+            <label for="q11-d" class="q-opt"><span class="opt-mark">D</span>自己超越</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>森田療法</strong>は<strong>森田正馬</strong>が創始し、「<strong>あるがまま</strong>」の心の姿勢を獲得できるよう援助します。不安の裏にある「よりよく生きたいという願望」を通して自分らしい生き方をめざします。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q12 -->
+        <article class="quiz-card item-card" data-cat="mental">
+          <div class="quiz-head">
+            <span class="quiz-num">第12問</span>
+            <span class="cat-tag">心の病気・治療・支援</span>
+          </div>
+          <p class="quiz-question">うつ病治療の際に使用され、脳のなかの神経伝達物質であるセロトニンやノルアドレナリンに働きかけてうつ状態を軽減させる医薬品はどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q12" id="q12-a" class="q-radio is-wrong">
+            <label for="q12-a" class="q-opt"><span class="opt-mark">A</span>抗不安薬</label>
+
+            <input type="radio" name="q12" id="q12-b" class="q-radio is-correct">
+            <label for="q12-b" class="q-opt"><span class="opt-mark">B</span>抗うつ薬</label>
+
+            <input type="radio" name="q12" id="q12-c" class="q-radio is-wrong">
+            <label for="q12-c" class="q-opt"><span class="opt-mark">C</span>睡眠導入薬</label>
+
+            <input type="radio" name="q12" id="q12-d" class="q-radio is-wrong">
+            <label for="q12-d" class="q-opt"><span class="opt-mark">D</span>抗精神病薬</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>抗うつ薬</strong>は脳内の神経伝達物質（<strong>セロトニン</strong>や<strong>ノルアドレナリン</strong>）に働きかけます。一方、<strong>抗不安薬</strong>は<strong>中枢神経</strong>に作用して不安や緊張を軽減・解消します。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q13 -->
+        <article class="quiz-card item-card" data-cat="mental">
+          <div class="quiz-head">
+            <span class="quiz-num">第13問</span>
+            <span class="cat-tag">心の病気・治療・支援</span>
+          </div>
+          <p class="quiz-question">利用者が自宅で自立した生活を送れるよう、病院などの施設に通って就労や復学をめざしたリハビリテーションを受ける治療（「通所リハビリテーション」）はどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q13" id="q13-a" class="q-radio is-wrong">
+            <label for="q13-a" class="q-opt"><span class="opt-mark">A</span>インフォームド・コンセント</label>
+
+            <input type="radio" name="q13" id="q13-b" class="q-radio is-wrong">
+            <label for="q13-b" class="q-opt"><span class="opt-mark">B</span>セカンド・オピニオン</label>
+
+            <input type="radio" name="q13" id="q13-c" class="q-radio is-correct">
+            <label for="q13-c" class="q-opt"><span class="opt-mark">C</span>デイケア</label>
+
+            <input type="radio" name="q13" id="q13-d" class="q-radio is-wrong">
+            <label for="q13-d" class="q-opt"><span class="opt-mark">D</span>プライマリ・ケア</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>デイケア</strong>は「<strong>通所リハビリテーション</strong>」とも呼ばれ、ほかの参加者とともに<strong>就労や復学</strong>をめざしたリハビリテーションを受ける治療です。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q14 -->
+        <article class="quiz-card item-card" data-cat="vaccine">
+          <div class="quiz-head">
+            <span class="quiz-num">第14問</span>
+            <span class="cat-tag">感染症・ワクチン</span>
+          </div>
+          <p class="quiz-question">ワクチンの仕組みとして、細菌やウイルスを無毒化または弱毒化して得られる、免疫を獲得させるために接種する物質は何か。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q14" id="q14-a" class="q-radio is-wrong">
+            <label for="q14-a" class="q-opt"><span class="opt-mark">A</span>抗体</label>
+
+            <input type="radio" name="q14" id="q14-b" class="q-radio is-correct">
+            <label for="q14-b" class="q-opt"><span class="opt-mark">B</span>抗原</label>
+
+            <input type="radio" name="q14" id="q14-c" class="q-radio is-wrong">
+            <label for="q14-c" class="q-opt"><span class="opt-mark">C</span>神経伝達物質</label>
+
+            <input type="radio" name="q14" id="q14-d" class="q-radio is-wrong">
+            <label for="q14-d" class="q-opt"><span class="opt-mark">D</span>抗生物質</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span>細菌やウイルスを<strong>無毒化または弱毒化</strong>して得られた<strong>抗原</strong>（病原体の成分や細菌毒素など）を接種し、特定の病原体に対する<strong>免疫</strong>を人工的につくらせます。
+            </div>
+          </div>
+        </article>
+
+        <!-- Q15 -->
+        <article class="quiz-card item-card" data-cat="vaccine">
+          <div class="quiz-head">
+            <span class="quiz-num">第15問</span>
+            <span class="cat-tag">感染症・ワクチン</span>
+          </div>
+          <p class="quiz-question">ワクチンの種類による接種年齢・時期や方法・回数などを定めている法律はどれか。</p>
+          <div class="quiz-options">
+            <input type="radio" name="q15" id="q15-a" class="q-radio is-wrong">
+            <label for="q15-a" class="q-opt"><span class="opt-mark">A</span>感染症法</label>
+
+            <input type="radio" name="q15" id="q15-b" class="q-radio is-wrong">
+            <label for="q15-b" class="q-opt"><span class="opt-mark">B</span>健康増進法</label>
+
+            <input type="radio" name="q15" id="q15-c" class="q-radio is-correct">
+            <label for="q15-c" class="q-opt"><span class="opt-mark">C</span>予防接種法</label>
+
+            <input type="radio" name="q15" id="q15-d" class="q-radio is-wrong">
+            <label for="q15-d" class="q-opt"><span class="opt-mark">D</span>検疫法</label>
+
+            <div class="q-exp">
+              <span class="exp-badge">解説</span><strong>予防接種法</strong>やその関連法令によって、ワクチンの種類による接種年齢・時期・方法・回数などが定められています。免疫ができると病気の<strong>発病や重症化</strong>を防ぐことが期待できます。
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </main>
+  </form>
+
+</body>
+</html>
