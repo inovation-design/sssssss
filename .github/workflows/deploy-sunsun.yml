@@ -40,6 +40,10 @@ jobs:
             mkdir -p _site/sunsun
             cp -r sunsun-pages/. _site/sunsun/
           fi
+          if [ -d "ongaku" ]; then
+            mkdir -p _site/ongaku
+            cp -r ongaku/. _site/ongaku/
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

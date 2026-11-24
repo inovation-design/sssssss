@@ -1,0 +1,61 @@
+name: Deploy ongaku to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ongaku/**'
+      - '.github/workflows/deploy-ongaku.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build 課題管理表
+        working-directory: 課題管理表
+        run: npx vite build
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _site
+          cp -r 課題管理表/dist/. _site/
+          cp -r block-blast-pwa _site/block-blast-pwa
+          if [ -d "sunsun-pages" ]; then
+            mkdir -p _site/sunsun
+            cp -r sunsun-pages/. _site/sunsun/
+          fi
+          if [ -d "ongaku" ]; then
+            mkdir -p _site/ongaku
+            cp -r ongaku/. _site/ongaku/
+          fi
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
