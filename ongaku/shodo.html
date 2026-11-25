@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>書道 頻出事項まとめ＆クイズ</title>
+  <style>
+    /* ==========================================================================
+       ベース設定・カラーパレット（青基調のシンプルデザイン）
+       ========================================================================== */
+    :root {
+      --bg-page: #f4f7fb;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+
+      /* 青基調のアクセントカラー */
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-200: #bfdbfe;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+      --blue-800: #1e40af;
+
+      /* 付箋カラー */
+      --fusen-bg: #2563eb;
+      --fusen-edge: #1d4ed8;
+      --fusen-hover: #1e40af;
+      --fusen-revealed-bg: #eff6ff;
+      --fusen-revealed-text: #1d4ed8;
+      --fusen-revealed-border: #bfdbfe;
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 12px rgba(37, 99, 235, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.75;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 60px;
+    }
+
+    /* 状態管理用の隠しラジオ・チェックボックス */
+    .state-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
+    /* ==========================================================================
+       ヘッダー・ナビゲーション（タブ＆カテゴリー絞り込み）
+       ========================================================================== */
+    .app-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 16px 14px;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 20px 20px 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .app-header h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .app-header p {
+      font-size: 0.85rem;
+      color: var(--blue-100);
+      line-height: 1.5;
+    }
+
+    /* メインタブ（頻出事項 / クイズ） */
+    .main-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #ffffff;
+      padding: 6px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 14px;
+    }
+
+    .tab-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .tab-label:hover {
+      background-color: var(--blue-50);
+      color: var(--blue-600);
+    }
+
+    /* 選択中のタブスタイル */
+    #tab-summary:checked ~ .app-container .label-summary,
+    #tab-quiz:checked ~ .app-container .label-quiz {
+      background-color: var(--blue-600);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    /* カテゴリー絞り込みバー */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .filter-label {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .filter-label:hover {
+      border-color: var(--blue-500);
+      color: var(--blue-600);
+    }
+
+    #cat-all:checked ~ .app-container .lbl-cat-all,
+    #cat-basic:checked ~ .app-container .lbl-cat-basic,
+    #cat-tang:checked ~ .app-container .lbl-cat-tang,
+    #cat-wei:checked ~ .app-container .lbl-cat-wei,
+    #cat-jin:checked ~ .app-container .lbl-cat-jin {
+      background-color: var(--blue-50);
+      border-color: var(--blue-600);
+      color: var(--blue-700);
+    }
+
+    /* ツールバー（ヒント＆すべて付箋を貼るボタン） */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toolbar-hint {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hint-swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background: var(--fusen-bg);
+      border-left: 4px solid var(--fusen-edge);
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+
+    .btn-reset {
+      appearance: none;
+      border: 1px solid var(--blue-600);
+      background-color: #ffffff;
+      color: var(--blue-600);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-reset:hover,
+    .btn-reset:active {
+      background-color: var(--blue-600);
+      color: #ffffff;
+    }
+
+    /* ==========================================================================
+       タブパネル表示制御（Pure CSS）
+       ========================================================================== */
+    .panel-summary,
+    .panel-quiz {
+      display: none;
+    }
+
+    #tab-summary:checked ~ .app-container .panel-summary {
+      display: block;
+    }
+
+    #tab-quiz:checked ~ .app-container .panel-quiz {
+      display: block;
+    }
+
+    /* カテゴリー絞り込み表示制御（Pure CSS） */
+    #cat-basic:checked ~ .app-container .card:not(.cat-basic),
+    #cat-tang:checked ~ .app-container .card:not(.cat-tang),
+    #cat-wei:checked ~ .app-container .card:not(.cat-wei),
+    #cat-jin:checked ~ .app-container .card:not(.cat-jin) {
+      display: none;
+    }
+
+    /* ==========================================================================
+       青基調のシンプルな付箋ギミック（Pure CSS）
+       ========================================================================== */
+    .fusen {
+      position: relative;
+      display: inline-block;
+      vertical-align: baseline;
+      margin: 2px 3px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      line-height: 1.45;
+    }
+
+    .fusen-chk {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    /* めくった後に見える答え */
+    .fusen-ans {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 5px;
+      font-weight: 700;
+      color: var(--fusen-revealed-text);
+      background-color: var(--fusen-revealed-bg);
+      border: 1px solid var(--fusen-revealed-border);
+      transition: opacity 0.2s ease;
+    }
+
+    /* 上に貼られている青い付箋カバー */
+    .fusen-cover {
+      position: absolute;
+      inset: 0;
+      background-color: var(--fusen-bg);
+      border-left: 5px solid var(--fusen-edge);
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(30, 64, 175, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: top center;
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+      overflow: hidden;
+    }
+
+    /* 付箋カバー上の控えめな装飾ライン */
+    .fusen-cover::after {
+      content: "";
+      width: 14px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.38);
+      border-radius: 2px;
+    }
+
+    .fusen:hover .fusen-cover {
+      background-color: var(--fusen-hover);
+    }
+
+    /* タップ（チェック）されたら付箋がめくれて消える */
+    .fusen-chk:checked ~ .fusen-cover {
+      transform: translateY(-65%) scaleY(0.15);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       カード・セクションデザイン
+       ========================================================================== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 2px solid var(--blue-50);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .no-badge {
+      display: inline-block;
+      background: var(--blue-600);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+    }
+
+    .cat-tag {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--blue-700);
+      background: var(--blue-50);
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .sub-heading {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      border-left: 4px solid var(--blue-500);
+      padding-left: 9px;
+      margin: 16px 0 8px;
+    }
+
+    .sub-heading:first-of-type {
+      margin-top: 4px;
+    }
+
+    .info-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-list li {
+      position: relative;
+      padding-left: 16px;
+      margin-bottom: 8px;
+    }
+
+    .info-list li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 11px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--blue-500);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 0.9rem;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .meta-label {
+      font-weight: 700;
+      color: var(--text-sub);
+      font-size: 0.82rem;
+    }
+
+    .note-box {
+      background: var(--blue-50);
+      border-left: 4px solid var(--blue-600);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 0.9rem;
+    }
+
+    .example-char {
+      display: inline-block;
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      background: #ffffff;
+      border: 1px solid var(--blue-200);
+      border-radius: 5px;
+      padding: 0 7px;
+      margin: 0 2px;
+    }
+
+    /* ==========================================================================
+       図解コンポーネント（点画「道」・雁塔聖教序の碑配置）
+       ========================================================================== */
+    .diagram-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin: 10px 0;
+    }
+
+    .svg-box {
+      flex: 0 0 190px;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      margin: 0 auto;
+    }
+
+    .diagram-legend {
+      flex: 1 1 240px;
+      font-size: 0.9rem;
+    }
+
+    .diagram-legend p {
+      margin-bottom: 6px;
+    }
+
+    /* 雁塔聖教序の配置図 */
+    .ganto-map {
+      background: var(--bg-page);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .ganto-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      max-width: 480px;
+      margin: 0 auto 10px;
+    }
+
+    .ganto-stele {
+      background: #ffffff;
+      border: 2px solid var(--blue-500);
+      border-radius: 8px;
+      padding: 10px 8px;
+      font-size: 0.85rem;
+    }
+
+    .ganto-gate {
+      background: var(--blue-100);
+      color: var(--blue-800);
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 14px 10px;
+      border-radius: 8px;
+    }
+
+    .ganto-arrow {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--blue-700);
+    }
+
+    /* ==========================================================================
+       比較一覧テーブル
+       ========================================================================== */
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 10px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+    }
+
+    .summary-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: #ffffff;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border-light);
+      border-right: 1px solid var(--border-light);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .summary-table th {
+      background-color: var(--blue-50);
+      color: var(--blue-800);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .summary-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .summary-table td:last-child,
+    .summary-table th:last-child {
+      border-right: none;
+    }
+
+    /* ==========================================================================
+       クイズシート専用スタイル
+       ========================================================================== */
+    .quiz-item {
+      border-bottom: 1px dashed var(--border-light);
+      padding: 14px 0;
+    }
+
+    .quiz-item:first-child {
+      padding-top: 4px;
+    }
+
+    .quiz-item:last-child {
+      border-bottom: none;
+      padding-bottom: 4px;
+    }
+
+    .quiz-q {
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .q-num {
+      display: inline-block;
+      background: var(--blue-100);
+      color: var(--blue-800);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+
+    .quiz-a-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding-left: 8px;
+      font-size: 0.92rem;
+    }
+
+    .a-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--blue-600);
+    }
+
+    /* ==========================================================================
+       レスポンシブ調整（スマホ画面）
+       ========================================================================== */
+    @media (max-width: 600px) {
+      body {
+        font-size: 14.5px;
+      }
+      .app-container {
+        padding: 10px 10px;
+      }
+      .app-header {
+        padding: 16px;
+      }
+      .app-header h1 {
+        font-size: 1.18rem;
+      }
+      .card {
+        padding: 15px 14px;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-reset {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================
+       状態管理用ラジオボタン（フォーム外に配置し、付箋リセットの影響を受けない）
+       ====================================================================== -->
+  <!-- 上部タブ切り替え -->
+  <input type="radio" name="main-tab" id="tab-summary" class="state-input" checked>
+  <input type="radio" name="main-tab" id="tab-quiz" class="state-input">
+
+  <!-- 単元・カテゴリー絞り込み -->
+  <input type="radio" name="cat-filter" id="cat-all" class="state-input" checked>
+  <input type="radio" name="cat-filter" id="cat-basic" class="state-input">
+  <input type="radio" name="cat-filter" id="cat-tang" class="state-input">
+  <input type="radio" name="cat-filter" id="cat-wei" class="state-input">
+  <input type="radio" name="cat-filter" id="cat-jin" class="state-input">
+
+  <div class="app-container">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <h1>書道 頻出事項まとめ＆確認クイズ</h1>
+      <p>青い付箋をタップしてめくり、答えをチェックできます（Pure CSS・オフライン動作対応）</p>
+    </header>
+
+    <!-- 上部メインタブ -->
+    <nav class="main-tabs" aria-label="表示切り替え">
+      <label for="tab-summary" class="tab-label label-summary">頻出事項まとめ</label>
+      <label for="tab-quiz" class="tab-label label-quiz">確認クイズ（全30問）</label>
+    </nav>
+
+    <!-- カテゴリー絞り込み -->
+    <div class="filter-bar" role="group" aria-label="カテゴリー絞り込み">
+      <label for="cat-all" class="filter-label lbl-cat-all">すべて</label>
+      <label for="cat-basic" class="filter-label lbl-cat-basic">基礎・道具・点画</label>
+      <label for="cat-tang" class="filter-label lbl-cat-tang">唐の楷書（4作品）</label>
+      <label for="cat-wei" class="filter-label lbl-cat-wei">北魏の楷書</label>
+      <label for="cat-jin" class="filter-label lbl-cat-jin">東晋の行書</label>
+    </div>
+
+    <!-- 付箋チェックボックスを内包するフォーム（type="reset"で全付箋を一括貼り直し） -->
+    <form class="study-form">
+      <div class="toolbar">
+        <div class="toolbar-hint">
+          <span class="hint-swatch" aria-hidden="true"></span>
+          <span>付箋をタップでめくる・再タップで貼り直し</span>
+        </div>
+        <button type="reset" class="btn-reset">すべて付箋を貼る</button>
+      </div>
+
+      <!-- ====================================================================
+           1枚目：頻出事項まとめパネル
+           ==================================================================== -->
+      <section class="panel-summary" aria-label="頻出事項まとめ">
+
+        <!-- No.1 基礎・道具・姿勢 -->
+        <article class="card cat-basic">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.1</span>書写と書道・道具・姿勢と執筆法</h2>
+            <span class="cat-tag">基礎・道具・点画</span>
+          </div>
+
+          <h3 class="sub-heading">1. 書写と書道</h3>
+          <ul class="info-list">
+            <li>
+              <strong>書写</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">国語科</span><span class="fusen-cover"></span></label><br>
+              目標：文字を<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">正しく整えて書く</span><span class="fusen-cover"></span></label>こと。
+            </li>
+            <li>
+              <strong>書道</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">芸術科</span><span class="fusen-cover"></span></label><br>
+              目標：書写の学習を基盤にし、幅広い書の美に触れることによって<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">感性を磨き</span><span class="fusen-cover"></span></label>、漢字や仮名などの文字を素材に<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">自己表現</span><span class="fusen-cover"></span></label>すること。
+            </li>
+          </ul>
+
+          <h3 class="sub-heading">2. 書道道具</h3>
+          <ul class="info-list">
+            <li>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">文房四宝</span><span class="fusen-cover"></span></label>：
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">筆、硯、墨、紙</span><span class="fusen-cover"></span></label>
+            </li>
+          </ul>
+
+          <h3 class="sub-heading">3. 姿勢と執筆法</h3>
+          <ul class="info-list">
+            <li>
+              筆を持った時の姿勢（腕の構え方）：
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">懸腕法</span><span class="fusen-cover"></span></label>、
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">提腕法</span><span class="fusen-cover"></span></label>、
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">枕腕法</span><span class="fusen-cover"></span></label>
+            </li>
+            <li>
+              大筆の持ち方：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">双鉤法</span><span class="fusen-cover"></span></label>
+              ／ 小筆の持ち方：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">単鉤法</span><span class="fusen-cover"></span></label>
+            </li>
+          </ul>
+        </article>
+
+        <!-- No.2 三つの視点・点画の部分名称 -->
+        <article class="card cat-basic">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.2</span>表現を知るための三つの視点・点画の部分名称</h2>
+            <span class="cat-tag">基礎・道具・点画</span>
+          </div>
+
+          <h3 class="sub-heading">1. 表現を知るための三つの視点</h3>
+          <ul class="info-list">
+            <li>
+              ① <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">用筆</span><span class="fusen-cover"></span></label>（筆毛の弾力を生かした筆の使い方）・
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">運筆</span><span class="fusen-cover"></span></label>（筆の運び方）
+            </li>
+            <li>
+              ② <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">字形</span><span class="fusen-cover"></span></label>（点画の位置や、長短、方向、曲直、分間、疎密などの要素によって構成）
+            </li>
+            <li>
+              ③ <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">構成</span><span class="fusen-cover"></span></label>（紙面全体のまとめ方）
+            </li>
+          </ul>
+
+          <h3 class="sub-heading">2. 点画の部分名称（「道」の字の例）</h3>
+          <div class="diagram-wrap">
+            <!-- ノートの「道」の点画図をSVGで再現 -->
+            <div class="svg-box">
+              <svg viewBox="0 0 220 200" width="100%" height="auto" role="img" aria-label="道の字の点画部分名称図">
+                <!-- 「道」のストローク -->
+                <g stroke="#1e293b" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <!-- 首の点2つ -->
+                  <path d="M98,28 L106,48" />
+                  <path d="M138,24 L132,46" />
+                  <!-- 横画 -->
+                  <path d="M78,56 L156,52" />
+                  <!-- 短いノ -->
+                  <path d="M120,56 L108,72" />
+                  <!-- 自 -->
+                  <path d="M102,74 L102,138" />
+                  <path d="M102,74 L144,72 L144,138" />
+                  <path d="M102,94 L144,92" />
+                  <path d="M102,114 L144,112" />
+                  <path d="M102,134 L144,132" />
+                  <!-- しんにょう -->
+                  <path d="M46,34 L62,48" />
+                  <path d="M36,76 L62,76 L52,96 C62,110 66,120 50,136" />
+                  <path d="M32,140 C60,138 95,158 124,162 C148,162 172,158 188,154" />
+                </g>
+                <!-- 青い丸印とラベル -->
+                <g stroke="#2563eb" stroke-width="1.8" fill="none">
+                  <circle cx="46" cy="34" r="13" />
+                  <circle cx="98" cy="28" r="13" />
+                  <circle cx="36" cy="76" r="13" />
+                  <circle cx="156" cy="52" r="13" />
+                  <circle cx="144" cy="73" r="13" />
+                  <circle cx="182" cy="154" r="16" />
+                  <!-- 送筆の中括弧 -->
+                  <path d="M162,88 C170,88 168,108 176,110 C168,112 170,132 162,132" />
+                  <path d="M58,158 C62,174 102,168 106,180 C110,168 148,178 154,164" />
+                </g>
+                <g fill="#1d4ed8" font-size="14" font-weight="700" font-family="sans-serif">
+                  <text x="18" y="34">a</text>
+                  <text x="94" y="13">a</text>
+                  <text x="10" y="80">a</text>
+                  <text x="176" y="57">c</text>
+                  <text x="163" y="78">d</text>
+                  <text x="182" y="115">b</text>
+                  <text x="102" y="196">b</text>
+                  <text x="201" y="176">f</text>
+                </g>
+              </svg>
+            </div>
+            <div class="diagram-legend">
+              <p><strong>a</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">起筆（始筆）</span><span class="fusen-cover"></span></label>（書き始め）</p>
+              <p><strong>b</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">送筆</span><span class="fusen-cover"></span></label>（線の途中を運ぶ部分）</p>
+              <p><strong>c</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">収筆（終筆）</span><span class="fusen-cover"></span></label>（書き終わり）</p>
+              <p><strong>d</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">転折</span><span class="fusen-cover"></span></label>（折れ曲がる部分）</p>
+              <p><strong>(e)</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">左払い</span><span class="fusen-cover"></span></label></p>
+              <p><strong>f</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">右払い（波磔）</span><span class="fusen-cover"></span></label></p>
+              <p><strong>(g)</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">点</span><span class="fusen-cover"></span></label></p>
+            </div>
+          </div>
+        </article>
+
+        <!-- No.3 孔子廟堂碑 -->
+        <article class="card cat-tang">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.3</span>「孔子廟堂碑（こうしびょうどうひ）」</h2>
+            <span class="cat-tag">唐の楷書</span>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item"><span class="meta-label">年代・時代：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">629年頃（唐）</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">書体：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">楷書</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">筆者・撰文：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">虞世南</span><span class="fusen-cover"></span></label></div>
+          </div>
+
+          <h3 class="sub-heading">成立背景・人物像</h3>
+          <ul class="info-list">
+            <li>唐の二代目皇帝<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">太宗</span><span class="fusen-cover"></span></label>が都である<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">長安</span><span class="fusen-cover"></span></label>に<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">孔子</span><span class="fusen-cover"></span></label>の霊を祀る廟を再建した際の記念碑。</li>
+            <li>孔子の聖徳を讃え、<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">儒教</span><span class="fusen-cover"></span></label>を宣揚し、孔子廟建立の意義を述べている。太宗の側近であった虞世南が勅命を受け、文を作り揮毫（きごう）した。</li>
+            <li>虞世南の人物像：実直＆穏やか、何事にも厳正。</li>
+          </ul>
+
+          <h3 class="sub-heading">書の特徴（例字：<span class="example-char">大</span><span class="example-char">道</span>）</h3>
+          <ul class="info-list">
+            <li>
+              <strong>用筆</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">直筆</span><span class="fusen-cover"></span></label>（筆管を垂直に立てて筆を用いる方法。穂先が線の中央を通るため、丸みを帯びた線となる。内に含んだ強い線質）
+            </li>
+            <li>
+              <strong>字形</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">向勢</span><span class="fusen-cover"></span></label>（向き合った縦画が<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">外側に膨らむ</span><span class="fusen-cover"></span></label>文字の構え。力強く、丸みがあり、大らかで空間が広がる）
+            </li>
+            <li>
+              丸みを帯びた点画 → <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">内剛外柔</span><span class="fusen-cover"></span></label> ／ 横画や波磔 → 長く<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">伸びやか</span><span class="fusen-cover"></span></label>
+            </li>
+            <li>
+              <strong>書風</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">温雅で品格が高い</span><span class="fusen-cover"></span></label>
+            </li>
+          </ul>
+        </article>
+
+        <!-- No.4・5 九成宮醴泉銘 -->
+        <article class="card cat-tang">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.4・5</span>「九成宮醴泉銘（きゅうせいきゅうれいせんめい）」</h2>
+            <span class="cat-tag">唐の楷書</span>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item"><span class="meta-label">年代・時代：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">632年（唐）</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">書体：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">楷書</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">筆者：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">欧陽詢</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">撰文（作者）：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">魏徴</span><span class="fusen-cover"></span></label></div>
+          </div>
+
+          <h3 class="sub-heading">成立背景・重要語句</h3>
+          <ul class="info-list">
+            <li>唐の太宗が帝室の離宮である<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">九成宮</span><span class="fusen-cover"></span></label>に避暑に訪れた際、庭の一隅からおいしい水（＝<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">醴泉</span><span class="fusen-cover"></span></label>）が湧き出たことを記念して建立した石碑。</li>
+            <li>太宗の側近である<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">魏徴</span><span class="fusen-cover"></span></label>が勅命を受けて文を作り、<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">欧陽詢</span><span class="fusen-cover"></span></label>が揮毫した。九成宮の華麗な様子や太宗皇帝の素晴らしさなどを述べている。</li>
+          </ul>
+          <div class="note-box">
+            <strong>※ 重要：</strong>欧陽詢と虞世南の2人はあわせて<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">楷書の双璧</span><span class="fusen-cover"></span></label>と呼ばれる。
+          </div>
+
+          <h3 class="sub-heading">書の特徴（例字：<span class="example-char">清</span><span class="example-char">泉</span>）</h3>
+          <ul class="info-list">
+            <li>
+              <strong>用筆</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">側筆</span><span class="fusen-cover"></span></label>（筆管を手前に傾けて用いる。鋭い線を引くことができる）
+            </li>
+            <li>
+              <strong>字形</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">背勢</span><span class="fusen-cover"></span></label>（向き合った縦画が<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">内側に反る</span><span class="fusen-cover"></span></label>ことで文字内の空間が狭くなり、引き締まった趣を生み出す効果がある）
+            </li>
+            <li>
+              <strong>書風</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">キリッと引き締まった清々しい趣</span><span class="fusen-cover"></span></label>（→ 厳しさ、精神性の高さ）
+            </li>
+          </ul>
+        </article>
+
+        <!-- No.7 雁塔聖教序 -->
+        <article class="card cat-tang">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.7</span>「雁塔聖教序（がんとうしょうぎょうじょ）」</h2>
+            <span class="cat-tag">唐の楷書</span>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item"><span class="meta-label">年代・時代：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">653年（唐）</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">書体：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">楷書</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">筆者：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">褚遂良</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">撰文：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">太宗皇帝・皇太子（後の高宗皇帝）</span><span class="fusen-cover"></span></label></div>
+          </div>
+
+          <h3 class="sub-heading">成立背景・碑の配置</h3>
+          <ul class="info-list">
+            <li>仏教の教典を持ち帰るためにインドに密行した<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">玄奘法師</span><span class="fusen-cover"></span></label>を讃えたもの。太宗の仏教に対する理解と、玄奘法師の功績の二つを讃えている。</li>
+            <li>筆者の褚遂良は、<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">王羲之</span><span class="fusen-cover"></span></label>の書の鑑定も行った人物。</li>
+          </ul>
+
+          <div class="ganto-map">
+            <div class="ganto-row">
+              <div class="ganto-stele">
+                <strong>碑（左）</strong><br>
+                撰文：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">高宗皇帝</span><span class="fusen-cover"></span></label>
+              </div>
+              <div class="ganto-gate">南門<br>入り口</div>
+              <div class="ganto-stele">
+                <strong>碑（右）</strong><br>
+                撰文：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">太宗皇帝</span><span class="fusen-cover"></span></label>
+              </div>
+            </div>
+            <div class="ganto-arrow">← 文章を読む方向（右の太宗の碑から左の高宗の碑へ） ←</div>
+          </div>
+
+          <h3 class="sub-heading">書の特徴</h3>
+          <ul class="info-list">
+            <li>
+              <strong>用筆</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">蔵鋒</span><span class="fusen-cover"></span></label>（起筆の際、穂先を逆から入れ内側に包み込むように用いる入筆法）<br>
+              ※ 対比：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">露鋒</span><span class="fusen-cover"></span></label>（起筆の際、穂先が点画の端に現れる入筆法）
+            </li>
+            <li>
+              <strong>字形</strong>：横画・縦画ともに<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">うねりと抑揚</span><span class="fusen-cover"></span></label>がある。
+            </li>
+            <li>
+              <strong>運筆</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">抑揚の変化に富む</span><span class="fusen-cover"></span></label> → 筆の弾力を使う。
+            </li>
+          </ul>
+        </article>
+
+        <!-- No.10 顔氏家廟碑 -->
+        <article class="card cat-tang">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.10</span>「顔氏家廟碑（がんしかびょうひ）」</h2>
+            <span class="cat-tag">唐の楷書</span>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item"><span class="meta-label">年代・時代：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">780年（唐）</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">書体：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">楷書</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">筆者・撰文：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">顔真卿</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">後世への影響：</span>活字の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">明朝体</span><span class="fusen-cover"></span></label>のモデル</div>
+          </div>
+
+          <h3 class="sub-heading">成立背景・重要語句</h3>
+          <ul class="info-list">
+            <li>筆者（顔真卿）が父の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">顔惟真</span><span class="fusen-cover"></span></label>を祀った廟を建てて、その内部に建立した石碑。</li>
+            <li>碑文には父の徳をたたえるとともに、顔氏一族の履歴を記した文を自ら作り、書写したもの。石碑の前後左右の四面に<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">3千字近く</span><span class="fusen-cover"></span></label>を刻した巨大な碑である。</li>
+          </ul>
+          <div class="note-box">
+            <strong>※ 唐の四大家：</strong><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">初唐の三大家</span><span class="fusen-cover"></span></label>（<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">虞世南・欧陽詢・褚遂良</span><span class="fusen-cover"></span></label>）＋ <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">顔真卿</span><span class="fusen-cover"></span></label>
+          </div>
+
+          <h3 class="sub-heading">書の特徴（例字：<span class="example-char">武</span>）</h3>
+          <ul class="info-list">
+            <li>
+              <strong>用筆</strong>：起筆では<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">蔵鋒</span><span class="fusen-cover"></span></label>、送筆では<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">直筆</span><span class="fusen-cover"></span></label> → 丸みを帯びる線。
+            </li>
+            <li>
+              <strong>字形</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">向勢</span><span class="fusen-cover"></span></label>（向き合った縦画が外側に膨らんでいる構え → ゆったりとした大らかさ、正方形に収まる）
+            </li>
+            <li>
+              <strong><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">顔法</span><span class="fusen-cover"></span></label>・<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">蚕頭燕尾</span><span class="fusen-cover"></span></label></strong>：
+              起筆に丸みがある → 蚕の頭のように丸い（<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">蚕頭</span><span class="fusen-cover"></span></label>）／ 波磔部分の形 → 二段階に太さの変化がある（<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">燕尾</span><span class="fusen-cover"></span></label>）
+            </li>
+            <li>
+              <strong>運筆</strong>：筆の弾力を使い、<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">筆の開閉</span><span class="fusen-cover"></span></label>を意識する。
+            </li>
+            <li>
+              <strong>書風</strong>：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">重厚感のあるたくましい趣</span><span class="fusen-cover"></span></label>
+            </li>
+          </ul>
+        </article>
+
+        <!-- No.13 牛橛造像記・龍門造像記 -->
+        <article class="card cat-wei">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.13</span>「牛橛造像記（ぎゅうけつぞうぞうき）」・龍門造像記</h2>
+            <span class="cat-tag">北魏の楷書</span>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item"><span class="meta-label">年代・時代：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">495年（北魏）</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">書体：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">楷書</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">筆者：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">不明</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">別称・特徴：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">刀の芸術</span><span class="fusen-cover"></span></label>・<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">方勢</span><span class="fusen-cover"></span></label></div>
+          </div>
+
+          <h3 class="sub-heading">龍門造像記について（例字：<span class="example-char">和</span>）</h3>
+          <ul class="info-list">
+            <li>後漢滅亡後約300年の中国は<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">魏晋南北朝</span><span class="fusen-cover"></span></label>と呼ばれ、各国が並立する動乱の時代であった。</li>
+            <li>北朝の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">北魏</span><span class="fusen-cover"></span></label>では、第6代<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">孝文帝</span><span class="fusen-cover"></span></label>が都を<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">平城</span><span class="fusen-cover"></span></label>から<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">洛陽</span><span class="fusen-cover"></span></label>に遷すと、仏教の普及に伴って洛陽の南に流れる<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">伊水</span><span class="fusen-cover"></span></label>の両岸の岩山に<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">龍門石窟</span><span class="fusen-cover"></span></label>が多く掘られた。</li>
+            <li>洞窟の内壁の仏像の傍らに記された、仏像を造った由来が刻されたものを<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">龍門造像記</span><span class="fusen-cover"></span></label>という。</li>
+            <li>龍門石窟のうち最も古いとされる<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">古陽洞</span><span class="fusen-cover"></span></label>には大小の造像記が数多く刻され、<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">龍門様式</span><span class="fusen-cover"></span></label>と呼ばれる<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">鋭角的な激しい用筆</span><span class="fusen-cover"></span></label>（蔵鋒・方筆）と<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">右肩上がりの力強い構成</span><span class="fusen-cover"></span></label>（<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">方勢</span><span class="fusen-cover"></span></label>）が特徴。</li>
+          </ul>
+        </article>
+
+        <!-- No.20 蘭亭序・行書の特徴 -->
+        <article class="card cat-jin">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">No.20</span>「蘭亭序（らんていじょ）」・行書の特徴</h2>
+            <span class="cat-tag">東晋の行書</span>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item"><span class="meta-label">年代・時代：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">353年（東晋）</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">書体：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">行書</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">筆者：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">王羲之</span><span class="fusen-cover"></span></label></div>
+            <div class="meta-item"><span class="meta-label">異名：</span><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">書聖</span><span class="fusen-cover"></span></label>（各書体に精通）</div>
+          </div>
+
+          <h3 class="sub-heading">成立背景・伝承（例字：<span class="example-char">天</span><span class="example-char">朗</span><span class="example-char">氣</span><span class="example-char">清</span>・筆脈）</h3>
+          <ul class="info-list">
+            <li>王羲之が<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">会稽山陰の蘭亭</span><span class="fusen-cover"></span></label>に、当時の名士<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">四十一人</span><span class="fusen-cover"></span></label>を招いて<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">みそぎ（禊）</span><span class="fusen-cover"></span></label>の行事を行い、その後<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">流觴曲水の宴</span><span class="fusen-cover"></span></label>を開催した。</li>
+            <li>王羲之を含めた参加者全員でその曲水に沿って座し、詩歌を詠み、詠めなかった者は杯を飲んだ。その時に詠まれた詩を集めたものの序文として、王羲之が興に乗じて書いたもの。</li>
+            <li>唐の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">太宗皇帝</span><span class="fusen-cover"></span></label>を魅了 → 亡骸とともに蘭亭序を埋葬（そのため<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">真跡は行方不明</span><span class="fusen-cover"></span></label>）。</li>
+            <li><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">神龍半印本</span><span class="fusen-cover"></span></label>：原本の上に薄い紙を置き、文字の輪郭を線で写し取り、その輪郭の内側を墨で塗りつぶす<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">双鉤填墨</span><span class="fusen-cover"></span></label>で模書したもの。</li>
+            <li>臨書された蘭亭序は皇帝たちの手に渡る → 所有の証として<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">多くの押印跡</span><span class="fusen-cover"></span></label>がある。</li>
+          </ul>
+
+          <h3 class="sub-heading">行書の特徴と成り立ち</h3>
+          <ul class="info-list">
+            <li>点画が<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">連続</span><span class="fusen-cover"></span></label>したり、丸みを帯びて<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">曲線的</span><span class="fusen-cover"></span></label>になったりする（<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">筆脈</span><span class="fusen-cover"></span></label>のつながり）。</li>
+            <li>点画の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">形や方向</span><span class="fusen-cover"></span></label>が変化することがある。</li>
+            <li>点画が<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">省略</span><span class="fusen-cover"></span></label>されることがある。</li>
+            <li>楷書とは<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">筆順</span><span class="fusen-cover"></span></label>が変化することがある。</li>
+          </ul>
+          <div class="note-box">
+            <strong>※ 成り立ち：</strong>行書は楷書より古く、今から約<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">1800年前</span><span class="fusen-cover"></span></label>の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">後漢</span><span class="fusen-cover"></span></label>に、公用書体である<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">隷書</span><span class="fusen-cover"></span></label>を速く、簡略に書くことで生まれた実用の書体。
+          </div>
+        </article>
+
+        <!-- 古典6作品 総まとめ比較表（すべて表示時・唐/北魏/東晋の復習用） -->
+        <article class="card cat-tang cat-wei cat-jin">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">総整理</span>古典6作品 比較一覧表</h2>
+            <span class="cat-tag">横断チェック</span>
+          </div>
+          <p style="font-size:0.84rem; color:var(--text-sub); margin-bottom:6px;">※ 左右にスクロールして全体を確認できます。</p>
+          <div class="table-scroll">
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th>作品名</th>
+                  <th>時代・年代</th>
+                  <th>書体</th>
+                  <th>筆者</th>
+                  <th>用筆</th>
+                  <th>字形・特徴</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>蘭亭序</strong></td>
+                  <td>東晋・353年</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">行書</span><span class="fusen-cover"></span></label></td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">王羲之</span><span class="fusen-cover"></span></label></td>
+                  <td>筆脈が連続</td>
+                  <td>双鉤填墨・神龍半印本</td>
+                </tr>
+                <tr>
+                  <td><strong>牛橛造像記</strong></td>
+                  <td>北魏・495年</td>
+                  <td>楷書</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">不明</span><span class="fusen-cover"></span></label></td>
+                  <td>鋭角的・激しい</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">方勢</span><span class="fusen-cover"></span></label>・右肩上がり</td>
+                </tr>
+                <tr>
+                  <td><strong>孔子廟堂碑</strong></td>
+                  <td>唐・629年頃</td>
+                  <td>楷書</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">虞世南</span><span class="fusen-cover"></span></label></td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">直筆</span><span class="fusen-cover"></span></label></td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">向勢</span><span class="fusen-cover"></span></label>・内剛外柔・温雅</td>
+                </tr>
+                <tr>
+                  <td><strong>九成宮醴泉銘</strong></td>
+                  <td>唐・632年</td>
+                  <td>楷書</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">欧陽詢</span><span class="fusen-cover"></span></label></td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">側筆</span><span class="fusen-cover"></span></label></td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">背勢</span><span class="fusen-cover"></span></label>・引き締まった趣</td>
+                </tr>
+                <tr>
+                  <td><strong>雁塔聖教序</strong></td>
+                  <td>唐・653年</td>
+                  <td>楷書</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">褚遂良</span><span class="fusen-cover"></span></label></td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">蔵鋒</span><span class="fusen-cover"></span></label></td>
+                  <td>うねりと抑揚の変化</td>
+                </tr>
+                <tr>
+                  <td><strong>顔氏家廟碑</strong></td>
+                  <td>唐・780年</td>
+                  <td>楷書</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">顔真卿</span><span class="fusen-cover"></span></label></td>
+                  <td>蔵鋒・直筆</td>
+                  <td><label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">向勢</span><span class="fusen-cover"></span></label>・蚕頭燕尾・重厚</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ====================================================================
+           2枚目：確認クイズパネル（全30問・カテゴリー連動）
+           ==================================================================== -->
+      <section class="panel-quiz" aria-label="確認クイズ">
+
+        <!-- 基礎・道具・点画クイズ（Q1〜Q7） -->
+        <article class="card cat-basic">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">Q1〜Q7</span>基礎・道具・点画クイズ</h2>
+            <span class="cat-tag">基礎・道具・点画</span>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q1</span>「書写」は国語科で文字を正しく整えて書くことが目標だが、「書道」は何科で、文字を素材に何をすることが目標か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">芸術科</span><span class="fusen-cover"></span></label>
+              ／ 感性を磨き<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">自己表現</span><span class="fusen-cover"></span></label>すること
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q2</span>書道の基本となる4つの道具をまとめた呼び名と、その4つの道具は何か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">文房四宝</span><span class="fusen-cover"></span></label>（<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">筆、硯、墨、紙</span><span class="fusen-cover"></span></label>）
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q3</span>筆を持った時の腕の構え方（姿勢）を3つ答えよ。</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">懸腕法、提腕法、枕腕法</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q4</span>大筆の持ち方と、小筆の持ち方をそれぞれ何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              大筆：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">双鉤法</span><span class="fusen-cover"></span></label>
+              ／ 小筆：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">単鉤法</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q5</span>表現を知るための三つの視点のうち、①筆の使い方・運び方、②点画の位置や疎密など、③紙面全体のまとめ方を何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              ①<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">用筆・運筆</span><span class="fusen-cover"></span></label>
+              ②<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">字形</span><span class="fusen-cover"></span></label>
+              ③<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">構成</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q6</span>点画の書き始め、線の途中、書き終わりをそれぞれ何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">起筆（始筆）</span><span class="fusen-cover"></span></label>、
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">送筆</span><span class="fusen-cover"></span></label>、
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">収筆（終筆）</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q7</span>点画の折れ曲がる部分と、右払いの別名をそれぞれ何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              折れ曲がり：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">転折</span><span class="fusen-cover"></span></label>
+              ／ 右払い：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">波磔</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- 唐の楷書クイズ（Q8〜Q20） -->
+        <article class="card cat-tang">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">Q8〜Q20</span>唐の楷書（4作品）クイズ</h2>
+            <span class="cat-tag">唐の楷書</span>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q8</span>629年頃、唐の太宗の勅命で長安に再建された孔子廟の記念碑『孔子廟堂碑』の筆者は誰か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">虞世南</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q9</span>『孔子廟堂碑』で見られる、筆管を垂直に立て穂先が線の中央を通る用筆法と、丸みを帯びた点画の性質を表す四字熟語は何か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              用筆：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">直筆</span><span class="fusen-cover"></span></label>
+              ／ 四字熟語：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">内剛外柔</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q10</span>『孔子廟堂碑』や『顔氏家廟碑』に見られる、向き合った縦画が外側に膨らむ構えを何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">向勢</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q11</span>632年に建立された『九成宮醴泉銘』の撰文者（作者）と筆者をそれぞれ答えよ。</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              撰文：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">魏徴</span><span class="fusen-cover"></span></label>
+              ／ 筆者：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">欧陽詢</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q12</span>欧陽詢と虞世南の2人はあわせて何と呼ばれるか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">楷書の双璧</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q13</span>『九成宮醴泉銘』で見られる、筆管を手前に傾けて鋭い線を引く用筆法と、向き合った縦画が内側に反る字形の構えを何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              用筆：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">側筆</span><span class="fusen-cover"></span></label>
+              ／ 字形：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">背勢</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q14</span>653年、インドに密行した玄奘法師の功績と太宗の仏教理解を讃えた『雁塔聖教序』の筆者は誰か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">褚遂良</span><span class="fusen-cover"></span></label>（王羲之の書の鑑定も行った）
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q15</span>『雁塔聖教序』の撰文を行った2人は誰か？（南門の右と左に碑がある）</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              右の碑：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">太宗皇帝</span><span class="fusen-cover"></span></label>
+              ／ 左の碑：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">皇太子（後の高宗皇帝）</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q16</span>起筆の際、穂先を逆から入れ内側に包み込む入筆法と、穂先が点画の端に現れる入筆法をそれぞれ何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              包み込む：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">蔵鋒</span><span class="fusen-cover"></span></label>
+              ／ 端に現れる：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">露鋒</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q17</span>780年、父・顔惟真を祀った廟の内部に建立し、四面に3千字近くを刻した『顔氏家廟碑』の筆者・撰文者は誰か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">顔真卿</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q18</span>「初唐の三大家」の3人と、そこに1人加えた「唐の四大家」の4人目は誰か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              初唐の三大家：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">虞世南・欧陽詢・褚遂良</span><span class="fusen-cover"></span></label>
+              ＋ <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">顔真卿</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q19</span>顔真卿の書（顔法）に見られる、丸みのある起筆と二段階に太さが変化する波磔の特徴を合わせた四字熟語は何か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">蚕頭燕尾</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q20</span>顔真卿の楷書は、現代の活字のどの書体のモデルとなったか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">明朝体</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- 北魏の楷書クイズ（Q21〜Q24） -->
+        <article class="card cat-wei">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">Q21〜Q24</span>北魏の楷書クイズ</h2>
+            <span class="cat-tag">北魏の楷書</span>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q21</span>495年（北魏）に刻された龍門造像記の代表作は何で、筆者は誰か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              作品：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">牛橛造像記</span><span class="fusen-cover"></span></label>
+              ／ 筆者：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">不明</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q22</span>北魏の第6代皇帝で、都を平城から洛陽に遷したのは誰か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">孝文帝</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q23</span>洛陽の南を流れる何という川の両岸に龍門石窟が掘られ、そのうち最も古い洞窟を何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              川：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">伊水</span><span class="fusen-cover"></span></label>
+              ／ 最古の洞窟：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">古陽洞</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q24</span>龍門造像記に見られる、鋭角的な激しい用筆と右肩上がりの力強い構成（方勢）を何様式と呼ぶか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">龍門様式</span><span class="fusen-cover"></span></label>（刀の芸術）
+            </div>
+          </div>
+        </article>
+
+        <!-- 東晋の行書クイズ（Q25〜Q30） -->
+        <article class="card cat-jin">
+          <div class="card-header">
+            <h2 class="card-title"><span class="no-badge">Q25〜Q30</span>東晋の行書クイズ</h2>
+            <span class="cat-tag">東晋の行書</span>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q25</span>353年（東晋）に書かれた行書の最高傑作『蘭亭序』の筆者と、その異名を答えよ。</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              筆者：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">王羲之</span><span class="fusen-cover"></span></label>
+              ／ 異名：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">書聖</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q26</span>王羲之が会稽山陰の蘭亭に名士41人を招き、みそぎの行事の後に行った宴を何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">流觴曲水の宴</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q27</span>『蘭亭序』の真跡は現在どうなっているか？また、魅了されて亡骸とともに埋葬した皇帝は誰か？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              <label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">行方不明</span><span class="fusen-cover"></span></label>
+              ／ 皇帝：唐の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">太宗皇帝</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q28</span>原本の上に薄い紙を置き、文字の輪郭を写し取って内側を墨で塗りつぶす模書法と、それで模書された代表的な蘭亭序の本を何というか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              模書法：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">双鉤填墨</span><span class="fusen-cover"></span></label>
+              ／ 代表本：<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">神龍半印本</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q29</span>行書の特徴を4つ挙げよ。（点画のつながり・形や方向・省略・筆順）</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              ①<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">連続・曲線的</span><span class="fusen-cover"></span></label>
+              ②<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">形や方向の変化</span><span class="fusen-cover"></span></label>
+              ③<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">点画の省略</span><span class="fusen-cover"></span></label>
+              ④<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">筆順の変化</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="quiz-item">
+            <p class="quiz-q"><span class="q-num">Q30</span>行書は楷書より古く、約何年前の何時代に、どの公用書体を速く簡略に書くことで生まれたか？</p>
+            <div class="quiz-a-row">
+              <span class="a-label">答え：</span>
+              約<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">1800年前</span><span class="fusen-cover"></span></label>の<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">後漢</span><span class="fusen-cover"></span></label>に、<label class="fusen"><input type="checkbox" class="fusen-chk"><span class="fusen-ans">隷書</span><span class="fusen-cover"></span></label>を速く簡略に書いて生まれた
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </form>
+  </div>
+</body>
+</html>
