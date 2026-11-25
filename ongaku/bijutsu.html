@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高校美術 テスト対策 頻出事項＆確認クイズシート</title>
+  <style>
+    /* =====================================================================
+       Pure CSS Design System (No JavaScript / No External Assets / No Emoji)
+       ===================================================================== */
+    :root {
+      --bg-page: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-soft: #f8fafc;
+      --bg-blue-tint: #eff6ff;
+      --border-light: #dbe4f0;
+      --border-mid: #bfdbfe;
+      --text-main: #0f172a;
+      --text-sub: #334155;
+      --text-muted: #64748b;
+
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-200: #bfdbfe;
+      --blue-300: #93c5fd;
+      --blue-500: #2563eb;
+      --blue-600: #1d4ed8;
+      --blue-700: #1e40af;
+      --blue-800: #1e3a8a;
+
+      --red-badge-bg: #fef2f2;
+      --red-badge-border: #fca5a5;
+      --red-badge-text: #b91c1c;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.05);
+      --shadow-sticky: 0 2px 5px rgba(29, 78, 216, 0.24);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 0 0 64px;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.7;
+      word-break: break-word;
+      overflow-x: hidden;
+    }
+
+    /* Visually hidden radio inputs for Pure CSS state */
+    .state-radio {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      pointer-events: none;
+    }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 55%, #2563eb 100%);
+      color: #ffffff;
+      padding: 18px 16px 16px;
+      border-bottom: 3px solid #1e40af;
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header-kicker {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      margin-bottom: 6px;
+    }
+
+    .header-title {
+      margin: 0 0 4px;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .header-desc {
+      margin: 0;
+      font-size: 12.5px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Sticky Top Navigation (Tabs + Shared Category Filters) */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(241, 245, 249, 0.96);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      padding: 10px 12px;
+    }
+
+    .top-nav-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Primary Tabs */
+    .tab-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-sub);
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      text-align: center;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    #tab-summary:checked ~ .top-nav label[for="tab-summary"],
+    #tab-quiz:checked ~ .top-nav label[for="tab-quiz"] {
+      background: var(--blue-600);
+      color: #ffffff;
+      box-shadow: 0 2px 5px rgba(29, 78, 216, 0.28);
+    }
+
+    /* Category Filter Chips */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #ffffff;
+      color: var(--blue-800);
+      border: 1px solid var(--border-mid);
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+    }
+
+    #cat-all:checked ~ .top-nav label[for="cat-all"],
+    #cat-color:checked ~ .top-nav label[for="cat-color"],
+    #cat-tech:checked ~ .top-nav label[for="cat-tech"],
+    #cat-sculpture:checked ~ .top-nav label[for="cat-sculpture"],
+    #cat-design:checked ~ .top-nav label[for="cat-design"],
+    #cat-tradition:checked ~ .top-nav label[for="cat-tradition"],
+    #cat-portrait:checked ~ .top-nav label[for="cat-portrait"] {
+      background: var(--blue-600);
+      border-color: var(--blue-700);
+      color: #ffffff;
+    }
+
+    /* Main Content Area */
+    .main-wrap {
+      max-width: 900px;
+      margin: 14px auto 0;
+      padding: 0 12px;
+    }
+
+    /* Tab Panel Visibility */
+    .sheet-section {
+      display: none;
+    }
+
+    #tab-summary:checked ~ .main-wrap #panel-summary {
+      display: block;
+    }
+
+    #tab-quiz:checked ~ .main-wrap #panel-quiz {
+      display: block;
+    }
+
+    /* Category Filtering Visibility */
+    #cat-color:checked ~ .main-wrap [data-cat]:not([data-cat="color"]),
+    #cat-tech:checked ~ .main-wrap [data-cat]:not([data-cat="tech"]),
+    #cat-sculpture:checked ~ .main-wrap [data-cat]:not([data-cat="sculpture"]),
+    #cat-design:checked ~ .main-wrap [data-cat]:not([data-cat="design"]),
+    #cat-tradition:checked ~ .main-wrap [data-cat]:not([data-cat="tradition"]),
+    #cat-portrait:checked ~ .main-wrap [data-cat]:not([data-cat="portrait"]) {
+      display: none;
+    }
+
+    /* Sheet Action Bar (Inside each form so Reset works reliably) */
+    .sheet-action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--bg-blue-tint);
+      border: 1px solid var(--border-mid);
+      border-left: 4px solid var(--blue-500);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+
+    .sheet-guide {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--text-sub);
+      flex: 1 1 220px;
+    }
+
+    .sheet-guide strong {
+      color: var(--blue-800);
+    }
+
+    .reset-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--blue-700);
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 5px rgba(29, 78, 216, 0.22);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .reset-btn:active {
+      background: #1e40af;
+      transform: translateY(1px);
+    }
+
+    /* Unit Card */
+    .unit-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 16px 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .unit-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--blue-100);
+    }
+
+    .unit-badge {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--blue-800);
+      background: var(--blue-100);
+      padding: 3px 9px;
+      border-radius: 5px;
+    }
+
+    .unit-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+      flex: 1 1 auto;
+    }
+
+    .sub-title {
+      margin: 16px 0 8px;
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--blue-800);
+      padding-left: 10px;
+      border-left: 4px solid var(--blue-500);
+    }
+
+    .sub-title:first-of-type {
+      margin-top: 6px;
+    }
+
+    /* Important "頻出" CSS Label */
+    .freq-badge {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 800;
+      line-height: 1.2;
+      padding: 2px 6px;
+      margin-right: 4px;
+      border-radius: 4px;
+      background: var(--red-badge-bg);
+      border: 1px solid var(--red-badge-border);
+      color: var(--red-badge-text);
+      vertical-align: middle;
+    }
+
+    /* Lists and Content Boxes */
+    .item-list {
+      margin: 6px 0 10px;
+      padding-left: 18px;
+    }
+
+    .item-list li {
+      margin-bottom: 8px;
+    }
+
+    .sub-list {
+      margin: 5px 0 6px;
+      padding-left: 18px;
+    }
+
+    .sub-list li {
+      margin-bottom: 5px;
+    }
+
+    .info-box {
+      background: var(--bg-soft);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
+      margin: 8px 0 12px;
+    }
+
+    .info-box-head {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .note-box {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-left: 4px solid #0284c7;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin: 10px 0 4px;
+      font-size: 13.5px;
+    }
+
+    .note-box-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #0369a1;
+      margin-bottom: 5px;
+    }
+
+    /* Responsive Work Cards Grid */
+    .work-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 8px 0 12px;
+    }
+
+    .work-card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
+    }
+
+    .work-name {
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .work-meta {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      margin: 0;
+    }
+
+    /* =====================================================================
+       Blue Sticky Note (Pure CSS Checkbox Toggle)
+       Unchecked = Covered with Blue Sticky + Bottom-Right Folded Corner
+       Checked   = Revealed with Soft Blue Highlight Border
+       ===================================================================== */
+    .sticky {
+      display: inline-block;
+      position: relative;
+      vertical-align: baseline;
+      margin: 1px 2px;
+      cursor: pointer;
+      max-width: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sticky input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      pointer-events: none;
+    }
+
+    .sticky-text {
+      display: inline-block;
+      position: relative;
+      min-width: 4.5em;
+      padding: 2px 14px 2px 9px;
+      border-radius: 5px;
+      font-weight: 800;
+      line-height: 1.5;
+      color: transparent;
+      user-select: none;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border: 1px solid #1e40af;
+      box-shadow: var(--shadow-sticky);
+      transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    /* Subtle top accent bar on sticky note */
+    .sticky-text::before {
+      content: "TAP";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.92);
+      pointer-events: none;
+    }
+
+    /* Bottom-right peeled/folded corner effect using pure CSS */
+    .sticky-text::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 10px;
+      height: 10px;
+      background: linear-gradient(135deg, #93c5fd 0%, #bfdbfe 48%, #f1f5f9 50%, #f1f5f9 100%);
+      border-top-left-radius: 2px;
+      pointer-events: none;
+    }
+
+    /* Revealed state when tapped (checked) */
+    .sticky input[type="checkbox"]:checked + .sticky-text {
+      background: var(--blue-50);
+      color: var(--blue-800);
+      border-color: var(--blue-300);
+      box-shadow: none;
+      user-select: text;
+      padding: 2px 8px;
+    }
+
+    .sticky input[type="checkbox"]:checked + .sticky-text::before,
+    .sticky input[type="checkbox"]:checked + .sticky-text::after {
+      display: none;
+    }
+
+    /* Block-style sticky note for Quiz Answers */
+    .sticky-block {
+      display: block;
+      margin-top: 8px;
+    }
+
+    .sticky-block .sticky-text {
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 18px 10px 12px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .sticky-block .sticky-text::before {
+      content: "タップして答えを確認";
+      font-size: 12.5px;
+      letter-spacing: 0.04em;
+    }
+
+    .sticky-block .sticky-text::after {
+      width: 14px;
+      height: 14px;
+    }
+
+    .sticky-block input[type="checkbox"]:checked + .sticky-text {
+      padding: 10px 12px;
+      color: var(--text-main);
+    }
+
+    /* Quiz Card Styles */
+    .quiz-card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 12px 12px;
+      margin-bottom: 12px;
+    }
+
+    .quiz-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .quiz-num {
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 800;
+      background: var(--blue-600);
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .quiz-cat-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      background: #e2e8f0;
+      color: var(--text-sub);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .quiz-question {
+      margin: 0;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .ans-prefix {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--blue-800);
+      background: var(--blue-100);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+
+    /* Responsive Desktop Adjustments */
+    @media (min-width: 680px) {
+      .app-header {
+        padding: 22px 20px 18px;
+      }
+      .header-title {
+        font-size: 23px;
+      }
+      .unit-card {
+        padding: 20px 20px;
+      }
+      .work-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Tab State Controllers (Outside forms so Reset does not change active tab) -->
+  <input class="state-radio" type="radio" name="sheet-tab" id="tab-summary" checked>
+  <input class="state-radio" type="radio" name="sheet-tab" id="tab-quiz">
+
+  <!-- Category Filter Controllers (Outside forms so Reset does not change filter) -->
+  <input class="state-radio" type="radio" name="cat-filter" id="cat-all" checked>
+  <input class="state-radio" type="radio" name="cat-filter" id="cat-color">
+  <input class="state-radio" type="radio" name="cat-filter" id="cat-tech">
+  <input class="state-radio" type="radio" name="cat-filter" id="cat-sculpture">
+  <input class="state-radio" type="radio" name="cat-filter" id="cat-design">
+  <input class="state-radio" type="radio" name="cat-filter" id="cat-tradition">
+  <input class="state-radio" type="radio" name="cat-filter" id="cat-portrait">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-kicker">高校美術 テスト対策・完全Pure CSS版</div>
+      <h1 class="header-title">美術 頻出事項＆確認クイズ付箋シート</h1>
+      <p class="header-desc">色彩・技法と画材・彫刻・デザイン・伝統絵画・人物表現の全内容を収録。タップで青付箋をめくって確認できます。</p>
+    </div>
+  </header>
+
+  <!-- Sticky Navigation Bar -->
+  <nav class="top-nav" aria-label="シート切替と単元絞り込み">
+    <div class="top-nav-inner">
+      <div class="tab-bar">
+        <label class="tab-btn" for="tab-summary">頻出事項まとめシート</label>
+        <label class="tab-btn" for="tab-quiz">確認クイズシート（全38問）</label>
+      </div>
+      <div class="filter-bar" role="group" aria-label="カテゴリー絞り込み">
+        <label class="filter-chip" for="cat-all">すべて</label>
+        <label class="filter-chip" for="cat-color">色彩</label>
+        <label class="filter-chip" for="cat-tech">技法・画材</label>
+        <label class="filter-chip" for="cat-sculpture">彫刻</label>
+        <label class="filter-chip" for="cat-design">デザイン</label>
+        <label class="filter-chip" for="cat-tradition">伝統絵画</label>
+        <label class="filter-chip" for="cat-portrait">人物表現</label>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="main-wrap">
+
+    <!-- ===================================================================
+         TAB 1: 頻出事項まとめシート
+         =================================================================== -->
+    <section id="panel-summary" class="sheet-section" aria-label="頻出事項まとめシート">
+      <form>
+        <div class="sheet-action-bar">
+          <p class="sheet-guide">
+            <strong>使い方：</strong>青い付箋をタップすると答えが表示されます。もう一度タップすると付箋を貼り直せます。
+          </p>
+          <button type="reset" class="reset-btn">すべて付箋を貼る</button>
+        </div>
+
+        <!-- 1. 色彩 -->
+        <article class="unit-card" data-cat="color">
+          <div class="unit-head">
+            <span class="unit-badge">色彩</span>
+            <h2 class="unit-title">1. 色彩の仕組み・基礎知識・心理効果（教p114-117）</h2>
+          </div>
+
+          <h3 class="sub-title">色の種類（教p114）</h3>
+          <ul class="item-list">
+            <li>
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">無彩色</span></label>
+              ：白、灰、黒のように、<label class="sticky"><input type="checkbox"><span class="sticky-text">明度</span></label>だけを持ち、色相や彩度の無い色。
+            </li>
+            <li>
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">有彩色</span></label>
+              ：無彩色以外のすべての色。色の三要素（<label class="sticky"><input type="checkbox"><span class="sticky-text">色相・明度・彩度</span></label>）をすべて持つ。
+            </li>
+          </ul>
+
+          <h3 class="sub-title">色の3属性（3要素）（教p114）</h3>
+          <ul class="item-list">
+            <li>
+              <strong>色相</strong>：赤・黄・青のような色味の性質で分ける色あい（色み）。
+              <ul class="sub-list">
+                <li>
+                  <label class="sticky"><input type="checkbox"><span class="sticky-text">色相環</span></label>
+                  ：虹の両端を<label class="sticky"><input type="checkbox"><span class="sticky-text">紫と赤紫</span></label>で丸くつないで輪にしたもの。
+                </li>
+                <li>
+                  <span class="freq-badge">頻出</span>
+                  <label class="sticky"><input type="checkbox"><span class="sticky-text">補色</span></label>
+                  ：色相環の中で互いに向かい合う色。お互いを<label class="sticky"><input type="checkbox"><span class="sticky-text">引き立たせる</span></label>効果がある。
+                </li>
+              </ul>
+            </li>
+            <li>
+              <strong>明度</strong>：明るさ・暗さの度合い。高いほど明るく、低いほど暗い。<label class="sticky"><input type="checkbox"><span class="sticky-text">高明度・中明度・低明度</span></label>に分類される。白と黒とその中間の灰色の明度の段階が、すべての色の明度の基準になる。
+            </li>
+            <li>
+              <strong>彩度</strong>：色のあざやかさの度合い。<label class="sticky"><input type="checkbox"><span class="sticky-text">高彩度・中彩度・低彩度</span></label>に分類される。
+            </li>
+          </ul>
+
+          <h3 class="sub-title">清色と濁色</h3>
+          <ul class="item-list">
+            <li><label class="sticky"><input type="checkbox"><span class="sticky-text">純色</span></label>：それぞれの色相の中で、混ざりけのない最もあざやかな色（高彩度の色）。</li>
+            <li>
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">清色</span></label>
+              ：純色に白または黒だけを混ぜた色。白を混ぜる → <label class="sticky"><input type="checkbox"><span class="sticky-text">明清色</span></label>、黒を混ぜる → <label class="sticky"><input type="checkbox"><span class="sticky-text">暗清色</span></label>。
+            </li>
+            <li><label class="sticky"><input type="checkbox"><span class="sticky-text">中間色（濁色）</span></label>：純色や清色に<label class="sticky"><input type="checkbox"><span class="sticky-text">灰色</span></label>を混ぜた色。</li>
+          </ul>
+
+          <h3 class="sub-title">色の混色（教p115）</h3>
+          <ul class="item-list">
+            <li>
+              <span class="freq-badge">頻出</span>
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">加法混色</span></label>
+              ：色の異なる2つ以上の光を重ねることで明度が<label class="sticky"><input type="checkbox"><span class="sticky-text">高くなる</span></label>混色。例：スポットライトなどの色光、カラーモニター。色光の三原色（<label class="sticky"><input type="checkbox"><span class="sticky-text">レッド・ブルー・グリーン</span></label>）を混ぜると<label class="sticky"><input type="checkbox"><span class="sticky-text">白色光</span></label>になる。
+            </li>
+            <li>
+              <span class="freq-badge">頻出</span>
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">減法混色</span></label>
+              ：色の異なる2つ以上の色の混色により明度が<label class="sticky"><input type="checkbox"><span class="sticky-text">低くなる</span></label>混色。例：絵の具、インク、染料。色料の三原色（<label class="sticky"><input type="checkbox"><span class="sticky-text">シアン・マゼンタ・イエロー</span></label>）を混ぜると<label class="sticky"><input type="checkbox"><span class="sticky-text">黒に近い色</span></label>になる。
+            </li>
+          </ul>
+
+          <h3 class="sub-title">色の機能性（教p116）</h3>
+          <ul class="item-list">
+            <li><label class="sticky"><input type="checkbox"><span class="sticky-text">視認性</span></label>：色の見えやすさ。<label class="sticky"><input type="checkbox"><span class="sticky-text">明度差</span></label>が大きいほど高くなる。</li>
+            <li><label class="sticky"><input type="checkbox"><span class="sticky-text">誘目性</span></label>：人の目を引き付ける色の性質。<label class="sticky"><input type="checkbox"><span class="sticky-text">暖色・高彩度</span></label>の色ほど高い。</li>
+            <li><label class="sticky"><input type="checkbox"><span class="sticky-text">識別性</span></label>：複数のものを見分けやすくする機能。それぞれ色を変えることで区別しやすくする。</li>
+          </ul>
+
+          <h3 class="sub-title">色の対比と同化（教p116）</h3>
+          <ul class="item-list">
+            <li>
+              <strong>色の対比</strong>：背景や隣り合う色によって、違った色に見えたり地の色が変化して見える現象。
+              <ul class="sub-list">
+                <li><label class="sticky"><input type="checkbox"><span class="sticky-text">色相の対比</span></label>：色相差のある2色を配したときにその差が大きく見える現象。背景色の<label class="sticky"><input type="checkbox"><span class="sticky-text">補色</span></label>の方向に色味が引っ張られて見える。</li>
+                <li><label class="sticky"><input type="checkbox"><span class="sticky-text">明度の対比</span></label>：明度差のある2色を配したときにその差が大きく見える現象。周囲より明度が高いとより明るく、低いとより暗く見える。</li>
+                <li><label class="sticky"><input type="checkbox"><span class="sticky-text">彩度の対比</span></label>：彩度差のある2色を配したときにその差が大きく見える現象。周囲より彩度が高いとより鮮やかに、低いとよりくすんで見える。</li>
+              </ul>
+            </li>
+            <li>
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">色の同化（同化効果）</span></label>
+              ：ある色が、挿入する色に近づいて見える現象。<label class="sticky"><input type="checkbox"><span class="sticky-text">明度・色相・彩度</span></label>のそれぞれにある。
+            </li>
+          </ul>
+
+          <h3 class="sub-title">色の心理効果（教p117）</h3>
+          <ul class="item-list">
+            <li>
+              <strong>暖色・寒色・中性色</strong>：
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">暖色</span></label>（暖かい感じ・赤系統）、
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">寒色</span></label>（寒い感じ・青系統）、
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">中性色</span></label>（中間・緑系統や紫系統）。
+            </li>
+            <li>
+              <strong>軽い色・重い色</strong>：
+              軽い色（柔らかい色）＝<label class="sticky"><input type="checkbox"><span class="sticky-text">高明度色</span></label>（実際より軽く感じる）、
+              重い色（硬い色）＝<label class="sticky"><input type="checkbox"><span class="sticky-text">低明度色</span></label>（実際より重く感じる）。
+            </li>
+            <li>
+              <strong>進出色・後退色</strong>：
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">進出色</span></label>（暖色・高彩度、実際より近く見える）、
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">後退色</span></label>（寒色・低彩度、実際より遠く見える）。
+            </li>
+            <li>
+              <strong>膨張色・収縮色</strong>：
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">膨張色</span></label>（高明度・高彩度、実際より大きく見える）、
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">収縮色</span></label>（低明度・低彩度、実際より小さく見える）。
+            </li>
+          </ul>
+
+          <div class="note-box">
+            <div class="note-box-title"><span class="freq-badge">頻出</span>残像と色のイメージ（手書きノート重要項目）</div>
+            <ul class="item-list" style="margin-bottom:0;">
+              <li><label class="sticky"><input type="checkbox"><span class="sticky-text">補色残像</span></label>：最初に見た色とは反対の色が見える現象。</li>
+              <li><label class="sticky"><input type="checkbox"><span class="sticky-text">心理補色</span></label>：残像で見える色のこと。</li>
+              <li><strong>白のイメージ</strong>：<label class="sticky"><input type="checkbox"><span class="sticky-text">純粋、無垢、リセット、浄化、スタート、潔癖、空虚感、軽い</span></label></li>
+              <li><strong>水色のイメージ</strong>：<label class="sticky"><input type="checkbox"><span class="sticky-text">自由、創造</span></label></li>
+              <li><strong>青のイメージ</strong>：<label class="sticky"><input type="checkbox"><span class="sticky-text">抑制、鎮静、自立、信頼、悲哀、内向</span></label></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 2. 技法・画材 -->
+        <article class="unit-card" data-cat="tech">
+          <div class="unit-head">
+            <span class="unit-badge">技法・画材</span>
+            <h2 class="unit-title">2. モダンテクニック・画材・鉛筆デッサン</h2>
+          </div>
+
+          <h3 class="sub-title">モダンテクニック（8つの表現技法）</h3>
+          <div class="work-grid">
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">スパッタリング</span></label></div>
+              <p class="work-meta">細かな点描でぼかしなどを表現。硬めに溶いた絵の具を硬いブラシに付け金網の上からこすり付け飛沫を落とす。型紙で図柄も作れる。<br>作例：<label class="sticky"><input type="checkbox"><span class="sticky-text">パウル・クレー</span></label>（スイス・1879-1940）『<label class="sticky"><input type="checkbox"><span class="sticky-text">ムッシュー・ベルレンシュヴァイン</span></label>』（1925、水彩・紙、スパッタリングとマスキング）。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">デカルコマニー</span></label></div>
+              <p class="work-meta">絵の具の流動性を紙に定着させる技法。厚めに盛った絵の具に別の紙やクリアファイルを重ねて圧力をかけて剥がす。<br>作例：<label class="sticky"><input type="checkbox"><span class="sticky-text">加納光於</span></label>（東京都・1933-）《<label class="sticky"><input type="checkbox"><span class="sticky-text">雲形の遍歴者</span></label>》「伊勢物語」第六段拾遺 27（1999、油彩・キャンヴァス）。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">フロッタージュ</span></label></div>
+              <p class="work-meta">物の凹凸を紙に写し取る技法。コインや葉、地面や壁面などの上に薄めの紙を置き、鉛筆やコンテでこする。<br>作例：<label class="sticky"><input type="checkbox"><span class="sticky-text">岡部昌生</span></label>（北海道・1942-）『<label class="sticky"><input type="checkbox"><span class="sticky-text">HIROSHIMA MEMOIRE 96</span></label>』（1996、広島平和記念公園でのワークショップ）。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">コラージュ</span></label></div>
+              <p class="work-meta">印刷物や写真の切り抜きなどを一つの画面に組み合わせる技法。布や葉、ひもなども素材になる。<br>作例：<label class="sticky"><input type="checkbox"><span class="sticky-text">ラウール・ハウスマン</span></label>（オーストリア・1886-1971）『<label class="sticky"><input type="checkbox"><span class="sticky-text">マックス・ルエスト博士</span></label>』（1919、大阪中之島美術館蔵）。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">マーブリング</span></label>（安全・換気）</div>
+              <p class="work-meta">水や専用液に浮かべた複数の色の絵の具を竹串で混ぜたり息で吹いたりして模様を作り、紙を乗せて写し取る。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">スタンピング</span></label></div>
+              <p class="work-meta">身の回りの素材の表面の凹凸に絵の具を付け、スタンプのように押し付けて描写。繰り返し模様にも有効。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">スクラッチ</span></label></div>
+              <p class="work-meta">描画を二層重ね、上層を削り取り下地の色をのぞかせる（クレヨンで塗った上をアクリルガッシュで塗りつぶし、先のとがった道具で削る）。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><label class="sticky"><input type="checkbox"><span class="sticky-text">ドリッピング</span></label></div>
+              <p class="work-meta">多めの水分で溶いた絵の具を筆などに含ませ、紙から浮かせた状態で垂らす技法。</p>
+            </div>
+          </div>
+
+          <h3 class="sub-title"><span class="freq-badge">頻出</span>アクリル絵の具の特性</h3>
+          <div class="info-box">
+            <p style="margin:0;">
+              <label class="sticky"><input type="checkbox"><span class="sticky-text">固着力</span></label>が強く、水に溶ける一方で乾くと<label class="sticky"><input type="checkbox"><span class="sticky-text">耐水性</span></label>を得る。乾燥が早く、<label class="sticky"><input type="checkbox"><span class="sticky-text">薄塗りから厚塗りまで</span></label>幅広い表現が可能（不透明水彩絵の具のようにも使える）。
+            </p>
+          </div>
+
+          <h3 class="sub-title"><span class="freq-badge">頻出</span>鉛筆デッサンの基礎</h3>
+          <ul class="item-list">
+            <li>
+              <strong>削り方</strong>：鉛筆を持つ手の親指をカッターナイフの背に当て、鉛筆を引きながら押し出すように削る。寝かせて描くことが多いため、芯を長めに出し、<label class="sticky"><input type="checkbox"><span class="sticky-text">木の部分を長く削って芯となだらかにつなげる</span></label>ことで芯が折れにくくなる。短くなったらホルダーを使用。刃は出しすぎない。
+            </li>
+            <li>
+              <strong>持ち方</strong>：寝かせて柔らかく描く／<label class="sticky"><input type="checkbox"><span class="sticky-text">小指で支えて安定させる</span></label>／立てて細かな部分を描く。
+            </li>
+            <li>
+              <strong>正しい姿勢</strong>：背筋をまっすぐ伸ばし、目の高さを一定に保つ。腕を伸ばしたとき無理なく画面の上下左右に届く距離が望ましい。机で描く場合は<label class="sticky"><input type="checkbox"><span class="sticky-text">机の端と膝</span></label>で画板を支える。イーゼルは視線と描く手が交差しないよう<label class="sticky"><input type="checkbox"><span class="sticky-text">利き手側</span></label>に立て、腕を水平に伸ばしたときに画面中央に当たる高さに調整する。
+            </li>
+            <li>
+              <strong>鉛筆の種類</strong>：
+              H＝<label class="sticky"><input type="checkbox"><span class="sticky-text">Hard（硬い）</span></label>、
+              B＝<label class="sticky"><input type="checkbox"><span class="sticky-text">Black（黒い）</span></label>、
+              F＝<label class="sticky"><input type="checkbox"><span class="sticky-text">Firm（しっかりした）</span></label>。
+              数字が大きいほど度合いが増す。Fは<label class="sticky"><input type="checkbox"><span class="sticky-text">HBとHの中間</span></label>の濃さと硬さ（例：6B, 4B, 2B, HB, 2H, 6H）。
+            </li>
+            <li>
+              <strong>グラデーションを描く</strong>：光や陰影の表現には多彩な階調の灰色が必要。7段階や9段階など異なる段階数の<label class="sticky"><input type="checkbox"><span class="sticky-text">グラデーション（段階的な変化）</span></label>を描くことで描き分けの練習ができる。
+            </li>
+            <li>
+              <strong>用紙</strong>：画用紙には裏表があり、基本的により<label class="sticky"><input type="checkbox"><span class="sticky-text">凹凸のある方</span></label>が表（画用紙、ケント紙など）。
+            </li>
+            <li>
+              <strong>主な用具・材料</strong>：水張りパネル、画用紙、カルトン、定規、測り糸（5円玉）、測り棒、目玉クリップ、定着液（<label class="sticky"><input type="checkbox"><span class="sticky-text">フィキサチーフ</span></label>）、デッサン用スケール、ガーゼ、ティッシュ、鉛筆、カッターナイフ、綿棒、消しゴム・練りゴム。
+            </li>
+          </ul>
+        </article>
+
+        <!-- 3. 彫刻 -->
+        <article class="unit-card" data-cat="sculpture">
+          <div class="unit-head">
+            <span class="unit-badge">彫刻</span>
+            <h2 class="unit-title">3. 彫刻・立体表現</h2>
+          </div>
+
+          <h3 class="sub-title">素材に宿る生命力</h3>
+          <div class="work-grid">
+            <div class="work-card">
+              <div class="work-name">『<label class="sticky"><input type="checkbox"><span class="sticky-text">TENTACLE（迷宮）</span></label>』</div>
+              <p class="work-meta">作者：<label class="sticky"><input type="checkbox"><span class="sticky-text">砂澤ビッキ</span></label>（北海道・1931-89）／木／1983年。彫り跡を残しながら一本の木をくりぬき、自然の力を宿す形体。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name">『<label class="sticky"><input type="checkbox"><span class="sticky-text">成長</span></label>』</div>
+              <p class="work-meta">作者：<label class="sticky"><input type="checkbox"><span class="sticky-text">ジャン・アルプ</span></label>（フランス・1886-1966）／ブロンズ／1938年（1983鋳造）／横浜美術館蔵。動勢や形体から変化しながら伸びていく新芽を思わせる。</p>
+            </div>
+          </div>
+
+          <h3 class="sub-title">重力と量感</h3>
+          <div class="work-grid">
+            <div class="work-card">
+              <div class="work-name">『<label class="sticky"><input type="checkbox"><span class="sticky-text">Anti</span></label>』</div>
+              <p class="work-meta">作者：<label class="sticky"><input type="checkbox"><span class="sticky-text">カールステン・ニコライ</span></label>（ドイツ・1965-）／プラスチック・テルミン・増幅器／2004年。静的で安定した存在感。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name">『<label class="sticky"><input type="checkbox"><span class="sticky-text">レッド・キューブ</span></label>』</div>
+              <p class="work-meta">作者：<label class="sticky"><input type="checkbox"><span class="sticky-text">イサム・ノグチ</span></label>（アメリカ・1904-88）／塗装・鉄、高さ7.3m／1968年、ニューヨーク。軽やかで緊張感のあるバランス。</p>
+            </div>
+          </div>
+
+          <h3 class="sub-title"><span class="freq-badge">頻出</span>飛び立つ力の流れ・抽象彫刻の制作ポイント</h3>
+          <ul class="item-list">
+            <li>
+              <strong>『<label class="sticky"><input type="checkbox"><span class="sticky-text">空間の鳥</span></label>』</strong>：
+              作者：<label class="sticky"><input type="checkbox"><span class="sticky-text">コンスタンティン・ブランクーシ</span></label>（ルーマニア・1876-1957）、ブロンズなど（本体135cm・台座149.2cm）、1926年（1982鋳造）、滋賀県立美術館蔵。鳥の飛び立つ能力を、軌道や浮遊感から感じさせるように動勢やバランスを工夫し、無駄のない美しいフォルムで表した。
+            </li>
+            <li>
+              <strong>抽象彫刻の制作ポイント</strong>：<label class="sticky"><input type="checkbox"><span class="sticky-text">重心や動勢、全体と部分との調和</span></label>を追求し、イメージを表す形をつくる。
+            </li>
+          </ul>
+        </article>
+
+        <!-- 4. デザイン -->
+        <article class="unit-card" data-cat="design">
+          <div class="unit-head">
+            <span class="unit-badge">デザイン</span>
+            <h2 class="unit-title">4. デザイン（プロダクト＆グラフィック）</h2>
+          </div>
+
+          <h3 class="sub-title">プロダクトデザイン</h3>
+          <div class="work-grid">
+            <div class="work-card">
+              <div class="work-name">『<label class="sticky"><input type="checkbox"><span class="sticky-text">LCW（成形合板）</span></label>』</div>
+              <p class="work-meta">デザイナー：<label class="sticky"><input type="checkbox"><span class="sticky-text">チャールズ・イームズ ＆ レイ・イームズ</span></label>（1907-78 / 1912-88、アメリカ）、1945年。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><span class="freq-badge">頻出</span>『<label class="sticky"><input type="checkbox"><span class="sticky-text">ハウ・ハイ・ザ・ムーン</span></label>』</div>
+              <p class="work-meta">デザイナー：<label class="sticky"><input type="checkbox"><span class="sticky-text">倉俣史朗（くらまた しろう）</span></label>（東京都・1934-91）、素材：<label class="sticky"><input type="checkbox"><span class="sticky-text">スチールエキスパンドメタル</span></label>、1986年（1993製造）、富山県美術館蔵。</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name">『<label class="sticky"><input type="checkbox"><span class="sticky-text">Qドラム</span></label>』</div>
+              <p class="work-meta">デザイナー：<label class="sticky"><input type="checkbox"><span class="sticky-text">ピーター・ヘンドリクス ＆ ハンス・ヘンドリクス</span></label>（南アフリカ）、ポリエチレン、1993年。</p>
+            </div>
+          </div>
+
+          <h3 class="sub-title">グラフィックデザイン（ポスター）</h3>
+          <ul class="item-list">
+            <li>
+              <span class="freq-badge">頻出</span>
+              <strong>『<label class="sticky"><input type="checkbox"><span class="sticky-text">東京オリンピック（TOKYO 1964）</span></label>』</strong>：
+              デザイナー：<label class="sticky"><input type="checkbox"><span class="sticky-text">亀倉雄策</span></label>（新潟県・1915-97）、写真：<label class="sticky"><input type="checkbox"><span class="sticky-text">早崎治</span></label>、フォトディレクター：<label class="sticky"><input type="checkbox"><span class="sticky-text">村越襄</span></label>、1962年（1990復刻版）、国立工芸館蔵。<label class="sticky"><input type="checkbox"><span class="sticky-text">写真の臨場感</span></label>を生かすため、何十回もスタートダッシュを繰り返し、ランナーが折り重なりつつも全員の顔が見える決定的瞬間を撮影。
+            </li>
+            <li>
+              <span class="freq-badge">頻出</span>
+              <strong>『<label class="sticky"><input type="checkbox"><span class="sticky-text">VICTORY</span></label>』</strong>：
+              デザイナー：<label class="sticky"><input type="checkbox"><span class="sticky-text">福田繁雄</span></label>（東京都・1932-2009）、1975年（アイデアスケッチ1974年）、二戸市シビックセンター蔵。<label class="sticky"><input type="checkbox"><span class="sticky-text">逆転の発想</span></label>を生かす。単純な形と色、対角線の明快な構成。砲口に砲弾が向かってくるという皮肉なイメージで<label class="sticky"><input type="checkbox"><span class="sticky-text">反戦</span></label>を訴えるポスター。
+            </li>
+            <li>
+              <strong>『Nihon Buyo』</strong>：日本古典芸能団招聘記念イベント（UCLA、1981年）のポスター。<label class="sticky"><input type="checkbox"><span class="sticky-text">構成美</span></label>を生かす。
+            </li>
+          </ul>
+        </article>
+
+        <!-- 5. 伝統絵画 -->
+        <article class="unit-card" data-cat="tradition">
+          <div class="unit-head">
+            <span class="unit-badge">伝統絵画</span>
+            <h2 class="unit-title">5. 日本の伝統絵画（掛け軸・屏風・絵巻）</h2>
+          </div>
+
+          <ul class="item-list">
+            <li>
+              <strong>掛け軸（表装）</strong>：床の間には掛け軸とともに工芸品を飾ることもある。作例：『<label class="sticky"><input type="checkbox"><span class="sticky-text">佐竹本三十六歌仙絵切 源信明</span></label>』（重要文化財）、<label class="sticky"><input type="checkbox"><span class="sticky-text">伝藤原信実</span></label>（1176-1265頃）、13世紀、紙本着色、泉屋博古館蔵。
+            </li>
+            <li>
+              <strong>屏風</strong>：
+              折れ曲がった1面を「<label class="sticky"><input type="checkbox"><span class="sticky-text">扇（せん）</span></label>」、数によって「二曲」「四曲」「六曲」と呼ぶ。数える単位は「<label class="sticky"><input type="checkbox"><span class="sticky-text">隻（せき）</span></label>」、左右一組で「<label class="sticky"><input type="checkbox"><span class="sticky-text">双（そう）</span></label>」。六曲一隻は右から第一扇〜第六扇。
+              <div class="info-box" style="margin-top:8px;">
+                <span class="freq-badge">頻出</span>
+                <strong>『<label class="sticky"><input type="checkbox"><span class="sticky-text">燕子花図屏風（かきつばたずびょうぶ）</span></label>』</strong>（国宝・右隻）：
+                作者：<label class="sticky"><input type="checkbox"><span class="sticky-text">尾形光琳</span></label>（1658-1716）、紙本金地着色・六曲一双、18世紀、<label class="sticky"><input type="checkbox"><span class="sticky-text">根津美術館</span></label>蔵（東京都）。
+              </div>
+            </li>
+            <li>
+              <strong>絵巻</strong>：
+              数える単位は「<label class="sticky"><input type="checkbox"><span class="sticky-text">巻（かん）</span></label>」。横長の画面に物語を描き、時間経過の描写は東洋の絵画に特徴的。
+              <br><strong>読み方</strong>：<label class="sticky"><input type="checkbox"><span class="sticky-text">左手で広げ右手で巻き取りながら</span></label>、肩幅分ずつ見ていく。右手で巻き取られた部分は<label class="sticky"><input type="checkbox"><span class="sticky-text">過去</span></label>、左手側に<label class="sticky"><input type="checkbox"><span class="sticky-text">未来</span></label>がある。
+            </li>
+          </ul>
+        </article>
+
+        <!-- 6. 人物表現 -->
+        <article class="unit-card" data-cat="portrait">
+          <div class="unit-head">
+            <span class="unit-badge">人物表現</span>
+            <h2 class="unit-title">6. 人物・自画像表現</h2>
+          </div>
+
+          <div class="info-box">
+            <strong>表現のポイント</strong>：自分の顔を見つめて今の気持ちや自分らしさを考え、内面が表れるように描く。目や口など顔の部分にも感情が表れる。
+          </div>
+
+          <div class="work-grid">
+            <div class="work-card">
+              <div class="work-name">『化粧台にて、自画像』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">ジナイーダ・セレブリャコワ</span></label>（ロシア、1909年、トレチャコフ美術館蔵）</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name">『アンジェラ』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">エリザベス・ペイトン</span></label>（アメリカ、2017年）</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name">『アンリ・マティス』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">アンドレ・ドラン</span></label>（フランス、1905年、テート蔵）</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name">『緑の筋のある肖像（マティス夫人）』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">アンリ・マティス</span></label>（フランス、1905年、コペンハーゲン国立美術館蔵）</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><span class="freq-badge">頻出</span>『<label class="sticky"><input type="checkbox"><span class="sticky-text">自画像</span></label>』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">安井曾太郎</span></label>（京都府・1888-1955、1906年、油彩・板、東京国立博物館蔵）</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name">『青い傘2』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">アレックス・カッツ</span></label>（アメリカ、2020年、リトグラフ・紙）</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><span class="freq-badge">頻出</span>『<label class="sticky"><input type="checkbox"><span class="sticky-text">猫との自画像</span></label>』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">藤田嗣治</span></label>（日本・フランス・1886-1968、1926年、油彩・キャンヴァス、リヨン美術館蔵）</p>
+            </div>
+            <div class="work-card">
+              <div class="work-name"><span class="freq-badge">頻出</span>『<label class="sticky"><input type="checkbox"><span class="sticky-text">青いターバンの少女（真珠の耳飾りの少女）</span></label>』</div>
+              <p class="work-meta"><label class="sticky"><input type="checkbox"><span class="sticky-text">ヨハネス・フェルメール</span></label>（オランダ・1632-75、1665年頃、マウリッツハイス美術館蔵）</p>
+            </div>
+          </div>
+        </article>
+      </form>
+    </section>
+
+    <!-- ===================================================================
+         TAB 2: 確認クイズシート（全38問）
+         =================================================================== -->
+    <section id="panel-quiz" class="sheet-section" aria-label="確認クイズシート">
+      <form>
+        <div class="sheet-action-bar">
+          <p class="sheet-guide">
+            <strong>確認クイズ（全38問）：</strong>上のカテゴリーボタンで単元ごとに絞り込めます。青い付箋をタップして答え合わせをしましょう。
+          </p>
+          <button type="reset" class="reset-btn">すべて付箋を貼る</button>
+        </div>
+
+        <!-- Quiz: 色彩 (Q1-Q10) -->
+        <article class="unit-card" data-cat="color">
+          <div class="unit-head">
+            <span class="unit-badge">色彩</span>
+            <h2 class="unit-title">色彩の仕組み・混色・心理効果クイズ（Q1-Q10）</h2>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q1</span><span class="quiz-cat-tag">色の種類</span></div>
+            <p class="quiz-question">白・灰・黒のように明度だけを持ち色相や彩度の無い色を何というか。また、それ以外のすべての色を何というか。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>無彩色 ／ 有彩色（色の三要素である色相・明度・彩度をすべて持つ）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q2</span><span class="quiz-cat-tag">色相環・補色</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">虹の両端を何と何で丸くつないで輪にしたものを色相環というか。また、色相環の中で互いに向かい合い、引き立たせる効果がある色の関係を何というか。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>紫と赤紫 ／ 補色</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q3</span><span class="quiz-cat-tag">清色と濁色</span></div>
+            <p class="quiz-question">純色に白だけを混ぜた色、黒だけを混ぜた色、そして純色や清色に灰色を混ぜた色をそれぞれ何というか。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>白を混ぜる：明清色 ／ 黒を混ぜる：暗清色 ／ 灰色を混ぜる：中間色（濁色）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q4</span><span class="quiz-cat-tag">加法混色</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">色の異なる2つ以上の光を重ねることで明度が高くなる混色を何というか。また、色光の三原色と、それらを混ぜたときになる色を答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>加法混色 ／ レッド・ブルー・グリーン ／ 白色光（例：スポットライト、カラーモニター）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q5</span><span class="quiz-cat-tag">減法混色</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">絵の具やインクのように、混色により明度が低くなる混色を何というか。また、色料の三原色と、それらを混ぜたときになる色を答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>減法混色 ／ シアン・マゼンタ・イエロー ／ 黒に近い色</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q6</span><span class="quiz-cat-tag">色の機能性</span></div>
+            <p class="quiz-question">色の見えやすさ（明度差が大きいほど高い）、人の目を引き付ける性質（暖色・高彩度ほど高い）、複数のものを見分けやすくする機能をそれぞれ何というか。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>視認性 ／ 誘目性 ／ 識別性</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q7</span><span class="quiz-cat-tag">対比と同化</span></div>
+            <p class="quiz-question">背景や隣り合う色によって差が大きく見えたり違って見えたりする現象を何というか。逆に、挿入する色に近づいて見える現象を何というか。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>色の対比（色相・明度・彩度の対比） ／ 色の同化（同化効果）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q8</span><span class="quiz-cat-tag">心理効果</span></div>
+            <p class="quiz-question">実際より近く見える「進出色」、遠く見える「後退色」、大きく見える「膨張色」、小さく見える「収縮色」はそれぞれどのような色か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>進出色：暖色・高彩度 ／ 後退色：寒色・低彩度 ／ 膨張色：高明度・高彩度 ／ 収縮色：低明度・低彩度</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q9</span><span class="quiz-cat-tag">残像</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">最初に見た色とは反対の色が見える現象を何というか。また、そのとき残像で見える色のことを何というか。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>補色残像 ／ 心理補色</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q10</span><span class="quiz-cat-tag">色のイメージ</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">手書きノートの重要項目にある「白」「水色」「青」の心理イメージをそれぞれ挙げよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>白：純粋、無垢、リセット、浄化、スタート、潔癖、空虚感、軽い ／ 水色：自由、創造 ／ 青：抑制、鎮静、自立、信頼、悲哀、内向</span></label>
+          </div>
+        </article>
+
+        <!-- Quiz: 技法・画材 (Q11-Q18) -->
+        <article class="unit-card" data-cat="tech">
+          <div class="unit-head">
+            <span class="unit-badge">技法・画材</span>
+            <h2 class="unit-title">モダンテクニック・画材・デッサンクイズ（Q11-Q18）</h2>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q11</span><span class="quiz-cat-tag">モダンテクニック</span></div>
+            <p class="quiz-question">硬いブラシに絵の具を付け、金網の上からこすり付けて飛沫を落とす技法を何というか。また、この技法とマスキングを用いたパウル・クレーの作品名は何か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>スパッタリング ／ 『ムッシュー・ベルレンシュヴァイン』（1925）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q12</span><span class="quiz-cat-tag">モダンテクニック</span></div>
+            <p class="quiz-question">紙に厚めに盛った絵の具に別の紙やクリアファイルを重ね、圧力をかけて剥がす技法を何というか。また、教科書の作例《雲形の遍歴者》の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>デカルコマニー ／ 加納光於</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q13</span><span class="quiz-cat-tag">モダンテクニック</span></div>
+            <p class="quiz-question">コインや葉、地面などの凹凸の上に薄めの紙を置き、鉛筆やコンテでこすり写す技法を何というか。また、『HIROSHIMA MEMOIRE 96』の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>フロッタージュ ／ 岡部昌生</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q14</span><span class="quiz-cat-tag">モダンテクニック</span></div>
+            <p class="quiz-question">印刷物や写真の切り抜き、布や葉などを一つの画面に組み合わせる技法と、作例『マックス・ルエスト博士』（1919）の作者を答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>コラージュ ／ ラウール・ハウスマン</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q15</span><span class="quiz-cat-tag">モダンテクニック</span></div>
+            <p class="quiz-question">次の説明にあてはまる技法名を順に答えよ。（1）水面に浮かべた絵の具の模様を写し取る（2）素材の凹凸に絵の具を付けて押し付ける（3）二層の上層を削り下地を見せる（4）絵の具を紙から浮かせて垂らす。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>（1）マーブリング ／（2）スタンピング ／（3）スクラッチ ／（4）ドリッピング</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q16</span><span class="quiz-cat-tag">画材の特性</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">アクリル絵の具の特性を、固着力・水と乾燥後の性質・表現の幅の観点から説明せよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>固着力が強く、水に溶ける一方で乾くと耐水性を得る。乾燥が早く、薄塗りから厚塗りまで幅広い表現が可能。</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q17</span><span class="quiz-cat-tag">鉛筆デッサン</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">デッサン用鉛筆で芯を折れにくくするための削り方の工夫と、鉛筆の記号 H・B・F の意味、および F の硬さ・濃さの位置づけを答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>芯を長めに出し、木の部分を長く削って芯となだらかにつなげる。H＝Hard（硬い）、B＝Black（黒い）、F＝Firm（しっかりした／HBとHの中間）。</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q18</span><span class="quiz-cat-tag">姿勢・用紙・用具</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">イーゼルは左右どちら側に立てるか。画用紙の表はどちらか。また、デッサン終了後に粉を定着させるスプレー（定着液）の名称は何か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>利き手側（視線と描く手が交差しないようにするため） ／ より凹凸のある方 ／ フィキサチーフ</span></label>
+          </div>
+        </article>
+
+        <!-- Quiz: 彫刻 (Q19-Q23) -->
+        <article class="unit-card" data-cat="sculpture">
+          <div class="unit-head">
+            <span class="unit-badge">彫刻</span>
+            <h2 class="unit-title">彫刻・立体表現クイズ（Q19-Q23）</h2>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q19</span><span class="quiz-cat-tag">素材に宿る生命力</span></div>
+            <p class="quiz-question">彫り跡を残しながら一本の木をくりぬいた彫刻『TENTACLE（迷宮）』（1983）の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>砂澤ビッキ（北海道・1931-89）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q20</span><span class="quiz-cat-tag">素材に宿る生命力</span></div>
+            <p class="quiz-question">伸びていく新芽を思わせるブロンズ彫刻『成長』（1938、横浜美術館蔵）の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>ジャン・アルプ（フランス・1886-1966）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q21</span><span class="quiz-cat-tag">重力と量感</span></div>
+            <p class="quiz-question">静的で安定した存在感をもつ『Anti』（2004）と、軽やかで緊張感のあるバランスを感じさせる『レッド・キューブ』（1968、ニューヨーク）の作者を順に答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>カールステン・ニコライ ／ イサム・ノグチ</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q22</span><span class="quiz-cat-tag">飛び立つ力の流れ</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">鳥の飛び立つ能力を無駄のない美しいフォルムで表した『空間の鳥』（1926、滋賀県立美術館蔵）の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>コンスタンティン・ブランクーシ（ルーマニア・1876-1957）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q23</span><span class="quiz-cat-tag">抽象彫刻</span></div>
+            <p class="quiz-question">エネルギーを感じる抽象彫刻をつくる際に追求すべき3つの要素は何か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>重心、動勢、全体と部分との調和</span></label>
+          </div>
+        </article>
+
+        <!-- Quiz: デザイン (Q24-Q28) -->
+        <article class="unit-card" data-cat="design">
+          <div class="unit-head">
+            <span class="unit-badge">デザイン</span>
+            <h2 class="unit-title">プロダクト＆グラフィックデザインクイズ（Q24-Q28）</h2>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q24</span><span class="quiz-cat-tag">家具デザイン</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">スチールエキスパンドメタルを用いた椅子『ハウ・ハイ・ザ・ムーン』（1986、富山県美術館蔵）のデザイナーは誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>倉俣史朗（くらまた しろう、東京都・1934-91）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q25</span><span class="quiz-cat-tag">プロダクトデザイン</span></div>
+            <p class="quiz-question">成形合板の椅子『LCW』（1945）をデザインしたアメリカの夫妻と、ポリエチレン製『Qドラム』（1993）をデザインした南アフリカの2名をそれぞれ答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>LCW：チャールズ・イームズ ＆ レイ・イームズ ／ Qドラム：ピーター・ヘンドリクス ＆ ハンス・ヘンドリクス</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q26</span><span class="quiz-cat-tag">ポスター</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">写真の臨場感を生かしたポスター『東京オリンピック（TOKYO 1964）』（1962、国立工芸館蔵）のデザイナー、写真撮影者、フォトディレクターを答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>デザイナー：亀倉雄策 ／ 写真：早崎治 ／ フォトディレクター：村越襄</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q27</span><span class="quiz-cat-tag">ポスター</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">砲口に砲弾が向かってくる「逆転の発想」で反戦を訴えたポスター『VICTORY』（1975、二戸市シビックセンター蔵）の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>福田繁雄（東京都・1932-2009）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q28</span><span class="quiz-cat-tag">ポスター</span></div>
+            <p class="quiz-question">1981年にUCLAの日本古典芸能団招聘記念イベントのために制作され、「構成美を生かす」作例として紹介されているポスターのタイトルは何か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>『Nihon Buyo』</span></label>
+          </div>
+        </article>
+
+        <!-- Quiz: 伝統絵画 (Q29-Q32) -->
+        <article class="unit-card" data-cat="tradition">
+          <div class="unit-head">
+            <span class="unit-badge">伝統絵画</span>
+            <h2 class="unit-title">日本の伝統絵画クイズ（Q29-Q32）</h2>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q29</span><span class="quiz-cat-tag">屏風</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">国宝『燕子花図屏風（かきつばたずびょうぶ）』（18世紀、紙本金地着色・六曲一双）の作者と所蔵美術館を答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>尾形光琳（1658-1716） ／ 根津美術館（東京都）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q30</span><span class="quiz-cat-tag">屏風の数え方</span></div>
+            <p class="quiz-question">屏風の折れ曲がった1面を何というか。また、屏風1つを数える単位と、左右一組になったものを数える単位をそれぞれ答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>1面：扇（せん） ／ 1つ：隻（せき） ／ 左右一組：双（そう）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q31</span><span class="quiz-cat-tag">絵巻</span></div>
+            <p class="quiz-question">絵巻を数える単位は何か。また、どちらの手で広げてどちらの手で巻き取りながら見るか、そして過去と未来はそれぞれどちら側にあるか答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>単位：巻（かん） ／ 左手で広げ右手で巻き取りながら肩幅分ずつ見る ／ 右手が過去、左手側が未来</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q32</span><span class="quiz-cat-tag">掛け軸</span></div>
+            <p class="quiz-question">掛け軸（表装）の作例として掲載されている重要文化財『佐竹本三十六歌仙絵切 源信明』（13世紀、泉屋博古館蔵）の伝承作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>伝藤原信実（1176-1265頃）</span></label>
+          </div>
+        </article>
+
+        <!-- Quiz: 人物表現 (Q33-Q38) -->
+        <article class="unit-card" data-cat="portrait">
+          <div class="unit-head">
+            <span class="unit-badge">人物表現</span>
+            <h2 class="unit-title">人物・自画像表現クイズ（Q33-Q38）</h2>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q33</span><span class="quiz-cat-tag">肖像画</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">『青いターバンの少女（真珠の耳飾りの少女）』（1665年頃、マウリッツハイス美術館蔵）の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>ヨハネス・フェルメール（オランダ・1632-75）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q34</span><span class="quiz-cat-tag">自画像</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">『猫との自画像』（1926、リヨン美術館蔵）の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>藤田嗣治（日本・フランス・1886-1968）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q35</span><span class="quiz-cat-tag">自画像</span><span class="freq-badge">頻出</span></div>
+            <p class="quiz-question">東京国立博物館が所蔵する1906年制作（油彩・板）の『自画像』の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>安井曾太郎（京都府・1888-1955）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q36</span><span class="quiz-cat-tag">肖像画</span></div>
+            <p class="quiz-question">1905年制作の『緑の筋のある肖像（マティス夫人）』（コペンハーゲン国立美術館蔵）の作者と、同じく1905年制作の『アンリ・マティス』（テート蔵）の作者を順に答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>アンリ・マティス ／ アンドレ・ドラン</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q37</span><span class="quiz-cat-tag">自画像</span></div>
+            <p class="quiz-question">『化粧台にて、自画像』（1909、トレチャコフ美術館蔵）の作者は誰か。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>ジナイーダ・セレブリャコワ（ロシア）</span></label>
+          </div>
+
+          <div class="quiz-card">
+            <div class="quiz-meta"><span class="quiz-num">Q38</span><span class="quiz-cat-tag">現代の人物表現</span></div>
+            <p class="quiz-question">『アンジェラ』（2017）の作者と、リトグラフ作品『青い傘2』（2020）の作者を順に答えよ。</p>
+            <label class="sticky sticky-block"><input type="checkbox"><span class="sticky-text"><span class="ans-prefix">正解</span>エリザベス・ペイトン（アメリカ） ／ アレックス・カッツ（アメリカ）</span></label>
+          </div>
+        </article>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
