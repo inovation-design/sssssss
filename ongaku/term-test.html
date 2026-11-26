@@ -4226,6 +4226,22 @@ body{padding-top:50px}
     border-radius: 50%;
     margin-right: 4px;
   }
+body.embed-view{
+    padding-top: 0;
+  }
+body.embed-view .tabbar{
+    display: none;
+  }
+body.embed-view #s0 .app-header,
+body.embed-view #s1 .app-header,
+body.embed-view #s2 .top-bar,
+body.embed-view #s3 .sticky-header,
+body.embed-view #s4 .app-header,
+body.embed-view #s5 .app-header,
+body.embed-view #s6 .app-header,
+body.embed-view #s7 .app-header{
+    top: 0;
+  }
 
 </style>
 </head>
@@ -13112,5 +13128,15 @@ body{padding-top:50px}
   </main>
 
 </div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const tabId = params.get('tab');
+  if (/^t[0-7]$/.test(tabId || '')) {
+    document.getElementById(tabId).checked = true;
+  }
+  if (params.get('embed') === '1') {
+    document.body.classList.add('embed-view');
+  }
+</script>
 </body>
 </html>
