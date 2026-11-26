@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>古文単語 例文クイズ（041〜100）</title>
+  <style>
+    /* ===== ベース設定（iOSファイルアプリ・オフライン完全対応） ===== */
+    :root {
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --underline-color: #dc2626;
+      /* 青い付箋カラー */
+      --sticky-bg: #3b82f6;
+      --sticky-bg-hover: #2563eb;
+      --sticky-edge: #1d4ed8;
+      --sticky-opened-bg: #eff6ff;
+      --sticky-opened-border: #93c5fd;
+      --sticky-opened-text: #1e40af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.7;
+      padding: 16px 12px 64px;
+      padding-bottom: calc(64px + env(safe-area-inset-bottom));
+    }
+
+    /* ===== コンテナ ===== */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* ===== ヘッダー＆ジャンプナビ ===== */
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 16px 12px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .jump-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .jump-nav a {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      text-decoration: none;
+    }
+
+    /* ===== 問題カード ===== */
+    .quiz-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .quiz-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      border: 1px solid var(--border-color);
+      scroll-margin-top: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .q-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+      background-color: #f1f5f9;
+      padding: 2px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+    }
+
+    /* 古文の例文 */
+    .kobun-text {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", Georgia, serif;
+      font-size: 1.12rem;
+      line-height: 1.85;
+      color: #0f172a;
+      margin-bottom: 14px;
+      word-break: break-all;
+    }
+
+    /* 傍線部 */
+    .kobun-text u {
+      text-decoration: none;
+      border-bottom: 2.5px solid var(--underline-color);
+      padding-bottom: 2px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* ===== 青い付箋（JSなし・details/summary実装） ===== */
+    details.sticky-wrap {
+      width: 100%;
+    }
+
+    /* デフォルトの三角マーカーを完全に消す */
+    details.sticky-wrap > summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    details.sticky-wrap > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    /* 付箋（閉じている状態：和訳を隠している青い付箋） */
+    details.sticky-wrap > summary.sticky-note {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 48px;
+      padding: 12px 16px 12px 20px;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 700;
+      border-radius: 4px 10px 10px 4px;
+      border-left: 8px solid var(--sticky-edge);
+      box-shadow: 2px 4px 10px rgba(37, 99, 235, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    details.sticky-wrap > summary.sticky-note::after {
+      content: "めくる";
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.22);
+      padding: 3px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+    }
+
+    details.sticky-wrap > summary.sticky-note:active {
+      transform: scale(0.99);
+    }
+
+    /* 付箋が開いた状態（めくられた状態） */
+    details.sticky-wrap[open] > summary.sticky-note {
+      min-height: 34px;
+      padding: 6px 14px 6px 16px;
+      background: #dbeafe;
+      color: #1e40af;
+      font-size: 0.78rem;
+      border-left: 6px solid #3b82f6;
+      border-radius: 6px 6px 0 0;
+      box-shadow: none;
+    }
+
+    details.sticky-wrap[open] > summary.sticky-note::after {
+      content: "付箋を戻す";
+      background: rgba(30, 64, 175, 0.1);
+      color: #1e40af;
+    }
+
+    /* めくった下に現れる和訳エリア */
+    .answer-box {
+      padding: 14px 16px;
+      background-color: var(--sticky-opened-bg);
+      border: 1.5px solid var(--sticky-opened-border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      color: var(--sticky-opened-text);
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .answer-sub {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    /* ページトップへ戻るリンク */
+    .back-top {
+      display: block;
+      text-align: center;
+      margin-top: 28px;
+      padding: 12px;
+      background: var(--card-bg);
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* ダークモード自動対応 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #0f172a;
+        --card-bg: #1e293b;
+        --text-main: #f1f5f9;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --underline-color: #f87171;
+        --sticky-opened-bg: #172554;
+        --sticky-opened-border: #1d4ed8;
+        --sticky-opened-text: #dbeafe;
+      }
+      .kobun-text, .kobun-text u {
+        color: #f8fafc;
+      }
+      .q-badge {
+        background-color: #334155;
+        color: #cbd5e1;
+      }
+      .jump-nav a {
+        background-color: #1e3a8a;
+        border-color: #1d4ed8;
+        color: #bfdbfe;
+      }
+      details.sticky-wrap[open] > summary.sticky-note {
+        background: #1e3a8a;
+        color: #bfdbfe;
+      }
+      details.sticky-wrap[open] > summary.sticky-note::after {
+        background: rgba(255, 255, 255, 0.15);
+        color: #dbeafe;
+      }
+      .answer-sub {
+        color: #93c5fd;
+      }
+      .back-top {
+        color: #93c5fd;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <div class="container">
+    <!-- ヘッダー -->
+    <header>
+      <h1>古文単語 例文クイズ（041〜100）</h1>
+      <p>傍線部の意味を思い浮かべて、青い付箋をタップしてください</p>
+      <nav class="jump-nav" aria-label="番号ジャンプ">
+        <a href="#q041">041〜</a>
+        <a href="#q051">051〜</a>
+        <a href="#q061">061〜</a>
+        <a href="#q071">071〜</a>
+        <a href="#q081">081〜</a>
+        <a href="#q091">091〜</a>
+      </nav>
+    </header>
+
+    <!-- クイズ一覧（041〜100 全113例文） -->
+    <main class="quiz-list">
+
+      <!-- 041 -->
+      <article class="quiz-card" id="q041">
+        <div class="card-header"><span class="q-badge">041</span></div>
+        <p class="kobun-text">遣はしし人は、夜昼待ち給ふに、年越ゆるまで、<u>音</u>もせず。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">便り<span class="answer-sub">（うわさ・音沙汰・音信）</span></div>
+        </details>
+      </article>
+
+      <!-- 042 -->
+      <article class="quiz-card" id="q042">
+        <div class="card-header"><span class="q-badge">042-①</span></div>
+        <p class="kobun-text">隙もなき涙に曇る心にもあかしと見ゆる月の<u>影</u>かな</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">光<span class="answer-sub">（太陽や月などの光）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">042-②</span></div>
+        <p class="kobun-text">伏しまろび泣きたる<u>影</u>の見えけむは、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">姿<span class="answer-sub">（形・面影）</span></div>
+        </details>
+      </article>
+
+      <!-- 043 -->
+      <article class="quiz-card" id="q043">
+        <div class="card-header"><span class="q-badge">043-①</span></div>
+        <p class="kobun-text">心も浮き立つものは、春の<u>けしき</u>にこそあめれ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">有様<span class="answer-sub">（様子・情景・表情・顔色）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">043-②</span></div>
+        <p class="kobun-text">もの古りたる森の<u>けしき</u>もただならぬに、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">趣<span class="answer-sub">（情趣）</span></div>
+        </details>
+      </article>
+
+      <!-- 044 -->
+      <article class="quiz-card" id="q044">
+        <div class="card-header"><span class="q-badge">044-①</span></div>
+        <p class="kobun-text">四季はなほ定まれる<u>ついで</u>あり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">順序<span class="answer-sub">（次第・順番）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">044-②</span></div>
+        <p class="kobun-text">物の<u>ついで</u>に言ひ出でたれば、聞きてかく言ふ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">機会<span class="answer-sub">（折・場合）</span></div>
+        </details>
+      </article>
+
+      <!-- 045 -->
+      <article class="quiz-card" id="q045">
+        <div class="card-header"><span class="q-badge">045-①</span></div>
+        <p class="kobun-text">十七日の<u>つとめて</u>立つ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">早朝<span class="answer-sub">（朝早く）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">045-②</span></div>
+        <p class="kobun-text">その<u>つとめて</u>、そこを立ちて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">翌早朝</div>
+        </details>
+      </article>
+
+      <!-- 046 -->
+      <article class="quiz-card" id="q046">
+        <div class="card-header"><span class="q-badge">046-①</span></div>
+        <p class="kobun-text">同じ折亡くなり給ひし侍従の大納言の御女の<u>手</u>を見つつ、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">筆跡<span class="answer-sub">（技量・文字・書風）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">046-②</span></div>
+        <p class="kobun-text">〔双六ハ〕一目なりとも遅く負くべき<u>手</u>につくべし。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">手段<span class="answer-sub">（方法）</span></div>
+        </details>
+      </article>
+
+      <!-- 047 -->
+      <article class="quiz-card" id="q047">
+        <div class="card-header"><span class="q-badge">047</span></div>
+        <p class="kobun-text"><u>年ごろ</u>思ひつること、果たし侍りぬ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">数年来<span class="answer-sub">（長年）</span></div>
+        </details>
+      </article>
+
+      <!-- 048 -->
+      <article class="quiz-card" id="q048">
+        <div class="card-header"><span class="q-badge">048-①</span></div>
+        <p class="kobun-text">なかなか<u>やう</u>かはりて、優なるかたも侍り。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">様子<span class="answer-sub">（状態・姿形）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">048-②</span></div>
+        <p class="kobun-text">「参るまじくは、その<u>やう</u>を申せ。」</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">理由<span class="answer-sub">（事情・手段・方法）</span></div>
+        </details>
+      </article>
+
+      <!-- 049 -->
+      <article class="quiz-card" id="q049">
+        <div class="card-header"><span class="q-badge">049-①</span></div>
+        <p class="kobun-text">閼伽棚に菊紅葉など折り散らしたる、<u>さすがに</u>住む人のあればなるべし。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">そうは言うもののやはり</div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">049-②</span></div>
+        <p class="kobun-text">宮も<u>さすがなる</u>ことどもを多くおぼしつづけけり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">そうもいかない</div>
+        </details>
+      </article>
+
+      <!-- 050 -->
+      <article class="quiz-card" id="q050">
+        <div class="card-header"><span class="q-badge">050-①</span></div>
+        <p class="kobun-text">立て籠めたる所の戸、<u>すなはち</u>ただあきにあきぬ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">すぐに<span class="answer-sub">（即座に）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">050-②</span></div>
+        <p class="kobun-text">籠を引き過ぐして綱絶ゆる<u>すなはち</u>に、八島の鼎の上にのけざまに落ち給へり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">瞬間<span class="answer-sub">（即刻・当座・即座）</span></div>
+        </details>
+      </article>
+
+      <!-- 051 -->
+      <article class="quiz-card" id="q051">
+        <div class="card-header"><span class="q-badge">051-①</span></div>
+        <p class="kobun-text"><u>そこら</u>の黄金たまひて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">たくさん<span class="answer-sub">（大勢・多く）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">051-②</span></div>
+        <p class="kobun-text">かく様々にめでたきことども、あはれにも<u>そこら</u>多く見聞き侍れど、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">たいそう<span class="answer-sub">（はなはだしく）</span></div>
+        </details>
+      </article>
+
+      <!-- 052 -->
+      <article class="quiz-card" id="q052">
+        <div class="card-header"><span class="q-badge">052-①</span></div>
+        <p class="kobun-text">和歌こそ<u>なほ</u>をかしきものなれ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">やはり<span class="answer-sub">（そのまま）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">052-②</span></div>
+        <p class="kobun-text">東路の道のはてよりも、<u>なほ</u>奥つ方に生ひ出でたる人、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">いっそう<span class="answer-sub">（ますます・さらに）</span></div>
+        </details>
+      </article>
+
+      <!-- 053 -->
+      <article class="quiz-card" id="q053">
+        <div class="card-header"><span class="q-badge">053-①</span></div>
+        <p class="kobun-text">春はあけぼの。<u>やうやう</u>白くなりゆく、山ぎは少し明りて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">次第に<span class="answer-sub">（だんだん）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">053-②</span></div>
+        <p class="kobun-text">その日<u>やうやう</u>草加といふ宿にたどり着きにけり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">やっと<span class="answer-sub">（かろうじて・おもむろに）</span></div>
+        </details>
+      </article>
+
+      <!-- 054 -->
+      <article class="quiz-card" id="q054">
+        <div class="card-header"><span class="q-badge">054-①</span></div>
+        <p class="kobun-text">〔翁ハ〕<u>やがて</u>起きもあがらで、病み伏せり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">そのまま<span class="answer-sub">（同時に）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">054-②</span></div>
+        <p class="kobun-text">わが前に〔飯ヲ〕据ゑぬれば、<u>やがて</u>ひとりうち食ひて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">すぐに<span class="answer-sub">（ちょうど）</span></div>
+        </details>
+      </article>
+
+      <!-- 055 -->
+      <article class="quiz-card" id="q055">
+        <div class="card-header"><span class="q-badge">055-①</span></div>
+        <p class="kobun-text"><u>わざと</u>の御学問はさるものにて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">正式（に）<span class="answer-sub">（本格的（に））</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">055-②</span></div>
+        <p class="kobun-text"><u>わざと</u>かう御文あるを、僧都もかしこまり聞こえ給ふ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">わざわざ<span class="answer-sub">（意識的に）</span></div>
+        </details>
+      </article>
+
+      <!-- 056 -->
+      <article class="quiz-card" id="q056">
+        <div class="card-header"><span class="q-badge">056-①</span></div>
+        <p class="kobun-text">男はうけきらはず招び集へて、いとかしこく<u>遊ぶ</u>。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">管絃（音楽）などの遊びをする<span class="answer-sub">（演奏する）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">056-②</span></div>
+        <p class="kobun-text">さては童べぞ出で入り<u>遊ぶ</u>。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">遊び興じる</div>
+        </details>
+      </article>
+
+      <!-- 057 -->
+      <article class="quiz-card" id="q057">
+        <div class="card-header"><span class="q-badge">057-①</span></div>
+        <p class="kobun-text">をさなき人のかかること言ひ伝ふるは、いみじく<u>忌む</u>なるものを。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">忌み嫌う<span class="answer-sub">（不吉だ・憎む・慎む）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">057-②</span></div>
+        <p class="kobun-text"><u>忌む</u>ことのしるしに、よみがへりてなん、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">受戒する</div>
+        </details>
+      </article>
+
+      <!-- 058 -->
+      <article class="quiz-card" id="q058">
+        <div class="card-header"><span class="q-badge">058-①</span></div>
+        <p class="kobun-text">つひに本意のごとく<u>あひ</u>にけり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">結婚する<span class="answer-sub">（出会う・めぐり会う）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">058-②</span></div>
+        <p class="kobun-text">人のほどに<u>あは</u>ねば、とがむるなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">つり合う</div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">058-③</span></div>
+        <p class="kobun-text">秋風に<u>あへ</u>ず散りぬるもみぢ葉のゆくへ定めぬ我ぞかなしき</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">我慢する<span class="answer-sub">（堪える・こらえる）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">058-④</span></div>
+        <p class="kobun-text">山川に風のかけたるしがらみは流れも<u>あへ</u>ぬもみぢなりけり</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">完全に〜しきる<span class="answer-sub">（無理に〜する／※「流れもあへぬ」＝完全に流れきれない）</span></div>
+        </details>
+      </article>
+
+      <!-- 059 -->
+      <article class="quiz-card" id="q059">
+        <div class="card-header"><span class="q-badge">059-①</span></div>
+        <p class="kobun-text">見初めし秋は言の葉の薄き色にや<u>うつろふ</u>と</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">色あせる（しぼむ）／心変わりする</div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">059-②</span></div>
+        <p class="kobun-text">つゆくさのつゆに<u>移ろふ</u>とかや、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">移り変わる<span class="answer-sub">（移る・移転する）</span></div>
+        </details>
+      </article>
+
+      <!-- 060 -->
+      <article class="quiz-card" id="q060">
+        <div class="card-header"><span class="q-badge">060-①</span></div>
+        <p class="kobun-text">前の東宮に<u>おくれ</u>たてまつりて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">先立たれる<span class="answer-sub">（遅れる・後に残る）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">060-②</span></div>
+        <p class="kobun-text">末の<u>おくれ</u>給へるはわろきことなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">劣る<span class="answer-sub">（気後れする）</span></div>
+        </details>
+      </article>
+
+      <!-- 061 -->
+      <article class="quiz-card" id="q061">
+        <div class="card-header"><span class="q-badge">061-①</span></div>
+        <p class="kobun-text">持仏据ゑたてまつりて<u>おこなふ</u>、尼なりけり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">勤行する<span class="answer-sub">（（仏道）修行する・お勤めをする）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">061-②</span></div>
+        <p class="kobun-text">世の人の飢ゑず寒からぬやうに世をば<u>おこなは</u>まほしきなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">治める<span class="answer-sub">（政治を行う・とり行う・処理する）</span></div>
+        </details>
+      </article>
+
+      <!-- 062 -->
+      <article class="quiz-card" id="q062">
+        <div class="card-header"><span class="q-badge">062-①</span></div>
+        <p class="kobun-text">親たち<u>かしづき</u>給ふこと限りなし。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">大切に育てる<span class="answer-sub">（いつくしむ）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">062-②</span></div>
+        <p class="kobun-text">大臣の、外腹のむすめたづね出でて、<u>かしづき</u>給ふなる。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">大切に世話をする<span class="answer-sub">（後見する）</span></div>
+        </details>
+      </article>
+
+      <!-- 063 -->
+      <article class="quiz-card" id="q063">
+        <div class="card-header"><span class="q-badge">063-①</span></div>
+        <p class="kobun-text">髪も袴も<u>しほたれ</u>て、とりあげたれどもかひぞなき。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">海水に濡れてしずくが垂れる</div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">063-②</span></div>
+        <p class="kobun-text">あかぬ別れの涙には、袖<u>しほたれ</u>てほしあへず。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">（涙・露霜などで袖が）濡れる<span class="answer-sub">（涙を流す・悲しむ）</span></div>
+        </details>
+      </article>
+
+      <!-- 064 -->
+      <article class="quiz-card" id="q064">
+        <div class="card-header"><span class="q-badge">064-①</span></div>
+        <p class="kobun-text">〔朧月夜ハ〕あまた参り集まり給ふ中にもすぐれて<u>ときめき</u>給ふ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">寵愛を受ける</div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">064-②</span></div>
+        <p class="kobun-text">一の所などに<u>時めく</u>人も、えやすくはあらねど、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">時勢にあって栄える<span class="answer-sub">（羽振りがよい）</span></div>
+        </details>
+      </article>
+
+      <!-- 065 -->
+      <article class="quiz-card" id="q065">
+        <div class="card-header"><span class="q-badge">065-①</span></div>
+        <p class="kobun-text">契りおきし花のさかりを告げぬかな春やまだ来ぬ花や<u>にほは</u>ぬ</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">美しく咲く<span class="answer-sub">（美しく輝く・美しく染まる）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">065-②</span></div>
+        <p class="kobun-text">わが家までは<u>にほひ</u>来ねど、面目におぼすに、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">恩恵が及ぶ<span class="answer-sub">（栄える）</span></div>
+        </details>
+      </article>
+
+      <!-- 066 -->
+      <article class="quiz-card" id="q066">
+        <div class="card-header"><span class="q-badge">066-①</span></div>
+        <p class="kobun-text">春暮れてのち夏になり、夏<u>果て</u>て秋の来るにはあらず。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">終わる<span class="answer-sub">（なくなる・死ぬ）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">066-②</span></div>
+        <p class="kobun-text">内裏造らるるにも、必ず、造り<u>はて</u>ぬ所を残すことなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">〜（し）きる<span class="answer-sub">（〜（し）終わる・すっかり〜（する））</span></div>
+        </details>
+      </article>
+
+      <!-- 067 -->
+      <article class="quiz-card" id="q067">
+        <div class="card-header"><span class="q-badge">067-①</span></div>
+        <p class="kobun-text">いとしのびて見そめたりし人の、さても<u>見</u>つべかりしけはひなりしかば、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">結婚する<span class="answer-sub">（交際する）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">067-②</span></div>
+        <p class="kobun-text">かくなりけりと<u>見る</u>に、いよいよむくつけし。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">理解する<span class="answer-sub">（見る・判断する）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">067-③</span></div>
+        <p class="kobun-text">かの御かはりに<u>見</u>たてまつらむ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">世話をする<span class="answer-sub">（面倒をみる）</span></div>
+        </details>
+      </article>
+
+      <!-- 068 -->
+      <article class="quiz-card" id="q068">
+        <div class="card-header"><span class="q-badge">068-①</span></div>
+        <p class="kobun-text">こよなく<u>やつれ</u>てのみこそ詣づと知りたれ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">地味（粗末）な服装になる<span class="answer-sub">（目立たぬようになる・みすぼらしくなる）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">068-②</span></div>
+        <p class="kobun-text">御装束をも<u>やつれ</u>たる狩の御衣をたてまつる。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">地味（粗末）な服装になる<span class="answer-sub">（目立たぬようになる・みすぼらしくなる）</span></div>
+        </details>
+      </article>
+
+      <!-- 069 -->
+      <article class="quiz-card" id="q069">
+        <div class="card-header"><span class="q-badge">069-①</span></div>
+        <p class="kobun-text">昔、男、武蔵の国までまどひ歩きけり。さてその国にある女を<u>よばひ</u>けり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">求婚する<span class="answer-sub">（言い寄る・（男が女の所に）通う）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">069-②</span></div>
+        <p class="kobun-text">昨日道をまかりしに、跡に<u>よばふ</u>声あり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">呼び続ける</div>
+        </details>
+      </article>
+
+      <!-- 070 -->
+      <article class="quiz-card" id="q070">
+        <div class="card-header"><span class="q-badge">070-①</span></div>
+        <p class="kobun-text">なかなか長きよりも、こよなう<u>いまめかしき</u>ものかな。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">当世風だ<span class="answer-sub">（現代風だ・華やかだ・目新しい）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">070-②</span></div>
+        <p class="kobun-text"><u>いまめかしき</u>申し事にて侍れども、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">今さらめいている<span class="answer-sub">（軽薄だ）</span></div>
+        </details>
+      </article>
+
+      <!-- 071 -->
+      <article class="quiz-card" id="q071">
+        <div class="card-header"><span class="q-badge">071-①</span></div>
+        <p class="kobun-text">我に並び給へるこそ、君は<u>おほけなけれ</u>、となむ戯れ聞こえ給ふ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">身分不相応だ<span class="answer-sub">（身の程知らずだ）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">071-②</span></div>
+        <p class="kobun-text">あるまじく<u>おほけなき</u>心などはさらに物し給はず、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">恐れ多い</div>
+        </details>
+      </article>
+
+      <!-- 072 -->
+      <article class="quiz-card" id="q072">
+        <div class="card-header"><span class="q-badge">072-①</span></div>
+        <p class="kobun-text">江帥は、いかなる才学にてか申されけん、<u>おぼつかなし</u>。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">はっきりしない<span class="answer-sub">（不審だ・ぼんやりしている）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">072-②</span></div>
+        <p class="kobun-text">その夜さり、暑くわりなき闇にて、何とも覚えず、狭く<u>おぼつかなく</u>て明かしつ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">心細い<span class="answer-sub">（気がかりだ・不安だ・待ち遠しい）</span></div>
+        </details>
+      </article>
+
+      <!-- 073 -->
+      <article class="quiz-card" id="q073">
+        <div class="card-header"><span class="q-badge">073</span></div>
+        <p class="kobun-text">心のままに茂れる秋の野らは、置きあまる露にうづもれて、虫の音<u>かごとがましく</u>、遣水の音のどやかなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">恨みがましい様子だ<span class="answer-sub">（嘆いている様子だ）</span></div>
+        </details>
+      </article>
+
+      <!-- 074 -->
+      <article class="quiz-card" id="q074">
+        <div class="card-header"><span class="q-badge">074-①</span></div>
+        <p class="kobun-text">めでたしと見る人の、心劣りせらるる本性見えんこそ、<u>口惜しかる</u>べけれ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">残念だ<span class="answer-sub">（がっかりだ・くやしい）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">074-②</span></div>
+        <p class="kobun-text">「夜に入りて物の映えなし。」といふ人、いと<u>くちをし</u>。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">情けない<span class="answer-sub">（つまらない・もの足りない）</span></div>
+        </details>
+      </article>
+
+      <!-- 075 -->
+      <article class="quiz-card" id="q075">
+        <div class="card-header"><span class="q-badge">075-①</span></div>
+        <p class="kobun-text">我は、<u>すきずきしき</u>心など、なき人ぞ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">好色めいている</div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">075-②</span></div>
+        <p class="kobun-text"><u>すきずきしき</u>下衆などの、人などに語りつべからむをがなと思ふも、いとけしからず。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">風流だ<span class="answer-sub">（熱心だ・物好きだ）</span></div>
+        </details>
+      </article>
+
+      <!-- 076 -->
+      <article class="quiz-card" id="q076">
+        <div class="card-header"><span class="q-badge">076</span></div>
+        <p class="kobun-text">心にうつりゆくよしなしごとを、<u>そこはかとなく</u>書きつくれば、あやしうこそものぐるほしけれ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">とりとめもない<span class="answer-sub">（どこということもない）</span></div>
+        </details>
+      </article>
+
+      <!-- 077 -->
+      <article class="quiz-card" id="q077">
+        <div class="card-header"><span class="q-badge">077-①</span></div>
+        <p class="kobun-text">よろづにその道を知れる者は、<u>やんごとなき</u>ものなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">たいそう尊い<span class="answer-sub">（高貴だ・貴重だ）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">077-②</span></div>
+        <p class="kobun-text">「それはしも、<u>やんごとなき</u>ことあり。」とて出でむとするに、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">やむをえない<span class="answer-sub">（捨てておけない）</span></div>
+        </details>
+      </article>
+
+      <!-- 078 -->
+      <article class="quiz-card" id="q078">
+        <div class="card-header"><span class="q-badge">078</span></div>
+        <p class="kobun-text">眉のけざやかになりたるも、うつくしう<u>きよらなり</u>。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">上品で美しい<span class="answer-sub">（清く美しい・華麗だ・華美だ）</span></div>
+        </details>
+      </article>
+
+      <!-- 079 -->
+      <article class="quiz-card" id="q079">
+        <div class="card-header"><span class="q-badge">079-①</span></div>
+        <p class="kobun-text"><u>つれづれなる</u>日、思ひのほかに友の入り来て、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">所在ない<span class="answer-sub">（退屈だ）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">079-②</span></div>
+        <p class="kobun-text">〔源氏ハ〕いと<u>つれづれに</u>ながめがちなれど、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">退屈でもの寂しい<span class="answer-sub">（物思いに沈む）</span></div>
+        </details>
+      </article>
+
+      <!-- 080 -->
+      <article class="quiz-card" id="q080">
+        <div class="card-header"><span class="q-badge">080-①</span></div>
+        <p class="kobun-text">いかに、殿ばら、殊勝のことは御覧じとがめずや。<u>むげなり</u>。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">まったくひどい<span class="answer-sub">（あんまりだ）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">080-②</span></div>
+        <p class="kobun-text">これを、<u>むげの</u>者は、手をすりて拝む。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">身分が低い<span class="answer-sub">（卑賤だ）</span></div>
+        </details>
+      </article>
+
+      <!-- 081 -->
+      <article class="quiz-card" id="q081">
+        <div class="card-header"><span class="q-badge">081-①</span></div>
+        <p class="kobun-text"><u>愛敬</u>ありて、言葉多からぬこそ、飽かず向かはまほしけれ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">かわいらしさ<span class="answer-sub">（愛らしさ）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">081-②</span></div>
+        <p class="kobun-text"><u>あいぎやう</u>なく、人をもて離るる心あるは、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">思いやり</div>
+        </details>
+      </article>
+
+      <!-- 082 -->
+      <article class="quiz-card" id="q082">
+        <div class="card-header"><span class="q-badge">082-①</span></div>
+        <p class="kobun-text">供奉の公卿、殿上人<u>色</u>を失ひ、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">顔色<span class="answer-sub">（表情）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">082-②</span></div>
+        <p class="kobun-text">無下に<u>色</u>なき人におはしけりと、見落としたてまつることなんありし。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">風流<span class="answer-sub">（情趣・美しさ）</span></div>
+        </details>
+      </article>
+
+      <!-- 083 -->
+      <article class="quiz-card" id="q083">
+        <div class="card-header"><span class="q-badge">083</span></div>
+        <p class="kobun-text">はかばかしき<u>後見</u>しなければ、事ある時は、なほ拠り所なく心細げなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">後見（人）<span class="answer-sub">（世話（役））</span></div>
+        </details>
+      </article>
+
+      <!-- 084 -->
+      <article class="quiz-card" id="q084">
+        <div class="card-header"><span class="q-badge">084-①</span></div>
+        <p class="kobun-text">いみじく静かに<u>朝廷</u>に御文たてまつり給ふ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">天皇<span class="answer-sub">（朝廷）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">084-②</span></div>
+        <p class="kobun-text"><u>公</u>・私の大事を欠きて、わづらひとなる。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">公的なこと</div>
+        </details>
+      </article>
+
+      <!-- 085 -->
+      <article class="quiz-card" id="q085">
+        <div class="card-header"><span class="q-badge">085-①</span></div>
+        <p class="kobun-text">琴、笛の音にも<u>雲居</u>を響かし、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">宮中<span class="answer-sub">（内裏・都）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">085-②</span></div>
+        <p class="kobun-text">鳴く声<u>雲居</u>まで聞こゆる、いとめでたし。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">天<span class="answer-sub">（空・雲のある所）</span></div>
+        </details>
+      </article>
+
+      <!-- 086 -->
+      <article class="quiz-card" id="q086">
+        <div class="card-header"><span class="q-badge">086-①</span></div>
+        <p class="kobun-text">親の諌め、世の謗りをつつむに、<u>心</u>のいとまなく、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">気持ち<span class="answer-sub">（感情・精神）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">086-②</span></div>
+        <p class="kobun-text"><u>心</u>あらむ人は、人の恩を蒙りなば、必ず報ゆべきなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">思慮<span class="answer-sub">（風流心・情愛）</span></div>
+        </details>
+      </article>
+
+      <!-- 087 -->
+      <article class="quiz-card" id="q087">
+        <div class="card-header"><span class="q-badge">087-①</span></div>
+        <p class="kobun-text"><u>才</u>深き師に預け聞こえ給ひてぞ、学問せさせたてまつり給ひける。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">学才<span class="answer-sub">（（漢詩文などの）学問・教養）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">087-②</span></div>
+        <p class="kobun-text">遊びの方の<u>才</u>はなほ広う合はせ、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">技芸<span class="answer-sub">（（芸術の）才能）</span></div>
+        </details>
+      </article>
+
+      <!-- 088 -->
+      <article class="quiz-card" id="q088">
+        <div class="card-header"><span class="q-badge">088-①</span></div>
+        <p class="kobun-text">逢はでやみにし憂さを思ひ、あだなる<u>契り</u>をかこち、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">約束<span class="answer-sub">（男女の交わり）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">088-②</span></div>
+        <p class="kobun-text">長き<u>ちぎり</u>のなかりければ、ほどなくまかりぬべきなめりと思ひ、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">前世からの因縁<span class="answer-sub">（宿縁）</span></div>
+        </details>
+      </article>
+
+      <!-- 089 -->
+      <article class="quiz-card" id="q089">
+        <div class="card-header"><span class="q-badge">089-①</span></div>
+        <p class="kobun-text"><u>なさけ</u>ある人にて、瓶に花を挿せり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">風流心<span class="answer-sub">（風情）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">089-②</span></div>
+        <p class="kobun-text"><u>情け</u>あるゆゑに、人の言ふ程のこと、けやけくいなびがたくて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">思いやり<span class="answer-sub">（恋愛・情愛）</span></div>
+        </details>
+      </article>
+
+      <!-- 090 -->
+      <article class="quiz-card" id="q090">
+        <div class="card-header"><span class="q-badge">090-①</span></div>
+        <p class="kobun-text"><u>文</u>は文選のあはれなる巻々、白氏文集、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">書物<span class="answer-sub">（文献・文書）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">090-②</span></div>
+        <p class="kobun-text">都へたより求めて<u>文</u>やる。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">手紙</div>
+        </details>
+      </article>
+
+      <!-- 091 -->
+      <article class="quiz-card" id="q091">
+        <div class="card-header"><span class="q-badge">091</span></div>
+        <p class="kobun-text">つひに<u>本意</u>のごとくあひにけり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">本来の志<span class="answer-sub">（本望・真意・本意）</span></div>
+        </details>
+      </article>
+
+      <!-- 092 -->
+      <article class="quiz-card" id="q092">
+        <div class="card-header"><span class="q-badge">092-①</span></div>
+        <p class="kobun-text">恵みを施し<u>道</u>を正しくせば、その化遠く流れんことを知らざるなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">道理<span class="answer-sub">（秩序・筋道）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">092-②</span></div>
+        <p class="kobun-text">世を治むる<u>道</u>、倹約を本とす。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">方法<span class="answer-sub">（手段）</span></div>
+        </details>
+      </article>
+
+      <!-- 093 -->
+      <article class="quiz-card" id="q093">
+        <div class="card-header"><span class="q-badge">093</span></div>
+        <p class="kobun-text">いかめしく珍しき<u>みやび</u>を尽くし給ふ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">風雅<span class="answer-sub">（宮廷風・優雅）</span></div>
+        </details>
+      </article>
+
+      <!-- 094 -->
+      <article class="quiz-card" id="q094">
+        <div class="card-header"><span class="q-badge">094-①</span></div>
+        <p class="kobun-text">うつせみの<u>世</u>をかなしむほど聞こゆ。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">現世<span class="answer-sub">（俗世・世間・世の中・この世）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">094-②</span></div>
+        <p class="kobun-text">いと思はずにのみぞ、<u>世</u>はありける。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">夫婦の仲<span class="answer-sub">（男女の仲）</span></div>
+        </details>
+      </article>
+
+      <!-- 095 -->
+      <article class="quiz-card" id="q095">
+        <div class="card-header"><span class="q-badge">095-①</span></div>
+        <p class="kobun-text">あやしげなる翁二人、媼といきあひて、同じ所に<u>居</u>ぬめり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">すわる<span class="answer-sub">（いる・住む）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">095-②</span></div>
+        <p class="kobun-text">いづら猫は。こち<u>ゐて</u>来。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">連れる<span class="answer-sub">（伴う）</span></div>
+        </details>
+      </article>
+
+      <!-- 096 -->
+      <article class="quiz-card" id="q096">
+        <div class="card-header"><span class="q-badge">096-①</span></div>
+        <p class="kobun-text">飛ぶ車一つ<u>具し</u>たり。羅蓋差したり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">備える<span class="answer-sub">（従える・伴う）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">096-②</span></div>
+        <p class="kobun-text">我は一門に<u>具し</u>て、西国の方へ落ちゆくなり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">従う<span class="answer-sub">（備わる・そろう）</span></div>
+        </details>
+      </article>
+
+      <!-- 097 -->
+      <article class="quiz-card" id="q097">
+        <div class="card-header"><span class="q-badge">097</span></div>
+        <p class="kobun-text">「かく集まりたる人にものせよ。」とて、<u>いそぎ</u>けるは、いとにほか（にはか）に檜皮の濃き色にてしたり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">準備する<span class="answer-sub">（用意する）</span></div>
+        </details>
+      </article>
+
+      <!-- 098 -->
+      <article class="quiz-card" id="q098">
+        <div class="card-header"><span class="q-badge">098-①</span></div>
+        <p class="kobun-text">先立ちたりし人、舟に屋形ひきて<u>まうけ</u>たり。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">用意する<span class="answer-sub">（準備する）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">098-②</span></div>
+        <p class="kobun-text">この世には過ち多く、財を失ひ、病を<u>まうく</u>。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">身に受ける<span class="answer-sub">（授かる・拾う・得をする）</span></div>
+        </details>
+      </article>
+
+      <!-- 099 -->
+      <article class="quiz-card" id="q099">
+        <div class="card-header"><span class="q-badge">099-①</span></div>
+        <p class="kobun-text">御年のほどよりはるかに<u>ねび</u>させ給ひて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">おとなびる<span class="answer-sub">（成長する）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">099-②</span></div>
+        <p class="kobun-text">容貌など<u>ねび</u>たれど清げにて、ただならず気色よしづきてなどぞありける。</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">年をとる<span class="answer-sub">（ふける）</span></div>
+        </details>
+      </article>
+
+      <!-- 100 -->
+      <article class="quiz-card" id="q100">
+        <div class="card-header"><span class="q-badge">100-①</span></div>
+        <p class="kobun-text">〔若宮ハ〕ほどよりは大きに<u>およすげ</u>給ひて、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">成長する<span class="answer-sub">（大人になる）</span></div>
+        </details>
+      </article>
+
+      <article class="quiz-card">
+        <div class="card-header"><span class="q-badge">100-②</span></div>
+        <p class="kobun-text">きびはに清らなるものから、まだきに<u>およすげ</u>て、</p>
+        <details class="sticky-wrap">
+          <summary class="sticky-note">和訳（青い付箋）</summary>
+          <div class="answer-box">おとなびる<span class="answer-sub">（ませる・老成する）</span></div>
+        </details>
+      </article>
+
+    </main>
+
+    <a href="#top" class="back-top">▲ 一番上へ戻る</a>
+  </div>
+</body>
+</html>

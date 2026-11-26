@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>『伊勢物語』芥川 — 頻出事項＆確認クイズ</title>
+  <style>
+    /* =========================================
+       デザイン変数（青基調のシンプル・高可読性）
+       ========================================= */
+    :root {
+      --bg-page: #f3f7fc;
+      --bg-card: #ffffff;
+      --bg-sub: #edf4fc;
+      --blue-900: #0f294a;
+      --blue-800: #1e3a6e;
+      --blue-700: #1d4ed8;
+      --blue-600: #2563eb;
+      --blue-500: #3b82f6;
+      --blue-400: #60a5fa;
+      --blue-200: #bfdbfe;
+      --blue-100: #dbeafe;
+      --blue-50: #eff6ff;
+      --text-main: #1e293b;
+      --text-muted: #475569;
+      --border-soft: #d7e3f4;
+      --shadow-sm: 0 2px 6px rgba(15, 41, 74, 0.06);
+      --shadow-md: 0 6px 18px rgba(15, 41, 74, 0.08);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.75;
+      font-size: 15px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* 状態管理用の非表示ラジオ・チェックボックス */
+    .state-radio,
+    .fusen-cb {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    /* =========================================
+       ヘッダー ＆ メインタブ（1枚目／2枚目）
+       ========================================= */
+    .app-header {
+      background: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+      color: #ffffff;
+      padding: 20px 16px 16px;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-inner {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .app-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .app-subtitle {
+      font-size: 0.8rem;
+      color: var(--blue-100);
+      font-weight: 500;
+    }
+
+    .main-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.14);
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .main-tab-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.88);
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* タブ選択時のスタイル */
+    #tab-summary:checked ~ .app-header .tab-label-summary,
+    #tab-quiz:checked ~ .app-header .tab-label-quiz {
+      background-color: #ffffff;
+      color: var(--blue-700);
+      box-shadow: 0 2px 8px rgba(15, 41, 74, 0.18);
+    }
+
+    /* パネル表示切り替え */
+    .app-main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 16px 14px 48px;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    #tab-summary:checked ~ .app-main .panel-summary,
+    #tab-quiz:checked ~ .app-main .panel-quiz {
+      display: block;
+    }
+
+    /* =========================================
+       ツールバー（カテゴリー絞り込み ＆ リセット）
+       ========================================= */
+    .toolbar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      background-color: var(--blue-50);
+      border: 1px solid var(--blue-200);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.18s ease;
+    }
+
+    .reset-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--blue-600);
+      background-color: #ffffff;
+      color: var(--blue-700);
+      font-size: 0.82rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .reset-btn:active {
+      background-color: var(--blue-600);
+      color: #ffffff;
+      transform: scale(0.97);
+    }
+
+    .usage-note {
+      margin: 10px 0 0;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-soft);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .usage-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+      border-left: 3px solid var(--blue-900);
+      flex-shrink: 0;
+    }
+
+    /* =========================================
+       Pure CSS 絞り込みロジック（頻出事項タブ）
+       ========================================= */
+    #sf-all:checked ~ .summary-form .lbl-sf-all,
+    #sf-basic:checked ~ .summary-form .lbl-sf-basic,
+    #sf-text1:checked ~ .summary-form .lbl-sf-text1,
+    #sf-text2:checked ~ .summary-form .lbl-sf-text2,
+    #sf-waka:checked ~ .summary-form .lbl-sf-waka {
+      background-color: var(--blue-600);
+      color: #ffffff;
+      border-color: var(--blue-600);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    #sf-basic:checked ~ .summary-form .card-item:not(.cat-basic),
+    #sf-text1:checked ~ .summary-form .card-item:not(.cat-text1),
+    #sf-text2:checked ~ .summary-form .card-item:not(.cat-text2),
+    #sf-waka:checked ~ .summary-form .card-item:not(.cat-waka) {
+      display: none;
+    }
+
+    /* =========================================
+       Pure CSS 絞り込みロジック（クイズタブ）
+       ========================================= */
+    #qf-all:checked ~ .quiz-form .lbl-qf-all,
+    #qf-vocab:checked ~ .quiz-form .lbl-qf-vocab,
+    #qf-grammar:checked ~ .quiz-form .lbl-qf-grammar,
+    #qf-reading:checked ~ .quiz-form .lbl-qf-reading {
+      background-color: var(--blue-600);
+      color: #ffffff;
+      border-color: var(--blue-600);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    #qf-vocab:checked ~ .quiz-form .quiz-card:not(.qcat-vocab),
+    #qf-grammar:checked ~ .quiz-form .quiz-card:not(.qcat-grammar),
+    #qf-reading:checked ~ .quiz-form .quiz-card:not(.qcat-reading) {
+      display: none;
+    }
+
+    /* =========================================
+       青基調のシンプル付箋（インライン ＆ ブロック）
+       ========================================= */
+    .fusen {
+      position: relative;
+      display: inline-block;
+      vertical-align: baseline;
+      margin: 2px 3px;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 5px;
+      line-height: 1.5;
+    }
+
+    .fusen-answer {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 5px;
+      background-color: var(--blue-50);
+      color: var(--blue-800);
+      font-weight: 700;
+      border-bottom: 2px solid var(--blue-400);
+      min-width: 3.2em;
+      text-align: center;
+      transition: opacity 0.22s ease;
+    }
+
+    /* 未チェック時（付箋が貼られている状態）は答えを完全に隠す */
+    .fusen-cb:not(:checked) ~ .fusen-answer {
+      color: transparent;
+      background-color: transparent;
+      border-bottom-color: transparent;
+    }
+
+    .fusen-cover {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-500) 100%);
+      border-left: 4px solid var(--blue-800);
+      border-radius: 4px 6px 6px 4px;
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      box-shadow: 0 2px 5px rgba(29, 78, 216, 0.25);
+      transform-origin: left center;
+      transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+    }
+
+    .fusen-cover::after {
+      content: "TAP";
+    }
+
+    /* チェック時（タップ後）：付箋がめくれて消える */
+    .fusen-cb:checked ~ .fusen-cover {
+      transform: translateY(-45%) rotate(-5deg) scale(0.92);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* 長文解答用のブロック型付箋 */
+    .fusen-block {
+      display: block;
+      width: 100%;
+      margin: 6px 0 2px;
+    }
+
+    .fusen-block .fusen-answer {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--blue-200);
+      border-left: 4px solid var(--blue-600);
+      font-weight: 600;
+      color: var(--blue-900);
+      background-color: var(--blue-50);
+    }
+
+    .fusen-block .fusen-cb:not(:checked) ~ .fusen-answer {
+      color: transparent;
+      border-color: transparent;
+      background-color: transparent;
+    }
+
+    .fusen-block .fusen-cover {
+      border-radius: 6px 8px 8px 6px;
+      border-left: 6px solid var(--blue-900);
+      font-size: 0.84rem;
+    }
+
+    .fusen-block .fusen-cover::after {
+      content: "タップして答えを確認";
+    }
+
+    /* =========================================
+       カード・セクションデザイン
+       ========================================= */
+    .card-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--blue-100);
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--blue-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 1.15em;
+      border-radius: 3px;
+      background-color: var(--blue-600);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background-color: var(--blue-100);
+      color: var(--blue-800);
+      white-space: nowrap;
+    }
+
+    /* 作品概要テーブル */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .info-box {
+      background: var(--bg-sub);
+      border: 1px solid var(--blue-100);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+    }
+
+    .info-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--blue-700);
+      margin-bottom: 3px;
+    }
+
+    /* 重要文法ポイントボックス */
+    .point-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .point-box {
+      background: #ffffff;
+      border: 1px solid var(--blue-200);
+      border-left: 4px solid var(--blue-600);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .point-head {
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: var(--blue-900);
+      margin-bottom: 4px;
+    }
+
+    /* 本文＆訳ブロック */
+    .passage-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .passage-item:first-of-type {
+      padding-top: 2px;
+    }
+
+    .passage-item:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .kobun-text {
+      font-size: 1.04rem;
+      font-weight: 700;
+      color: var(--blue-900);
+      background: var(--blue-50);
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border-left: 4px solid var(--blue-500);
+      margin: 0 0 8px;
+      line-height: 1.8;
+    }
+
+    .kobun-num {
+      display: inline-block;
+      background: var(--blue-700);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 999px;
+      margin-right: 6px;
+      vertical-align: 2px;
+    }
+
+    .gendaigo-box {
+      font-size: 0.93rem;
+      color: var(--text-main);
+      margin: 0 0 8px;
+      padding-left: 4px;
+    }
+
+    .gendaigo-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--blue-700);
+      background: var(--blue-100);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+
+    .grammar-tags {
+      background: #f8fbff;
+      border: 1px dashed var(--blue-200);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .grammar-tags ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .grammar-tags li {
+      margin-bottom: 4px;
+    }
+
+    .grammar-tags li:last-child {
+      margin-bottom: 0;
+    }
+
+    /* 和歌の強調表示 */
+    .waka-box {
+      background: linear-gradient(180deg, var(--blue-50) 0%, #ffffff 100%);
+      border: 2px solid var(--blue-200);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .waka-verse {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--blue-900);
+      letter-spacing: 0.06em;
+      margin: 0 0 8px;
+    }
+
+    /* 課題ボックス */
+    .task-box {
+      background: var(--bg-sub);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--blue-100);
+    }
+
+    .task-box:last-child {
+      margin-bottom: 0;
+    }
+
+    .task-q {
+      font-weight: 800;
+      color: var(--blue-900);
+      font-size: 0.93rem;
+      margin-bottom: 6px;
+    }
+
+    /* =========================================
+       クイズカード
+       ========================================= */
+    .quiz-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quiz-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .quiz-no {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #ffffff;
+      background-color: var(--blue-600);
+      padding: 2px 10px;
+      border-radius: 999px;
+    }
+
+    .quiz-q {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0 0 10px;
+    }
+
+    .quiz-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .app-footer {
+      text-align: center;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 24px;
+    }
+
+    @media (max-width: 520px) {
+      .app-header {
+        padding: 16px 12px 12px;
+      }
+      .app-title {
+        font-size: 1.12rem;
+      }
+      .card-item,
+      .quiz-card {
+        padding: 14px 12px;
+      }
+      .kobun-text {
+        font-size: 0.98rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- メインタブ切り替え用ラジオ（フォーム外に置くことでリセット時にタブが戻らない） -->
+  <input type="radio" name="main-tab" id="tab-summary" class="state-radio" checked>
+  <input type="radio" name="main-tab" id="tab-quiz" class="state-radio">
+
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-top">
+        <h1 class="app-title">『伊勢物語』「芥川」完全対策</h1>
+        <span class="app-subtitle">教科書26ページ・Pure CSS付箋シート</span>
+      </div>
+      <nav class="main-tabs" aria-label="表示モード切り替え">
+        <label for="tab-summary" class="main-tab-label tab-label-summary">📘 頻出事項まとめ</label>
+        <label for="tab-quiz" class="main-tab-label tab-label-quiz">✏️ 確認クイズ（全20問）</label>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- =========================================================
+         タブ1：頻出事項まとめ（1枚）
+         ========================================================= -->
+    <section class="tab-panel panel-summary" aria-label="頻出事項まとめ">
+      <!-- 絞り込み用ラジオ（フォーム外に配置） -->
+      <input type="radio" name="summary-filter" id="sf-all" class="state-radio" checked>
+      <input type="radio" name="summary-filter" id="sf-basic" class="state-radio">
+      <input type="radio" name="summary-filter" id="sf-text1" class="state-radio">
+      <input type="radio" name="summary-filter" id="sf-text2" class="state-radio">
+      <input type="radio" name="summary-filter" id="sf-waka" class="state-radio">
+
+      <!-- 付箋リセット用のフォーム -->
+      <form class="summary-form">
+        <div class="toolbar">
+          <div class="toolbar-row">
+            <div class="filter-group">
+              <label for="sf-all" class="filter-pill lbl-sf-all">すべて</label>
+              <label for="sf-basic" class="filter-pill lbl-sf-basic">重要事項まとめ</label>
+              <label for="sf-text1" class="filter-pill lbl-sf-text1">本文・訳①</label>
+              <label for="sf-text2" class="filter-pill lbl-sf-text2">本文・訳②</label>
+              <label for="sf-waka" class="filter-pill lbl-sf-waka">和歌・課題</label>
+            </div>
+            <button type="reset" class="reset-btn">↺ すべて付箋を貼る</button>
+          </div>
+          <p class="usage-note">
+            <span class="usage-dot"></span>
+            青い付箋をタップするとめくれて答えが表示されます（もう一度タップで貼り直し）。
+          </p>
+        </div>
+
+        <!-- 1. 最初にまとめ：作品概要・最重要ポイント -->
+        <article class="card-item cat-basic">
+          <div class="card-header">
+            <h2 class="card-title">最初に押さえる！作品概要 ＆ 最重要事項</h2>
+            <span class="badge">最頻出</span>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-box">
+              <div class="info-label">出典・ジャンル</div>
+              『伊勢物語』（教科書26p）／
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">歌物語</span><span class="fusen-cover"></span></label>
+              （<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">和歌</span><span class="fusen-cover"></span></label>＋<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">物語</span><span class="fusen-cover"></span></label>）
+            </div>
+            <div class="info-box">
+              <div class="info-label">成立時代・作者</div>
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">平安前期〜中期</span><span class="fusen-cover"></span></label>
+              ／
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">作者未詳</span><span class="fusen-cover"></span></label>
+            </div>
+            <div class="info-box">
+              <div class="info-label">主人公のモデル</div>
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">在原業平</span><span class="fusen-cover"></span></label>
+              （ありわらのなりひら）をモデルにした。
+            </div>
+            <div class="info-box">
+              <div class="info-label">三大歌物語</div>
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">伊勢物語</span><span class="fusen-cover"></span></label>・
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">大和物語</span><span class="fusen-cover"></span></label>・
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">平中物語</span><span class="fusen-cover"></span></label>
+            </div>
+          </div>
+
+          <div class="point-list">
+            <div class="point-box">
+              <div class="point-head">① 最重要文法：「の」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">同格</span><span class="fusen-cover"></span></label></div>
+              「AのB」の形で、AとBが<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">同一の対象</span><span class="fusen-cover"></span></label>を指している。訳すときは<strong>Bの下に<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">Aを補える</span><span class="fusen-cover"></span></label></strong>。<br>
+              例：「女のえ得まじかりけるを」→「手に入れることができそうもなかった<strong>女</strong>を」
+            </div>
+
+            <div class="point-box">
+              <div class="point-head">② 呼応の副詞：「え〜（打消）」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">不可能</span><span class="fusen-cover"></span></label></div>
+              ・「え得まじかりける」＝手に入れることが<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">できそうもなかった</span><span class="fusen-cover"></span></label>（打消推量「まじ」）<br>
+              ・「え聞かざりけり」＝聞くことが<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">できなかった</span><span class="fusen-cover"></span></label>（打消「ず」）
+            </div>
+
+            <div class="point-box">
+              <div class="point-head">③ 2つの「はや」の意味の対比</div>
+              ・「はや夜も明けなむ」の「はや」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">早く</span><span class="fusen-cover"></span></label><br>
+              ・「鬼はやひと口に食ひてけり」の「はや」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">たちまち・すでに</span><span class="fusen-cover"></span></label>
+            </div>
+
+            <div class="point-box">
+              <div class="point-head">④ 2つの「なむ」の識別</div>
+              ・「『かれは何ぞ。』となむ男に問ひける」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">係助詞（係り結び・強意）</span><span class="fusen-cover"></span></label><br>
+              ・「はや夜も明けなむ」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">他に対する願望の終助詞</span><span class="fusen-cover"></span></label>（〜してほしい）
+            </div>
+
+            <div class="point-box">
+              <div class="point-head">⑤ 和歌の最重要表現：「消えなましものを」</div>
+              「な」＝完了（強意）<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">ぬ（未然形）</span><span class="fusen-cover"></span></label> ＋ 「まし」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">反実仮想（実現不可能な希望・後悔）</span><span class="fusen-cover"></span></label> ＋ 「ものを」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">詠嘆</span><span class="fusen-cover"></span></label><br>
+              訳：消えてしまえば<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">よかったのになあ</span><span class="fusen-cover"></span></label>。
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. 本文・現代語訳・文法詳解 ① -->
+        <article class="card-item cat-text1">
+          <div class="card-header">
+            <h2 class="card-title">本文・現代語訳・文法詳解 ①（前半）</h2>
+            <span class="badge">プリント①</span>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">1</span>昔、男ありけり。女のえ得まじかりけるを、年を経てよばひわたりけるを、</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              昔、ある男がいた。手に入れることができそうもなかった女を、長年の間、<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">求婚し続けていた</span><span class="fusen-cover"></span></label>のだが、
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「女の〜けるを」の「の」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">同格</span><span class="fusen-cover"></span></label>（下の「を」の上に「女」を補って訳す）</li>
+                <li>「え得まじかりける」＝「え〜まじ」は<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">打消推量・不可能</span><span class="fusen-cover"></span></label>、「ける」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">過去</span><span class="fusen-cover"></span></label></li>
+                <li>「よばひ」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">求婚する</span><span class="fusen-cover"></span></label> ／ 「わたり」＝ずっと〜し続ける</li>
+                <li>「けるを」の「を」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">逆接</span><span class="fusen-cover"></span></label>（〜のだが）</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">2</span>からうじて盗み出でて、いと暗きに来けり。</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">やっとのことで</span><span class="fusen-cover"></span></label>盗み出して、とても暗い夜に逃げてきた。
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「からうじて」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">やっとのことで</span><span class="fusen-cover"></span></label>（※「年を経て」という<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">長年との対比</span><span class="fusen-cover"></span></label>）</li>
+                <li>「いと」＝とても ／ 「けり」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">過去</span><span class="fusen-cover"></span></label></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">3</span>芥川といふ川を率て行きければ、草の上に置きたりける露を、「かれは何ぞ。」となむ男に問ひける。</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              芥川という川を<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">連れて行った</span><span class="fusen-cover"></span></label>ところ、草の上に降りていた露を見て、「<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">あれは何ですか</span><span class="fusen-cover"></span></label>。」と男に尋ねた。
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「率て（ゐて）」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">連れて</span><span class="fusen-cover"></span></label> ／ 「たり」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">存続・完了</span><span class="fusen-cover"></span></label></li>
+                <li>「かれ」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">あれ</span><span class="fusen-cover"></span></label> ／ 「なむ〜ける」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">係り結び</span><span class="fusen-cover"></span></label>（連体形結び）</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">4</span>行く先多く、夜も更けにければ、鬼ある所とも知らで、</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              行く先はまだ遠く、夜も更けてしまったので、鬼のいる所とも<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">知らないで</span><span class="fusen-cover"></span></label>、
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「にければ」の「に」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">完了「ぬ」の連用形</span><span class="fusen-cover"></span></label>、「けれ」＝過去</li>
+                <li>「知らで」の「で」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">打消の接続助詞（〜ないで）</span><span class="fusen-cover"></span></label></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">5</span>神さへいといみじう鳴り、雨もいたう降りければ、</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">雷までも</span><span class="fusen-cover"></span></label>とても<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">ひどく</span><span class="fusen-cover"></span></label>鳴り、雨も<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">激しく</span><span class="fusen-cover"></span></label>降ったので、
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「神」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">雷</span><span class="fusen-cover"></span></label> ／ 「さへ」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">添加（〜までも）</span><span class="fusen-cover"></span></label></li>
+                <li>「いみじう（ひどく）」「いたう（激しく）」＝ともに<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">ウ音便</span><span class="fusen-cover"></span></label></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">6</span>あばらなる倉に、女をば奥に押し入れて、男、弓・胡籙を負ひて戸口に居り。</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">荒れ果てた</span><span class="fusen-cover"></span></label>倉に、女を奥に押し入れて、男は弓や<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">胡籙（やなぐい）</span><span class="fusen-cover"></span></label>を背負って戸口にいた。
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「あばらなる」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">形容動詞</span><span class="fusen-cover"></span></label>連体形（荒れ果てた・がらんとした）</li>
+                <li>「胡籙（やなぐい）」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">矢を入れて背負う道具</span><span class="fusen-cover"></span></label></li>
+                <li>「居り（をり）」＝ラ変（座っている・控えている）</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3. 本文・現代語訳・文法詳解 ② -->
+        <article class="card-item cat-text2">
+          <div class="card-header">
+            <h2 class="card-title">本文・現代語訳・文法詳解 ②（後半）</h2>
+            <span class="badge">プリント②</span>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">7</span>はや夜も明けなむと思ひつつゐたりけるに、</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              <label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">早く</span><span class="fusen-cover"></span></label>夜も<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">明けてほしい</span><span class="fusen-cover"></span></label>と思いながら腰を下ろしていたところ、
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「はや」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">早く</span><span class="fusen-cover"></span></label> ／ 「なむ」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">他に対する願望</span><span class="fusen-cover"></span></label>（〜してほしい）</li>
+                <li>「つつ」＝継続（〜ながら） ／ 「ゐ」＝ワ行上一段（腰を下ろす）</li>
+                <li>「たり」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">存続</span><span class="fusen-cover"></span></label> ／ 「ける」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">過去</span><span class="fusen-cover"></span></label></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">8</span>鬼はやひと口に食ひてけり。「あなや。」と言ひけれど、</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              鬼が<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">たちまち</span><span class="fusen-cover"></span></label>一口に食べてしまった。（女は）「<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">ああっ</span><span class="fusen-cover"></span></label>。」と言ったけれど、
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「はや」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">たちまち・すでに</span><span class="fusen-cover"></span></label></li>
+                <li>「てけり」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">完了「つ」</span><span class="fusen-cover"></span></label>＋<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">過去「けり」</span><span class="fusen-cover"></span></label>（〜てしまった）</li>
+                <li>「あなや」＝驚き・恐れの感動詞（ああっ）</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">9</span>神鳴る騒ぎに、え聞かざりけり。やうやう夜も明けゆくに、</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              雷の鳴る騒がしい音のために、<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">聞くことができなかった</span><span class="fusen-cover"></span></label>。<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">しだいに</span><span class="fusen-cover"></span></label>夜も明けていくので、
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「え聞かざりけり」＝「え〜ず（ざり）」で<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">不可能</span><span class="fusen-cover"></span></label></li>
+                <li>「やうやう」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">しだいに・だんだんと</span><span class="fusen-cover"></span></label></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="passage-item">
+            <p class="kobun-text"><span class="kobun-num">10</span>見れば率て来し女もなし。足ずりをして泣けどもかひなし。</p>
+            <p class="gendaigo-box">
+              <span class="gendaigo-tag">現代語訳</span>
+              見ると、連れてきた女もいない。<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">地団駄を踏んで</span><span class="fusen-cover"></span></label>悔しがって泣くけれども、<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">どうにもならない</span><span class="fusen-cover"></span></label>。
+            </p>
+            <div class="grammar-tags">
+              <ul>
+                <li>「率て来し」の「し」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">過去「き」の連体形</span><span class="fusen-cover"></span></label></li>
+                <li>「足ずり」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">地団駄を踏むこと</span><span class="fusen-cover"></span></label> ／ 「かひなし」＝甲斐がない・どうにもならない</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- 4. 和歌の徹底解説 ＆ 授業課題1〜3 -->
+        <article class="card-item cat-waka">
+          <div class="card-header">
+            <h2 class="card-title">和歌の徹底解説 ＆ 課題1〜3まとめ</h2>
+            <span class="badge">プリント②③</span>
+          </div>
+
+          <div class="waka-box">
+            <p class="waka-verse">白玉か 何ぞと人の 問ひしとき 露と答へて 消えなましものを</p>
+            <p class="gendaigo-box" style="text-align:left; margin:8px 0 0;">
+              <span class="gendaigo-tag">現代語訳</span>
+              （「あれは）<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">真珠</span><span class="fusen-cover"></span></label>かしら、何ですか。」とあの人（<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">女</span><span class="fusen-cover"></span></label>）が尋ねたときに、「露ですよ。」と答えて、（露が消えるのと同じように）私も一緒に<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">消えてしまえばよかったのになあ</span><span class="fusen-cover"></span></label>。
+            </p>
+          </div>
+
+          <div class="grammar-tags" style="margin-bottom: 16px;">
+            <ul>
+              <li><strong>句切れ</strong>：<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">句切れなし</span><span class="fusen-cover"></span></label></li>
+              <li><strong>修辞法</strong>：<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">縁語</span><span class="fusen-cover"></span></label>（「<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">露</span><span class="fusen-cover"></span></label>」と「<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">消え</span><span class="fusen-cover"></span></label>」）</li>
+              <li><strong>語句・文法</strong>：「白玉」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">真珠</span><span class="fusen-cover"></span></label> ／ 「人」＝<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">女</span><span class="fusen-cover"></span></label> ／ 「し」＝過去「き」の連体形</li>
+              <li><strong>最重要表現「消えなましものを」</strong>：完了「<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">ぬ</span><span class="fusen-cover"></span></label>」＋反実仮想（実現不可能な希望・後悔）「<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">まし</span><span class="fusen-cover"></span></label>」＋詠嘆「<label class="fusen"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">ものを</span><span class="fusen-cover"></span></label>」</li>
+            </ul>
+          </div>
+
+          <!-- 課題1〜3 -->
+          <div class="task-box">
+            <div class="task-q">課題1：「かれは何ぞ。」という言葉から、「女」はどのような境遇であったと考えられるか。</div>
+            <label class="fusen fusen-block">
+              <input type="checkbox" class="fusen-cb">
+              <span class="fusen-answer">草にある露も知らないことから、夜遅くに外へ出たことがなく、親元で過保護に育てられた、道の露も見たこともない「深窓に育った良家の女」。</span>
+              <span class="fusen-cover"></span>
+            </label>
+          </div>
+
+          <div class="task-box">
+            <div class="task-q">課題2：「はや夜も明けなむ」とあるが、この時の男の心情はどのようなものか。</div>
+            <label class="fusen fusen-block">
+              <input type="checkbox" class="fusen-cb">
+              <span class="fusen-answer">女の追っ手が来る前に早く逃げるために、夜が早く明けるのを願っており、「焦燥感（焦り）」を感じている。</span>
+              <span class="fusen-cover"></span>
+            </label>
+          </div>
+
+          <div class="task-box">
+            <div class="task-q">課題3：「白玉か…」の歌の(1)修辞法と、(2)詠まれている「男」の心情は何か。</div>
+            <label class="fusen fusen-block">
+              <input type="checkbox" class="fusen-cb">
+              <span class="fusen-answer">(1) 縁語（「露」と「消え」）<br>(2) 愛する女を失った「喪失感」、女の問いに（露と）答えて一緒に消えればよかったという「後悔」、自分だけ生き残ってしまったことへの虚しさ・悲しみ。</span>
+              <span class="fusen-cover"></span>
+            </label>
+          </div>
+        </article>
+      </form>
+    </section>
+
+    <!-- =========================================================
+         タブ2：確認クイズ（1枚・全20問）
+         ========================================================= -->
+    <section class="tab-panel panel-quiz" aria-label="確認クイズ">
+      <!-- クイズ絞り込み用ラジオ（フォーム外に配置） -->
+      <input type="radio" name="quiz-filter" id="qf-all" class="state-radio" checked>
+      <input type="radio" name="quiz-filter" id="qf-vocab" class="state-radio">
+      <input type="radio" name="quiz-filter" id="qf-grammar" class="state-radio">
+      <input type="radio" name="quiz-filter" id="qf-reading" class="state-radio">
+
+      <!-- クイズ付箋リセット用フォーム -->
+      <form class="quiz-form">
+        <div class="toolbar">
+          <div class="toolbar-row">
+            <div class="filter-group">
+              <label for="qf-all" class="filter-pill lbl-qf-all">全20問</label>
+              <label for="qf-vocab" class="filter-pill lbl-qf-vocab">文学史・古語</label>
+              <label for="qf-grammar" class="filter-pill lbl-qf-grammar">文法・識別</label>
+              <label for="qf-reading" class="filter-pill lbl-qf-reading">読解・和歌</label>
+            </div>
+            <button type="reset" class="reset-btn">↺ すべて付箋を貼る</button>
+          </div>
+          <p class="usage-note">
+            <span class="usage-dot"></span>
+            頭の中で答えてから青い付箋をタップして正解をチェックしよう！
+          </p>
+        </div>
+
+        <!-- Q1〜Q6：文学史・古語 -->
+        <article class="quiz-card qcat-vocab">
+          <div class="quiz-meta"><span class="quiz-no">Q1</span><span class="badge">文学史・古語</span></div>
+          <p class="quiz-q">『伊勢物語』の①ジャンル、②成立時代、③作者をそれぞれ答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">① 歌物語（和歌＋物語）　② 平安前期〜中期　③ 作者未詳</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-vocab">
+          <div class="quiz-meta"><span class="quiz-no">Q2</span><span class="badge">文学史・古語</span></div>
+          <p class="quiz-q">『伊勢物語』の主人公のモデルとされる人物と、他の「三大歌物語」2作品を答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">モデル：在原業平（ありわらのなりひら）<br>他の三大歌物語：『大和物語』『平中物語』</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-vocab">
+          <div class="quiz-meta"><span class="quiz-no">Q3</span><span class="badge">文学史・古語</span></div>
+          <p class="quiz-q">古語「よばひわたり」「からうじて」の意味をそれぞれ答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">よばひわたり：求婚し続ける<br>からうじて：やっとのことで</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-vocab">
+          <div class="quiz-meta"><span class="quiz-no">Q4</span><span class="badge">文学史・古語</span></div>
+          <p class="quiz-q">古語「率て（ゐて）」「神」「あばらなる」の意味をそれぞれ答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">率て：連れて　／　神：雷　／　あばらなる：荒れ果てた（形容動詞）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-vocab">
+          <div class="quiz-meta"><span class="quiz-no">Q5</span><span class="badge">文学史・古語</span></div>
+          <p class="quiz-q">古語「胡籙（やなぐい）」「やうやう」「足ずり」「かひなし」の意味をそれぞれ答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">胡籙：矢を入れて背負う道具　／　やうやう：しだいに<br>足ずり：地団駄を踏むこと　／　かひなし：どうにもならない（甲斐がない）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-vocab">
+          <div class="quiz-meta"><span class="quiz-no">Q6</span><span class="badge">文学史・古語</span></div>
+          <p class="quiz-q">古語「あなや」「白玉」の意味をそれぞれ答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">あなや：ああっ（驚き・恐れの感動詞）　／　白玉：真珠</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <!-- Q7〜Q14：文法・識別 -->
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q7</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">「女のえ得まじかりけるを」の「の」の文法的意味と、訳し方のルールを答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">文法的意味：同格（AとBが同一の対象を指す）<br>訳し方：Bの下にA（「女」）を補って訳す（「手に入れることができそうもなかった女を」）。</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q8</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">「え得まじかりける」「え聞かざりけり」に共通する呼応表現とその意味を答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">呼応表現：「え〜（打消の語）」　／　意味：不可能（〜できない）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q9</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">「年を経てよばひわたりけるを」の接続助詞「を」の用法と現代語訳を答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">用法：逆接　／　現代語訳：〜のだが（長年の間、求婚し続けていたのだが）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q10</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">「神さへいといみじう鳴り、雨もいたう降りければ」の①「さへ」の意味、②「いみじう」「いたう」の音便の種類とそれぞれの意味を答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">① さへ：添加（〜までも）<br>② ウ音便 ／ いみじう＝ひどく、いたう＝激しく</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q11</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">次の2つの「はや」の意味の違いを答えよ。<br>①「はや夜も明けなむ」　②「鬼はやひと口に食ひてけり」</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">① 早く　／　② たちまち・すでに</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q12</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">次の2つの「なむ」の文法的意味をそれぞれ答えよ。<br>①「『かれは何ぞ。』となむ男に問ひける」　②「はや夜も明けなむ」</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">① 係助詞（係り結び・強意）<br>② 他に対する願望の終助詞（〜してほしい）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q13</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">「鬼はやひと口に食ひてけり」の「てけり」を文法的に分解し、現代語訳を答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">分解：「て」＝完了の助動詞「つ」の連用形 ＋ 「けり」＝過去の助動詞<br>訳：〜てしまった（食べてしまった）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-grammar">
+          <div class="quiz-meta"><span class="quiz-no">Q14</span><span class="badge">文法・識別</span></div>
+          <p class="quiz-q">和歌の結び「消えなましものを」の①「な」、②「まし」、③「ものを」の文法的意味をそれぞれ答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">① な：完了（強意）の助動詞「ぬ」の未然形<br>② まし：反実仮想（実現不可能な希望・後悔）の助動詞<br>③ ものを：詠嘆の終助詞（〜のになあ）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <!-- Q15〜Q20：読解・和歌 -->
+        <article class="quiz-card qcat-reading">
+          <div class="quiz-meta"><span class="quiz-no">Q15</span><span class="badge">読解・和歌</span></div>
+          <p class="quiz-q">「からうじて盗み出でて」とあるが、これは直前のどのような表現と対比されているか。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">「年を経て（長年の間）」という表現と対比されている（長年求婚し続けて、やっとのことで盗み出せた）。</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-reading">
+          <div class="quiz-meta"><span class="quiz-no">Q16</span><span class="badge">読解・和歌</span></div>
+          <p class="quiz-q">【課題1】「かれは何ぞ。」という言葉から、「女」はどのような境遇であったと考えられるか。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">草にある露も知らないことから、夜遅くに出たことがなく、親元で過保護に育てられた、道の露も見たこともない「深窓に育った良家の女」。</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-reading">
+          <div class="quiz-meta"><span class="quiz-no">Q17</span><span class="badge">読解・和歌</span></div>
+          <p class="quiz-q">【課題2】「はや夜も明けなむ」とあるが、この時の「男」はなぜそう思い、どのような心情（漢字三字含む）を感じているか。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">女の追っ手が来る前に早く逃げるために、夜が早く明けるのを願っており、「焦燥感（焦り）」を感じている。</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-reading">
+          <div class="quiz-meta"><span class="quiz-no">Q18</span><span class="badge">読解・和歌</span></div>
+          <p class="quiz-q">【課題3-(1)】和歌「白玉か何ぞと人の問ひしとき露と答へて消えなましものを」の①句切れの有無、②使われている修辞法（どの語とどの語か）を答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">① 句切れなし<br>② 縁語（「露」と「消え」）</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-reading">
+          <div class="quiz-meta"><span class="quiz-no">Q19</span><span class="badge">読解・和歌</span></div>
+          <p class="quiz-q">和歌中の「人」とは誰を指すか。また、この和歌の現代語訳を答えよ。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">「人」＝女（愛する女性）<br>訳：（「あれは）真珠かしら、何ですか。」とあの人（女）が尋ねたときに、「露ですよ。」と答えて、（露が消えるのと同じように）私も一緒に消えてしまえばよかったのになあ。</span><span class="fusen-cover"></span></label>
+        </article>
+
+        <article class="quiz-card qcat-reading">
+          <div class="quiz-meta"><span class="quiz-no">Q20</span><span class="badge">読解・和歌</span></div>
+          <p class="quiz-q">【課題3-(2)】この和歌には、「男」のどのような心情が詠まれているか。</p>
+          <label class="fusen fusen-block"><input type="checkbox" class="fusen-cb"><span class="fusen-answer">愛する女を失った「喪失感」、女の問いに（露と）答えて一緒に消えればよかったという「後悔」、自分だけ生き残ってしまったことへの虚しさ・悲しみ。</span><span class="fusen-cover"></span></label>
+        </article>
+      </form>
+    </section>
+
+    <footer class="app-footer">
+      『伊勢物語』「芥川」学習シート（JavaScript完全不使用・オフライン対応）
+    </footer>
+  </main>
+
+</body>
+</html>
