@@ -106,6 +106,7 @@ export default function App() {
 
   // --- Firestore共有データ ---
   const [remoteAssignments, setRemoteAssignments] = useState({});
+  const [remoteEvents, setRemoteEvents] = useState({});
   const [cloudSyncStatus, setCloudSyncStatus] = useState('connecting');
   const [timetable, setTimetable] = useState(INITIAL_TIMETABLE);
   const [timetableDraft, setTimetableDraft] = useState(INITIAL_TIMETABLE);
@@ -124,6 +125,9 @@ export default function App() {
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarDate, setCalendarDate] = useState(getFormattedDate(0));
   const [calendarView, setCalendarView] = useState('year');
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDate, setEventDate] = useState(getFormattedDate(0));
+  const [isSavingEvent, setIsSavingEvent] = useState(false);
   const [filterSubject, setFilterSubject] = useState('すべて');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
@@ -152,6 +156,22 @@ export default function App() {
     }, (error) => {
       console.error('Firestore subscription failed:', error);
       setCloudSyncStatus('error');
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'calendar_events'), (snapshot) => {
+      const groupedEvents = {};
+      snapshot.docs.forEach((eventDoc) => {
+        const event = { id: eventDoc.id, ...eventDoc.data() };
+        if (!groupedEvents[event.class_id]) groupedEvents[event.class_id] = [];
+        groupedEvents[event.class_id].push(event);
+      });
+      setRemoteEvents(groupedEvents);
+    }, (error) => {
+      console.error('Calendar events subscription failed:', error);
+      showToast('行事を読み込めませんでした');
     });
     return unsubscribe;
   }, []);
@@ -196,17 +216,30 @@ export default function App() {
     return remoteAssignments[currentClassId] || [];
   }, [remoteAssignments, currentClassId]);
 
-  const assignmentsByDueDate = useMemo(() => currentAssignments.reduce((grouped, assignment) => {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(assignment.due_date || '')) return grouped;
-    grouped[assignment.due_date] = [...(grouped[assignment.due_date] || []), assignment];
+  const currentEvents = useMemo(() => {
+    if (!currentClassId) return [];
+    return remoteEvents[currentClassId] || [];
+  }, [remoteEvents, currentClassId]);
+
+  const calendarItemsByDate = useMemo(() => {
+    const grouped = {};
+    currentAssignments.forEach((assignment) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(assignment.due_date || '')) return;
+      grouped[assignment.due_date] = [...(grouped[assignment.due_date] || []), { ...assignment, calendarType: 'assignment' }];
+    });
+    currentEvents.forEach((event) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(event.date || '')) return;
+      grouped[event.date] = [...(grouped[event.date] || []), { ...event, calendarType: 'event' }];
+    });
     return grouped;
-  }, {}), [currentAssignments]);
+  }, [currentAssignments, currentEvents]);
 
-  const assignmentsInCalendarYear = useMemo(() => currentAssignments.filter((assignment) =>
-    (assignment.due_date || '').startsWith(`${calendarYear}-`)
-  ), [currentAssignments, calendarYear]);
+  const calendarItemsInYear = useMemo(() => [
+    ...currentAssignments.filter((item) => (item.due_date || '').startsWith(`${calendarYear}-`)).map((item) => ({ ...item, calendarType: 'assignment' })),
+    ...currentEvents.filter((item) => (item.date || '').startsWith(`${calendarYear}-`)).map((item) => ({ ...item, calendarType: 'event' })),
+  ], [currentAssignments, currentEvents, calendarYear]);
 
-  const assignmentsOnCalendarDate = assignmentsByDueDate[calendarDate] || [];
+  const calendarItemsOnDate = calendarItemsByDate[calendarDate] || [];
 
   const calendarMonthStart = new Date(calendarYear, calendarMonth, 1);
   const calendarMonthDayCount = new Date(calendarYear, calendarMonth + 1, 0).getDate();
@@ -228,6 +261,34 @@ export default function App() {
     const nextYear = calendarYear + offset;
     setCalendarYear(nextYear);
     setCalendarDate(`${nextYear}-${String(calendarMonth + 1).padStart(2, '0')}-01`);
+  };
+
+  const saveCalendarEvent = async () => {
+    const title = eventTitle.trim();
+    if (!title || !eventDate || !currentClassId) {
+      showToast('行事名と日付を入力してください');
+      return;
+    }
+    setIsSavingEvent(true);
+    try {
+      await addDoc(collection(db, 'calendar_events'), {
+        class_id: currentClassId,
+        title,
+        date: eventDate,
+        created_at: new Date().toISOString(),
+      });
+      setCalendarYear(Number(eventDate.slice(0, 4)));
+      setCalendarMonth(Number(eventDate.slice(5, 7)) - 1);
+      setCalendarDate(eventDate);
+      setCalendarView('month');
+      setEventTitle('');
+      showToast('行事をカレンダーに追加しました');
+    } catch (error) {
+      console.error('Calendar event save failed:', error);
+      showToast('行事を保存できませんでした');
+    } finally {
+      setIsSavingEvent(false);
+    }
   };
 
   // 日付・時間判定
@@ -824,13 +885,25 @@ export default function App() {
                   </div>
                 </section>
 
+                <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-800">行事を追加</h3>
+                    <p className="mt-1 text-[10px] text-slate-500">学校行事や予定を入力すると、このクラスのカレンダーに共有されます。</p>
+                  </div>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input type="date" value={eventDate} onChange={(event) => setEventDate(event.target.value)} className="rounded-lg border border-slate-200 p-2 text-xs" aria-label="行事の日付" />
+                    <input value={eventTitle} onChange={(event) => setEventTitle(event.target.value)} placeholder="行事名（例：文化祭、校外学習）" className="min-w-0 flex-1 rounded-lg border border-slate-200 p-2 text-xs" aria-label="行事名" />
+                    <button onClick={saveCalendarEvent} disabled={isSavingEvent} className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-50">{isSavingEvent ? '保存中…' : '追加'}</button>
+                  </div>
+                </section>
+
                 {calendarView === 'year' ? (
                   <>
                     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
                       <button aria-label="前年" onClick={() => changeCalendarYear(-1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4" /></button>
                       <div className="text-center">
                         <p className="text-lg font-black text-slate-900">{calendarYear}年</p>
-                        <p className="text-[11px] text-slate-500">期限あり {assignmentsInCalendarYear.length}件</p>
+                        <p className="text-[11px] text-slate-500">課題・行事 {calendarItemsInYear.length}件</p>
                       </div>
                       <button aria-label="翌年" onClick={() => changeCalendarYear(1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4 rotate-180" /></button>
                     </div>
@@ -840,7 +913,7 @@ export default function App() {
                         const firstWeekday = new Date(calendarYear, monthIndex, 1).getDay();
                         const daysInMonth = new Date(calendarYear, monthIndex + 1, 0).getDate();
                         const monthPrefix = `${calendarYear}-${String(monthIndex + 1).padStart(2, '0')}-`;
-                        const monthAssignments = assignmentsInCalendarYear.filter((item) => item.due_date.startsWith(monthPrefix));
+                        const monthItems = calendarItemsInYear.filter((item) => (item.due_date || item.date || '').startsWith(monthPrefix));
                         return (
                           <button
                             key={monthIndex}
@@ -853,7 +926,7 @@ export default function App() {
                           >
                             <div className="mb-2 flex items-center justify-between">
                               <span className="text-xs font-extrabold text-slate-800">{monthIndex + 1}月</span>
-                              <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${monthAssignments.length ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}`}>{monthAssignments.length}件</span>
+                              <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${monthItems.length ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}`}>{monthItems.length}件</span>
                             </div>
                             <div className="grid grid-cols-7 gap-y-1 text-center text-[8px] leading-3 text-slate-400">
                               {['日', '月', '火', '水', '木', '金', '土'].map((day) => <span key={day} className="font-bold">{day}</span>)}
@@ -861,7 +934,7 @@ export default function App() {
                               {Array.from({ length: daysInMonth }, (_, index) => {
                                 const day = index + 1;
                                 const date = `${monthPrefix}${String(day).padStart(2, '0')}`;
-                                const count = (assignmentsByDueDate[date] || []).length;
+                                const count = (calendarItemsByDate[date] || []).length;
                                 return <span key={day} className={`relative rounded-sm ${count ? 'bg-indigo-100 font-extrabold text-indigo-700' : 'text-slate-500'}`}>{day}</span>;
                               })}
                             </div>
@@ -890,7 +963,7 @@ export default function App() {
                       <button aria-label="前の月" onClick={() => changeCalendarMonth(-1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4" /></button>
                       <div className="text-center">
                         <p className="text-lg font-black text-slate-900">{calendarYear}年{calendarMonth + 1}月</p>
-                        <p className="text-[11px] text-slate-500">{assignmentsInCalendarYear.filter((item) => item.due_date.startsWith(`${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-`)).length}件の課題</p>
+                        <p className="text-[11px] text-slate-500">{calendarItemsInYear.filter((item) => (item.due_date || item.date || '').startsWith(`${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-`)).length}件の課題・行事</p>
                       </div>
                       <button aria-label="次の月" onClick={() => changeCalendarMonth(1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4 rotate-180" /></button>
                     </div>
@@ -903,19 +976,25 @@ export default function App() {
                         {calendarMonthCells.map((day, index) => {
                           if (!day) return <div key={`empty-${index}`} className="min-h-[58px] rounded-lg bg-slate-50/60 sm:min-h-[72px]" />;
                           const date = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                          const dayAssignments = assignmentsByDueDate[date] || [];
+                          const dayItems = calendarItemsByDate[date] || [];
                           const isSelected = calendarDate === date;
                           const isToday = todayDateStr === date;
                           return (
                             <button
                               key={date}
                               onClick={() => setCalendarDate(date)}
-                              aria-label={`${calendarYear}年${calendarMonth + 1}月${day}日、課題${dayAssignments.length}件`}
-                              className={`min-h-[58px] rounded-lg border p-1 text-left transition sm:min-h-[72px] ${isSelected ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-300' : 'border-transparent bg-white hover:bg-slate-50'}`}
+                              aria-label={`${calendarYear}年${calendarMonth + 1}月${day}日、課題・行事${dayItems.length}件`}
+                              className={`min-h-[82px] rounded-lg border p-1 text-left transition sm:min-h-[108px] ${isSelected ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-300' : 'border-transparent bg-white hover:bg-slate-50'}`}
                             >
                               <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${isToday ? 'bg-rose-500 text-white' : 'text-slate-700'}`}>{day}</span>
-                              {dayAssignments.length > 0 && <span className="mt-1 block truncate rounded bg-indigo-100 px-1 py-0.5 text-center text-[8px] font-extrabold text-indigo-700">{dayAssignments.length}件</span>}
-                              {dayAssignments.length > 0 && <span className="mt-1 flex justify-center gap-0.5">{dayAssignments.slice(0, 3).map((item) => <i key={item.id} className={`h-1 w-1 rounded-full ${SUBJECT_COLORS[item.subject]?.tagBg || 'bg-slate-500'}`} />)}</span>}
+                              <div className="mt-1 space-y-0.5">
+                                {dayItems.slice(0, 2).map((item) => (
+                                  <span key={`${item.calendarType}-${item.id}`} title={item.title} className={`block overflow-hidden break-words rounded px-1 py-0.5 text-[8px] leading-tight sm:text-[9px] ${item.calendarType === 'event' ? 'bg-amber-100 text-amber-900' : 'bg-indigo-100 text-indigo-800'}`} style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                    {item.calendarType === 'event' ? '行事: ' : ''}{item.title}
+                                  </span>
+                                ))}
+                                {dayItems.length > 2 && <span className="block text-center text-[8px] font-bold text-slate-500">ほか{dayItems.length - 2}件</span>}
+                              </div>
                             </button>
                           );
                         })}
@@ -923,10 +1002,18 @@ export default function App() {
                     </section>
 
                     <section className="space-y-2">
-                      <h3 className="px-1 text-xs font-extrabold text-slate-700">{calendarDate.replaceAll('-', '/')} の課題</h3>
-                      {assignmentsOnCalendarDate.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-5 text-center text-xs text-slate-400">この日の課題はありません</div>
-                      ) : assignmentsOnCalendarDate.map((item) => (
+                      <h3 className="px-1 text-xs font-extrabold text-slate-700">{calendarDate.replaceAll('-', '/')} の課題・行事</h3>
+                      {calendarItemsOnDate.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-5 text-center text-xs text-slate-400">この日の課題・行事はありません</div>
+                      ) : calendarItemsOnDate.map((item) => item.calendarType === 'event' ? (
+                        <div key={`event-${item.id}`} className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                          <Calendar className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+                          <div className="min-w-0 flex-1">
+                            <span className="rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold text-amber-900">行事</span>
+                            <p className="mt-1.5 break-words text-sm font-bold text-slate-900">{item.title}</p>
+                          </div>
+                        </div>
+                      ) : (
                         <div key={item.id} className={`flex items-start gap-3 rounded-xl border bg-white p-3 ${completedIds.includes(item.id) ? 'border-slate-200 opacity-60' : 'border-slate-200'}`}>
                           <button onClick={() => toggleComplete(item.id)} aria-label={completedIds.includes(item.id) ? '未完了に戻す' : '完了にする'} className="mt-0.5 shrink-0">
                             {completedIds.includes(item.id) ? <CheckCircle2 className="h-5 w-5 text-emerald-500" /> : <Circle className="h-5 w-5 text-slate-300" />}
