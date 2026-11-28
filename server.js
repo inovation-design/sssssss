@@ -327,6 +327,85 @@ app.post('/api/analyze', async (req, res) => {
   }
 });
 
+// ----------------------------------------------------
+// 課題管理表: 写真から課題と提出期限を抽出
+// API キーはブラウザーへ渡さず、サーバー環境変数だけで管理する。
+// ----------------------------------------------------
+app.post('/api/assignments/analyze-image', async (req, res) => {
+  const { imageBase64, mimeType } = req.body || {};
+  const apiKey = process.env.GEMINI_API_KEY || '';
+
+  if (!apiKey) {
+    return res.status(503).json({ error: 'サーバーに GEMINI_API_KEY が設定されていません。' });
+  }
+  if (typeof imageBase64 !== 'string' || !imageBase64.trim()) {
+    return res.status(400).json({ error: '画像データがありません。' });
+  }
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+    return res.status(400).json({ error: 'JPEG、PNG、WebP画像を選んでください。' });
+  }
+
+  const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',').pop() : imageBase64;
+  if (cleanBase64.length > 12_000_000) {
+    return res.status(413).json({ error: '画像が大きすぎます。12MB未満の画像を選んでください。' });
+  }
+
+  const today = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+  const prompt = `この画像から学校の課題・宿題だけを読み取ってください。今日の日付は ${today}（日本時間）です。
+画像に書かれていない課題や期限を推測で作らないでください。期限が不明または読み取れない場合は due_date を空文字にしてください。
+JSONのみを返してください。形式: {"assignments":[{"subject":"英語|数学|国語|理科|社会|情報|その他","title":"課題名","due_date":"YYYY-MM-DD または空文字","note":"読み取り上の注意。なければ空文字"}]}
+日付が「6/20」のように年なしの場合は、今日以降で最も近い日付にしてください。課題が読み取れなければ assignments は空配列にしてください。`;
+
+  try {
+    const model = process.env.GEMINI_ASSIGNMENT_MODEL || 'gemini-3.1-flash-lite';
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { text: prompt },
+            { inline_data: { mime_type: mimeType, data: cleanBase64 } },
+          ] }],
+          generationConfig: { responseMimeType: 'application/json', temperature: 0.1, maxOutputTokens: 4096 },
+        }),
+      },
+    );
+    const result = await response.json();
+    if (!response.ok) {
+      console.error('Gemini assignment analysis failed:', result);
+      return res.status(response.status === 429 ? 429 : 502).json({
+        error: response.status === 429
+          ? 'AIの無料利用上限に達した可能性があります。時間をおいて再試行してください。'
+          : 'AI画像解析に失敗しました。APIキーとモデル設定を確認してください。',
+      });
+    }
+
+    const text = result.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('').trim();
+    if (!text) return res.status(502).json({ error: 'AIから解析結果が返りませんでした。' });
+    const parsed = JSON.parse(text);
+    const assignments = Array.isArray(parsed.assignments) ? parsed.assignments : [];
+    const validAssignments = assignments
+      .filter((item) => item && typeof item.title === 'string' && item.title.trim())
+      .slice(0, 30)
+      .map((item) => ({
+        subject: ['英語', '数学', '国語', '理科', '社会', '情報', 'その他'].includes(item.subject)
+          ? item.subject : 'その他',
+        title: item.title.trim().slice(0, 300),
+        due_date: /^\d{4}-\d{2}-\d{2}$/.test(item.due_date || '') ? item.due_date : '',
+        note: typeof item.note === 'string' ? item.note.slice(0, 300) : '',
+      }));
+
+    res.json({ assignments: validAssignments });
+  } catch (error) {
+    console.error('Assignment image analysis error:', error);
+    res.status(502).json({ error: '解析結果を処理できませんでした。画像を確認して再試行してください。' });
+  }
+});
+
 // ヘルスチェック
 app.get('/api/health', (req, res) => {
   res.json({

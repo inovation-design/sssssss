@@ -8,9 +8,6 @@ import {
   RefreshCw, AlertTriangle
 } from 'lucide-react';
 
-// AI解析機能の一時停止スイッチ。再開時は true に戻す。
-const ENABLE_AI_ANALYSIS = false;
-
 // クラス一覧 (1年1組 〜 1年8組)
 const CLASSES = Array.from({ length: 8 }, (_, i) => ({
   id: `1-${i + 1}`,
@@ -119,14 +116,18 @@ export default function App() {
 
   // UI状態
   const [activeTab, setActiveTab] = useState('assignments'); // 'assignments' | 'timetable'
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
+  const [calendarDate, setCalendarDate] = useState(getFormattedDate(0));
+  const [calendarView, setCalendarView] = useState('year');
   const [filterSubject, setFilterSubject] = useState('すべて');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
   // 課題追加モーダル
-  const [rawText, setRawText] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [isParsing, setIsParsing] = useState(false);
+  const [analyzedAssignments, setAnalyzedAssignments] = useState([]);
   const [manualSubject, setManualSubject] = useState('英語');
   const [manualTitle, setManualTitle] = useState('');
   const [manualDueDate, setManualDueDate] = useState(getFormattedDate(1));
@@ -189,6 +190,40 @@ export default function App() {
     if (!currentClassId) return [];
     return remoteAssignments[currentClassId] || [];
   }, [remoteAssignments, currentClassId]);
+
+  const assignmentsByDueDate = useMemo(() => currentAssignments.reduce((grouped, assignment) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(assignment.due_date || '')) return grouped;
+    grouped[assignment.due_date] = [...(grouped[assignment.due_date] || []), assignment];
+    return grouped;
+  }, {}), [currentAssignments]);
+
+  const assignmentsInCalendarYear = useMemo(() => currentAssignments.filter((assignment) =>
+    (assignment.due_date || '').startsWith(`${calendarYear}-`)
+  ), [currentAssignments, calendarYear]);
+
+  const assignmentsOnCalendarDate = assignmentsByDueDate[calendarDate] || [];
+
+  const calendarMonthStart = new Date(calendarYear, calendarMonth, 1);
+  const calendarMonthDayCount = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const calendarMonthCells = [
+    ...Array(calendarMonthStart.getDay()).fill(null),
+    ...Array.from({ length: calendarMonthDayCount }, (_, index) => index + 1),
+  ];
+
+  const changeCalendarMonth = (offset) => {
+    const nextMonth = new Date(calendarYear, calendarMonth + offset, 1);
+    const nextYear = nextMonth.getFullYear();
+    const nextMonthIndex = nextMonth.getMonth();
+    setCalendarYear(nextYear);
+    setCalendarMonth(nextMonthIndex);
+    setCalendarDate(`${nextYear}-${String(nextMonthIndex + 1).padStart(2, '0')}-01`);
+  };
+
+  const changeCalendarYear = (offset) => {
+    const nextYear = calendarYear + offset;
+    setCalendarYear(nextYear);
+    setCalendarDate(`${nextYear}-${String(calendarMonth + 1).padStart(2, '0')}-01`);
+  };
 
   // 日付・時間判定
   const todayDateStr = getFormattedDate(0);
@@ -275,6 +310,8 @@ export default function App() {
         const isAComp = completedIds.includes(a.id);
         const isBComp = completedIds.includes(b.id);
         if (isAComp !== isBComp) return isAComp ? 1 : -1;
+        if (!a.due_date && b.due_date) return 1;
+        if (a.due_date && !b.due_date) return -1;
         return new Date(a.due_date) - new Date(b.due_date);
       });
   }, [currentAssignments, completedIds, filterSubject]);
@@ -288,84 +325,80 @@ export default function App() {
     showToast(`🚀 ${currentClassObj?.name} 専用URLをコピーしました！LINEに貼って共有できます`);
   };
 
-  // メモテキストパース処理
-  const parseTextToAssignments = (text) => {
-    const lines = text.split('\n').filter(line => line.trim().length > 0);
-    const newItems = [];
-    const subjectKeywords = ['英語', '数学', '国語', '理科', '社会', '情報', '体育', '物理', '化学', '生物', '日本史', '世界史', '現代文'];
-
-    lines.forEach((line, index) => {
-      let detectedSubject = 'その他';
-      for (const kw of subjectKeywords) {
-        if (line.includes(kw)) {
-          if (kw === '物理' || kw === '化学' || kw === '生物') detectedSubject = '理科';
-          else if (kw === '日本史' || kw === '世界史') detectedSubject = '社会';
-          else if (kw === '現代文') detectedSubject = '国語';
-          else detectedSubject = kw;
-          break;
-        }
-      }
-
-      let dueDate = getFormattedDate(2);
-      if (line.includes('今日') || line.includes('本日')) dueDate = getFormattedDate(0);
-      else if (line.includes('明日')) dueDate = getFormattedDate(1);
-      else if (line.includes('明後日')) dueDate = getFormattedDate(2);
-      else if (line.includes('金曜')) dueDate = getFormattedDate(3);
-      else if (line.includes('来週')) dueDate = getFormattedDate(7);
-
-      newItems.push({
-        id: `${currentClassId}-${Date.now()}-${index}`,
-        class_id: currentClassId,
-        subject: detectedSubject,
-        title: line.trim(),
-        due_date: dueDate,
-        created_at: new Date().toISOString(),
-      });
-    });
-
-    return newItems;
-  };
-
-  // モーダルからの課題送信
-  const handleAIAnalysisSubmit = () => {
-    if (!rawText.trim() && !selectedImage) {
-      showToast('メモテキストまたは画像をアップロードしてください');
+  const handleImageSelected = (file) => {
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      showToast('JPEG、PNG、WebP形式の画像を選んでください');
       return;
     }
+    if (file.size > 8 * 1024 * 1024) {
+      showToast('画像は8MB以下にしてください');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImage({ dataUrl: reader.result, mimeType: file.type, name: file.name });
+      setAnalyzedAssignments([]);
+    };
+    reader.onerror = () => showToast('画像を読み込めませんでした');
+    reader.readAsDataURL(file);
+  };
 
+  const analyzeSelectedImage = async () => {
+    if (!selectedImage) {
+      showToast('解析する写真を選んでください');
+      return;
+    }
     setIsParsing(true);
-    setTimeout(() => {
-      let parsed = [];
-      if (rawText.trim()) {
-        parsed = parseTextToAssignments(rawText);
-      } else if (selectedImage) {
-        parsed = [
-          {
-            id: `${currentClassId}-${Date.now()}-1`,
-            class_id: currentClassId,
-            subject: '英語',
-            title: '【黒板写真より抽出】教科書 p.45 Part2 の和訳ノート作成',
-            due_date: getFormattedDate(1),
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: `${currentClassId}-${Date.now()}-2`,
-            class_id: currentClassId,
-            subject: '数学',
-            title: '【黒板写真より抽出】演習問題 Aグループ 1〜5番解答',
-            due_date: getFormattedDate(2),
-            created_at: new Date().toISOString(),
-          }
-        ];
-      }
-
-      addAssignmentsToClass(parsed);
+    setAnalyzedAssignments([]);
+    try {
+      const apiBase = (import.meta.env.VITE_ASSIGNMENT_API_URL || window.location.origin).replace(/\/$/, '');
+      const response = await fetch(`${apiBase}/api/assignments/analyze-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: selectedImage.dataUrl, mimeType: selectedImage.mimeType }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || `解析に失敗しました (${response.status})`);
+      setAnalyzedAssignments((result.assignments || []).map((item) => ({
+        subject: item.subject || 'その他',
+        title: item.title || '',
+        due_date: item.due_date || '',
+        note: item.note || '',
+      })));
+      if (!result.assignments?.length) showToast('課題を読み取れませんでした。写真を確認してください');
+    } catch (error) {
+      console.error('Assignment photo analysis failed:', error);
+      showToast(error.message || '画像解析に失敗しました');
+    } finally {
       setIsParsing(false);
-      setRawText('');
+    }
+  };
+
+  const saveAnalyzedAssignments = async () => {
+    const items = analyzedAssignments.filter((item) => item.title.trim());
+    if (!items.length) {
+      showToast('課題名を確認してください');
+      return;
+    }
+    try {
+      await addAssignmentsToClass(items.map((item) => ({
+        class_id: currentClassId,
+        subject: item.subject,
+        title: item.title.trim(),
+        due_date: item.due_date || '',
+        due_date_unknown: !item.due_date,
+        created_at: new Date().toISOString(),
+        source: 'photo-ai',
+      })));
       setSelectedImage(null);
+      setAnalyzedAssignments([]);
       setIsAddModalOpen(false);
-      showToast(`✨ ${parsed.length} 件の課題を追加し、${currentClassObj?.name}全員に同期しました！`);
-    }, 600);
+      showToast(`${items.length}件を${currentClassObj?.name}の課題一覧に登録しました`);
+    } catch (error) {
+      console.error('Assignment save failed:', error);
+      showToast('課題を登録できませんでした。通信状態を確認してください');
+    }
   };
 
   const handleManualAddSubmit = async () => {
@@ -530,7 +563,7 @@ export default function App() {
             </div>
 
             {/* タブ切り替え */}
-            <div className="grid grid-cols-2 bg-slate-100 p-1 rounded-xl mt-3 text-xs font-bold">
+            <div className="grid grid-cols-3 bg-slate-100 p-1 rounded-xl mt-3 text-[11px] sm:text-xs font-bold">
               <button
                 onClick={() => setActiveTab('assignments')}
                 className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
@@ -539,6 +572,16 @@ export default function App() {
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>課題一覧 ({currentAssignments.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'calendar' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>年間カレンダー</span>
               </button>
 
               <button
@@ -737,7 +780,7 @@ export default function App() {
                               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-400">
                                 <div className="flex items-center gap-1 font-medium">
                                   <Clock className="w-3.5 h-3.5" />
-                                  <span>提出期限: {item.due_date}</span>
+                                  <span>提出期限: {item.due_date || '未確認'}</span>
                                 </div>
 
                                 <button
@@ -756,6 +799,141 @@ export default function App() {
                   )}
                 </div>
               </>
+            )}
+
+            {/* 年間カレンダー */}
+            {activeTab === 'calendar' && (
+              <div className="space-y-4">
+                <section className="rounded-2xl bg-indigo-900 p-4 text-white shadow-lg">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <h2 className="text-base font-extrabold">{currentClassObj?.name} 課題カレンダー</h2>
+                      <p className="mt-1 text-xs text-indigo-200">期限が登録された課題を年間・月間で確認できます</p>
+                    </div>
+                    <div className="flex shrink-0 rounded-lg bg-white/10 p-1 text-[11px] font-bold">
+                      <button onClick={() => setCalendarView('year')} className={`rounded-md px-2.5 py-1.5 ${calendarView === 'year' ? 'bg-white text-indigo-800' : 'text-white'}`}>年一覧</button>
+                      <button onClick={() => setCalendarView('month')} className={`rounded-md px-2.5 py-1.5 ${calendarView === 'month' ? 'bg-white text-indigo-800' : 'text-white'}`}>月表示</button>
+                    </div>
+                  </div>
+                </section>
+
+                {calendarView === 'year' ? (
+                  <>
+                    <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                      <button aria-label="前年" onClick={() => changeCalendarYear(-1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4" /></button>
+                      <div className="text-center">
+                        <p className="text-lg font-black text-slate-900">{calendarYear}年</p>
+                        <p className="text-[11px] text-slate-500">期限あり {assignmentsInCalendarYear.length}件</p>
+                      </div>
+                      <button aria-label="翌年" onClick={() => changeCalendarYear(1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4 rotate-180" /></button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                      {Array.from({ length: 12 }, (_, monthIndex) => {
+                        const firstWeekday = new Date(calendarYear, monthIndex, 1).getDay();
+                        const daysInMonth = new Date(calendarYear, monthIndex + 1, 0).getDate();
+                        const monthPrefix = `${calendarYear}-${String(monthIndex + 1).padStart(2, '0')}-`;
+                        const monthAssignments = assignmentsInCalendarYear.filter((item) => item.due_date.startsWith(monthPrefix));
+                        return (
+                          <button
+                            key={monthIndex}
+                            onClick={() => {
+                              setCalendarMonth(monthIndex);
+                              setCalendarDate(`${calendarYear}-${String(monthIndex + 1).padStart(2, '0')}-01`);
+                              setCalendarView('month');
+                            }}
+                            className="rounded-xl border border-slate-200 bg-white p-2.5 text-left shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+                          >
+                            <div className="mb-2 flex items-center justify-between">
+                              <span className="text-xs font-extrabold text-slate-800">{monthIndex + 1}月</span>
+                              <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${monthAssignments.length ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}`}>{monthAssignments.length}件</span>
+                            </div>
+                            <div className="grid grid-cols-7 gap-y-1 text-center text-[8px] leading-3 text-slate-400">
+                              {['日', '月', '火', '水', '木', '金', '土'].map((day) => <span key={day} className="font-bold">{day}</span>)}
+                              {Array.from({ length: firstWeekday }, (_, index) => <span key={`blank-${index}`} />)}
+                              {Array.from({ length: daysInMonth }, (_, index) => {
+                                const day = index + 1;
+                                const date = `${monthPrefix}${String(day).padStart(2, '0')}`;
+                                const count = (assignmentsByDueDate[date] || []).length;
+                                return <span key={day} className={`relative rounded-sm ${count ? 'bg-indigo-100 font-extrabold text-indigo-700' : 'text-slate-500'}`}>{day}</span>;
+                              })}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {currentAssignments.some((item) => !/^\d{4}-\d{2}-\d{2}$/.test(item.due_date || '')) && (
+                      <section className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+                        <h3 className="text-xs font-extrabold text-amber-900">期限未確認</h3>
+                        <p className="mt-1 text-[10px] text-amber-800">期限が未入力の課題は日付の枠に表示できないため、ここに表示します。</p>
+                        <div className="mt-2 space-y-2">
+                          {currentAssignments.filter((item) => !/^\d{4}-\d{2}-\d{2}$/.test(item.due_date || '')).map((item) => (
+                            <div key={item.id} className="rounded-lg bg-white/80 px-3 py-2 text-xs text-slate-700">
+                              <span className="mr-2 font-bold text-amber-800">{item.subject}</span>{item.title}
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                      <button aria-label="前の月" onClick={() => changeCalendarMonth(-1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4" /></button>
+                      <div className="text-center">
+                        <p className="text-lg font-black text-slate-900">{calendarYear}年{calendarMonth + 1}月</p>
+                        <p className="text-[11px] text-slate-500">{assignmentsInCalendarYear.filter((item) => item.due_date.startsWith(`${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-`)).length}件の課題</p>
+                      </div>
+                      <button aria-label="次の月" onClick={() => changeCalendarMonth(1)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100"><ArrowLeft className="h-4 w-4 rotate-180" /></button>
+                    </div>
+
+                    <section className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+                      <div className="grid grid-cols-7 gap-1 text-center">
+                        {['日', '月', '火', '水', '木', '金', '土'].map((day, index) => (
+                          <div key={day} className={`py-1.5 text-[10px] font-extrabold ${index === 0 ? 'text-rose-500' : index === 6 ? 'text-blue-500' : 'text-slate-500'}`}>{day}</div>
+                        ))}
+                        {calendarMonthCells.map((day, index) => {
+                          if (!day) return <div key={`empty-${index}`} className="min-h-[58px] rounded-lg bg-slate-50/60 sm:min-h-[72px]" />;
+                          const date = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                          const dayAssignments = assignmentsByDueDate[date] || [];
+                          const isSelected = calendarDate === date;
+                          const isToday = todayDateStr === date;
+                          return (
+                            <button
+                              key={date}
+                              onClick={() => setCalendarDate(date)}
+                              aria-label={`${calendarYear}年${calendarMonth + 1}月${day}日、課題${dayAssignments.length}件`}
+                              className={`min-h-[58px] rounded-lg border p-1 text-left transition sm:min-h-[72px] ${isSelected ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-300' : 'border-transparent bg-white hover:bg-slate-50'}`}
+                            >
+                              <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${isToday ? 'bg-rose-500 text-white' : 'text-slate-700'}`}>{day}</span>
+                              {dayAssignments.length > 0 && <span className="mt-1 block truncate rounded bg-indigo-100 px-1 py-0.5 text-center text-[8px] font-extrabold text-indigo-700">{dayAssignments.length}件</span>}
+                              {dayAssignments.length > 0 && <span className="mt-1 flex justify-center gap-0.5">{dayAssignments.slice(0, 3).map((item) => <i key={item.id} className={`h-1 w-1 rounded-full ${SUBJECT_COLORS[item.subject]?.tagBg || 'bg-slate-500'}`} />)}</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    <section className="space-y-2">
+                      <h3 className="px-1 text-xs font-extrabold text-slate-700">{calendarDate.replaceAll('-', '/')} の課題</h3>
+                      {assignmentsOnCalendarDate.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-5 text-center text-xs text-slate-400">この日の課題はありません</div>
+                      ) : assignmentsOnCalendarDate.map((item) => (
+                        <div key={item.id} className={`flex items-start gap-3 rounded-xl border bg-white p-3 ${completedIds.includes(item.id) ? 'border-slate-200 opacity-60' : 'border-slate-200'}`}>
+                          <button onClick={() => toggleComplete(item.id)} aria-label={completedIds.includes(item.id) ? '未完了に戻す' : '完了にする'} className="mt-0.5 shrink-0">
+                            {completedIds.includes(item.id) ? <CheckCircle2 className="h-5 w-5 text-emerald-500" /> : <Circle className="h-5 w-5 text-slate-300" />}
+                          </button>
+                          <div className="min-w-0 flex-1">
+                            <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${SUBJECT_COLORS[item.subject]?.bg || 'bg-slate-100'} ${SUBJECT_COLORS[item.subject]?.text || 'text-slate-700'}`}>{item.subject}</span>
+                            <p className={`mt-1.5 text-sm font-bold ${completedIds.includes(item.id) ? 'text-slate-400 line-through' : 'text-slate-900'}`}>{item.title}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </section>
+                  </>
+                )}
+              </div>
             )}
 
             {/* 時間割タブ */}
@@ -881,6 +1059,82 @@ export default function App() {
             </div>
 
             <div className="space-y-4">
+              <section className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 space-y-3">
+                <div>
+                  <h4 className="text-sm font-extrabold text-slate-800">写真からAIで課題を読み取る</h4>
+                  <p className="mt-1 text-[11px] leading-5 text-slate-500">黒板・プリント・Teamsのスクリーンショットを選びます。AIの結果を確認してから登録できます。</p>
+                </div>
+                <label
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={(event) => { event.preventDefault(); handleImageSelected(event.dataTransfer.files?.[0]); }}
+                  className="block cursor-pointer rounded-xl border-2 border-dashed border-indigo-200 bg-white p-4 text-center hover:border-indigo-400"
+                >
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    onChange={(event) => { handleImageSelected(event.target.files?.[0]); event.target.value = ''; }}
+                  />
+                  {selectedImage ? (
+                    <div className="space-y-2">
+                      <img src={selectedImage.dataUrl} alt="解析する写真" className="mx-auto max-h-48 rounded-lg object-contain" />
+                      <p className="text-xs font-semibold text-slate-600">{selectedImage.name}</p>
+                      <p className="text-[11px] text-indigo-600">クリックまたはドロップして写真を変更</p>
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      <FileText className="mx-auto mb-2 h-6 w-6 text-indigo-500" />
+                      <p className="text-xs font-bold text-slate-700">写真を選択、またはここにドロップ</p>
+                      <p className="mt-1 text-[10px] text-slate-400">JPEG / PNG / WebP・8MB以下</p>
+                    </div>
+                  )}
+                </label>
+                <button
+                  type="button"
+                  onClick={analyzeSelectedImage}
+                  disabled={!selectedImage || isParsing}
+                  className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isParsing ? 'AIが写真を解析しています…' : '写真をAI解析'}
+                </button>
+                {analyzedAssignments.length > 0 && (
+                  <div className="space-y-3 border-t border-indigo-100 pt-3">
+                    <p className="text-xs font-bold text-slate-700">解析結果を確認・修正してください（期限不明は空欄です）</p>
+                    {analyzedAssignments.map((item, index) => (
+                      <div key={index} className="space-y-2 rounded-xl border border-slate-200 bg-white p-3">
+                        <select
+                          value={item.subject}
+                          onChange={(event) => setAnalyzedAssignments((previous) => previous.map((entry, i) => i === index ? { ...entry, subject: event.target.value } : entry))}
+                          className="w-full rounded-lg border border-slate-200 p-2 text-xs"
+                        >
+                          {['英語', '数学', '国語', '理科', '社会', '情報', 'その他'].map((subject) => <option key={subject}>{subject}</option>)}
+                        </select>
+                        <input
+                          value={item.title}
+                          onChange={(event) => setAnalyzedAssignments((previous) => previous.map((entry, i) => i === index ? { ...entry, title: event.target.value } : entry))}
+                          placeholder="課題名"
+                          className="w-full rounded-lg border border-slate-200 p-2 text-xs"
+                        />
+                        <label className="block text-[11px] text-slate-500">提出期限（不明なら空欄）
+                          <input
+                            type="date"
+                            value={item.due_date}
+                            onChange={(event) => setAnalyzedAssignments((previous) => previous.map((entry, i) => i === index ? { ...entry, due_date: event.target.value } : entry))}
+                            className="mt-1 w-full rounded-lg border border-slate-200 p-2 text-xs"
+                          />
+                        </label>
+                        {item.note && <p className="text-[10px] text-amber-700">確認: {item.note}</p>}
+                      </div>
+                    ))}
+                    <button type="button" onClick={saveAnalyzedAssignments} className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700">
+                      確認した課題を一覧に登録
+                    </button>
+                  </div>
+                )}
+                <p className="text-[10px] leading-4 text-slate-400">写真はAI解析サービスへ送信されます。個人情報が写っていないか確認してください。</p>
+              </section>
+
+              <div className="flex items-center gap-3 py-1 text-[10px] font-bold text-slate-400"><span className="h-px flex-1 bg-slate-200" />または手入力<span className="h-px flex-1 bg-slate-200" /></div>
               <label className="block text-xs font-bold text-slate-700">
                 教科
                 <select value={manualSubject} onChange={(e) => setManualSubject(e.target.value)} className="mt-1 w-full text-sm font-medium p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
