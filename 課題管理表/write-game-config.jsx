@@ -33,6 +33,7 @@ const SUBJECT_COLORS = {
   '理科': { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200', tagBg: 'bg-emerald-600' },
   '社会': { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200', tagBg: 'bg-purple-600' },
   '情報': { bg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-200', tagBg: 'bg-cyan-600' },
+  '体育': { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', tagBg: 'bg-orange-600' },
   'その他': { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200', tagBg: 'bg-slate-600' },
 };
 
@@ -66,6 +67,9 @@ const TIMETABLE_SUBJECT_OPTIONS = [
   '', 'その他', '現代の国語', '言語文化', '地理総合', '歴史総合', '数ⅠⅡ',
   '数学A', '物理基礎', '生物基礎', '保健', '芸術', '英語C', '論表', '家庭基礎', 'HRA', 'GS',
 ];
+
+// AI解析の処理は残し、画面表示だけを一時的に隠す設定。
+const SHOW_AI_ANALYSIS_UI = false;
 
 export default function App() {
   // --- ルーティング状態管理 (#/class/1-1 風のハッシュルーティング) ---
@@ -129,6 +133,7 @@ export default function App() {
   const [isParsing, setIsParsing] = useState(false);
   const [analyzedAssignments, setAnalyzedAssignments] = useState([]);
   const [manualSubject, setManualSubject] = useState('英語');
+  const [manualOtherSubject, setManualOtherSubject] = useState('');
   const [manualTitle, setManualTitle] = useState('');
   const [manualDueDate, setManualDueDate] = useState(getFormattedDate(1));
   const [isSavingManualAssignment, setIsSavingManualAssignment] = useState(false);
@@ -352,8 +357,9 @@ export default function App() {
     setIsParsing(true);
     setAnalyzedAssignments([]);
     try {
-      const apiBase = (import.meta.env.VITE_ASSIGNMENT_API_URL || window.location.origin).replace(/\/$/, '');
-      const response = await fetch(`${apiBase}/api/assignments/analyze-image`, {
+      const apiUrl = import.meta.env.VITE_ASSIGNMENT_API_URL
+        || 'https://asia-northeast1-sunsun-66597.cloudfunctions.net/analyzeAssignmentImage';
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64: selectedImage.dataUrl, mimeType: selectedImage.mimeType }),
@@ -362,6 +368,7 @@ export default function App() {
       if (!response.ok) throw new Error(result.error || `解析に失敗しました (${response.status})`);
       setAnalyzedAssignments((result.assignments || []).map((item) => ({
         subject: item.subject || 'その他',
+        subjectOther: '',
         title: item.title || '',
         due_date: item.due_date || '',
         note: item.note || '',
@@ -384,7 +391,7 @@ export default function App() {
     try {
       await addAssignmentsToClass(items.map((item) => ({
         class_id: currentClassId,
-        subject: item.subject,
+        subject: item.subject === 'その他' ? (item.subjectOther.trim() || 'その他') : item.subject,
         title: item.title.trim(),
         due_date: item.due_date || '',
         due_date_unknown: !item.due_date,
@@ -412,7 +419,7 @@ export default function App() {
     try {
       await addDoc(collection(db, 'assignments'), {
         class_id: currentClassId,
-        subject: manualSubject,
+        subject: manualSubject === 'その他' ? (manualOtherSubject.trim() || 'その他') : manualSubject,
         title,
         due_date: manualDueDate,
         created_at: new Date().toISOString(),
@@ -674,7 +681,7 @@ export default function App() {
                   <span className="text-[11px] font-bold text-slate-400 pl-1 shrink-0">
                     <Filter className="w-3 h-3" />
                   </span>
-                  {['すべて', '英語', '数学', '国語', '理科', '社会', '情報', 'その他'].map(sub => (
+                  {['すべて', '英語', '数学', '国語', '理科', '社会', '情報', '体育', 'その他', ...new Set(currentAssignments.map((item) => item.subject).filter((subject) => subject && !['英語', '数学', '国語', '理科', '社会', '情報', '体育', 'その他'].includes(subject)))].map(sub => (
                     <button
                       key={sub}
                       onClick={() => setFilterSubject(sub)}
@@ -1059,6 +1066,7 @@ export default function App() {
             </div>
 
             <div className="space-y-4">
+              {SHOW_AI_ANALYSIS_UI && <>
               <section className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 space-y-3">
                 <div>
                   <h4 className="text-sm font-extrabold text-slate-800">写真からAIで課題を読み取る</h4>
@@ -1107,8 +1115,16 @@ export default function App() {
                           onChange={(event) => setAnalyzedAssignments((previous) => previous.map((entry, i) => i === index ? { ...entry, subject: event.target.value } : entry))}
                           className="w-full rounded-lg border border-slate-200 p-2 text-xs"
                         >
-                          {['英語', '数学', '国語', '理科', '社会', '情報', 'その他'].map((subject) => <option key={subject}>{subject}</option>)}
+                          {['英語', '数学', '国語', '理科', '社会', '情報', '体育', 'その他'].map((subject) => <option key={subject}>{subject}</option>)}
                         </select>
+                        {item.subject === 'その他' && (
+                          <input
+                            value={item.subjectOther}
+                            onChange={(event) => setAnalyzedAssignments((previous) => previous.map((entry, i) => i === index ? { ...entry, subjectOther: event.target.value } : entry))}
+                            placeholder="教科名を入力（例：美術、音楽）"
+                            className="w-full rounded-lg border border-slate-200 p-2 text-xs"
+                          />
+                        )}
                         <input
                           value={item.title}
                           onChange={(event) => setAnalyzedAssignments((previous) => previous.map((entry, i) => i === index ? { ...entry, title: event.target.value } : entry))}
@@ -1135,12 +1151,20 @@ export default function App() {
               </section>
 
               <div className="flex items-center gap-3 py-1 text-[10px] font-bold text-slate-400"><span className="h-px flex-1 bg-slate-200" />または手入力<span className="h-px flex-1 bg-slate-200" /></div>
+              </>}
               <label className="block text-xs font-bold text-slate-700">
                 教科
                 <select value={manualSubject} onChange={(e) => setManualSubject(e.target.value)} className="mt-1 w-full text-sm font-medium p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
-                  {['英語', '数学', '国語', '理科', '社会', '情報', 'その他'].map(subject => <option key={subject} value={subject}>{subject}</option>)}
+                  {['英語', '数学', '国語', '理科', '社会', '情報', '体育', 'その他'].map(subject => <option key={subject} value={subject}>{subject}</option>)}
                 </select>
               </label>
+
+              {manualSubject === 'その他' && (
+                <label className="block text-xs font-bold text-slate-700">
+                  教科名
+                  <input value={manualOtherSubject} onChange={(e) => setManualOtherSubject(e.target.value)} placeholder="例：美術、音楽、家庭科" className="mt-1 w-full text-sm font-medium p-3 rounded-xl border border-slate-200 bg-slate-50" />
+                </label>
+              )}
 
               <label className="block text-xs font-bold text-slate-700">
                 課題名
